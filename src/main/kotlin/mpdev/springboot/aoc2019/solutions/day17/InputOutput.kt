@@ -23,11 +23,11 @@ object InputOutput {
 
     fun readInput(): BigInteger {
         if (inputIndex >= input.size)
-            setInput()
+            setInputString()
         return input[inputIndex++]
     }
 
-    private fun setInput() {
+    private fun setInputString() {
         printOutput()
         if (inputStringIndex < inputStrings.size) {
             val inputString = inputStrings[inputStringIndex++]
