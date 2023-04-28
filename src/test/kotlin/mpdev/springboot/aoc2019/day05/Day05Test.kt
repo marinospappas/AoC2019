@@ -72,7 +72,6 @@ class Day05Test {
         assertThat(InputOutput.output[0]).isEqualTo(expected)
     }
 
-
     @Test
     @Order(6)
     fun `Saves and restores mem`() {
