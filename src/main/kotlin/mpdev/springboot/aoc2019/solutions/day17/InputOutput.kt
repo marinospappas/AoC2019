@@ -7,26 +7,41 @@ import java.math.BigInteger
 
 object InputOutput {
 
-    var inputIndex = 0
+    private var inputIndex = 0
+    private var inputStringIndex = 0
+    private val inputStrings = arrayOf(
+        "A,B,B,A,B,C,A,C,B,C\n",
+        "L,4,L,6,L,8,L,12\n",
+        "L,8,R,12,L,12\n",
+        "R,12,L,6,L,6,L,8\n",
+        "n\n"
+    )
 
     var input = mutableListOf<BigInteger>()
 
     var output = mutableListOf<BigInteger>()
 
     fun readInput(): BigInteger {
-        if (inputIndex < input.size)
-            return input[inputIndex++]
-        throw AocException("no more input")
+        if (inputIndex >= input.size)
+            setInput()
+        return input[inputIndex++]
     }
 
-    fun setInputValues() {
-        val inputString = "A,B,B,A,B,C,A,C,B,C\nL,4,L,6,L,8,L,12\nL,8,R,12,L,12\nR,12,L,6,L,6,L,8\nn\n"
-        println("Input: $inputString")
-        input = inputString.big()
+    private fun setInput() {
+        printOutput()
+        if (inputStringIndex < inputStrings.size) {
+            val inputString = inputStrings[inputStringIndex++]
+            println(inputString.trim('\n'))
+            input = inputString.big()
+            inputIndex = 0
+        }
+        else
+            throw AocException("no more input")
     }
 
-    fun printOutput() {
-        println(StringBuilder().also { s -> output.forEach { n -> s.append(n.toInt().toChar()) } }
+    private fun printOutput() {
+        print(StringBuilder().also { s -> output.forEach { n -> s.append(n.toInt().toChar()) } }
             .toString().trim('\n'))
+        output = mutableListOf()
     }
 }

@@ -41,7 +41,6 @@ class Day17AsciiComputer(@Autowired var inputProcessor: InputProcessor17): Puzzl
             val inputData2 = mutableListOf<String>().also { it.add(inputData[0].replaceFirst("1", "2")) }
             program = inputProcessor.process(inputData2)
             InputOutput.output = mutableListOf()
-            InputOutput.setInputValues()
             program.run()
             result = InputOutput.output.last().toString()
         }
