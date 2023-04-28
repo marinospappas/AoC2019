@@ -5,8 +5,6 @@ import mpdev.springboot.aoc2019.solutions.day25.OpCode.*
 import mpdev.springboot.aoc2019.solutions.day25.ParamReadWrite.*
 import mpdev.springboot.aoc2019.solutions.day25.ParamMode.*
 import mpdev.springboot.aoc2019.utils.big
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
 class Instruction(ip: Int, var memory: Memory) {
@@ -14,10 +12,6 @@ class Instruction(ip: Int, var memory: Memory) {
     private val opCode: OpCode
     val ipIncrement: Int
     private val params: Array<BigInteger>
-
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(this::class.java)
-    }
 
     init {
         try {
@@ -32,14 +26,14 @@ class Instruction(ip: Int, var memory: Memory) {
     }
 
     private fun setInstructionParameter(paramIndex: Int, paramMode: ParamMode, paramRw: ParamReadWrite, ip: Int): BigInteger {
-        return if (paramRw == R)
+        return if (paramRw == R)    // Input parameter
             when (paramMode) {      // return the contents of the mem address or value if immediate
                 POSITION -> fetch(memory[paramIndex + 1])                               // positional parameter (memory address)
                 IMMEDIATE -> memory[paramIndex + 1]                                     // direct parameter (value)
                 RELATIVE -> fetch(memory[paramIndex + 1] + memory.relativeBase)  // relative mode positional parameter (memory address)
                 NONE -> throw AocException("invalid parameter mode [${memory[ip]}]")
             }
-        else
+        else                        // Output parameter
             when (paramMode) {      // return the memory address (immediate is invalid)
                 POSITION -> memory[paramIndex + 1]                        // positional parameter (memory address)
                 RELATIVE -> memory[paramIndex + 1] + memory.relativeBase  // relative mode positional parameter (memory address)
@@ -50,17 +44,16 @@ class Instruction(ip: Int, var memory: Memory) {
     fun execute(): InstructionReturnCode {
         if (opCode == EXIT)
             return InstructionReturnCode.EXIT
-        try {
+        return try {
             when (val result = opCode.execute(params)) {
-                is BigInteger -> { store(params.last(), result); return InstructionReturnCode.OK }
-                is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = BigInteger.valueOf(result.newIp.toLong()) }
-                is Relative -> return InstructionReturnCode.RELATIVE.also { res -> res.additionalData = result.incrBase }
+                is BigInteger -> { store(params.last(), result); InstructionReturnCode.OK }
+                is Jump -> InstructionReturnCode.JUMP.also { res -> res.additionalData = BigInteger.valueOf(result.newIp.toLong()) }
+                is Relative -> InstructionReturnCode.RELATIVE.also { res -> res.additionalData = result.incrBase }
+                else -> InstructionReturnCode.OK
             }
+        } catch (e: AocException) {
+            InstructionReturnCode.EXIT
         }
-        catch (e: AocException) {
-            return InstructionReturnCode.EXIT
-        }
-        return InstructionReturnCode.OK
     }
 
     private fun fetch(address: BigInteger): BigInteger {
