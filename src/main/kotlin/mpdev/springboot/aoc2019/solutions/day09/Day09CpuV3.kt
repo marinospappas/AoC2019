@@ -2,6 +2,7 @@ package mpdev.springboot.aoc2019.solutions.day09
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
+import mpdev.springboot.aoc2019.utils.big
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -9,7 +10,7 @@ import java.math.BigInteger
 import kotlin.system.measureTimeMillis
 
 @Component
-@Order(5)
+@Order(9)
 class Day09CpuV3(@Autowired var inputProcessor: InputProcessor09): PuzzleSolver() {
 
     override fun setDay() {
@@ -25,7 +26,7 @@ class Day09CpuV3(@Autowired var inputProcessor: InputProcessor09): PuzzleSolver(
 
     override fun solvePart1(): PuzzlePartSolution {
         val elapsed = measureTimeMillis {
-            InputOutput.input = BigInteger.valueOf(1)
+            InputOutput.input = 1.big()
             program.run()
             result = InputOutput.output.last()
         }
@@ -34,7 +35,7 @@ class Day09CpuV3(@Autowired var inputProcessor: InputProcessor09): PuzzleSolver(
 
     override fun solvePart2(): PuzzlePartSolution {
         val elapsed = measureTimeMillis {
-            InputOutput.input = BigInteger.valueOf(2)
+            InputOutput.input = 2.big()
             program.run()
             result = InputOutput.output.last()
         }

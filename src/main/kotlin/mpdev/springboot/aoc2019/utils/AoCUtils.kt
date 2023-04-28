@@ -8,7 +8,8 @@ object AoCUtils {
     private val indexMap: Map<Int,Int> = mapOf(
         2 to 0,
         5 to 1,
-        9 to 2
+        9 to 2,
+        17 to 3
     )
 
     fun getIndexOfDay(day: Int) = indexMap[day] ?: (day - 1)
