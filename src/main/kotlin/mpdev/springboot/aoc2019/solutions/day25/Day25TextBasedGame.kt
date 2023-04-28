@@ -32,18 +32,15 @@ class Day25TextBasedGame(@Autowired var inputProcessor: InputProcessor25): Puzzl
             result = InputOutput.output.last().toString()
         }
         // items:
-        //  antenna
-        //  semiconductor
-        //  hypercube
-        //  mouse
+        //    antenna
+        //    semiconductor
+        //    hypercube
+        //    mouse
         return PuzzlePartSolution(1, result, elapsed)
     }
 
     override fun solvePart2(): PuzzlePartSolution {
-        var result = ""
-        val elapsed = measureTimeMillis {
-        }
-        return PuzzlePartSolution(2, result, elapsed)
+        return PuzzlePartSolution(2, "", 0)
     }
 
 }
