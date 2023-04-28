@@ -6,20 +6,19 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
-class Program(var prog: Array<BigInteger>) {
+class Program(private val prog: Array<BigInteger>) {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
     private var memory = Memory(prog)
+    private var ip = 0
 
     fun run() {
-        var ip = 0
-        memory = Memory(prog)
-        InputOutput.output = mutableListOf()
-        while (ip in prog.indices) {
-            try {
+        initProgram()
+        try {
+            while (ip in prog.indices) {
                 val instruction = Instruction(ip, memory)
                 when (val retCode = instruction.execute()) {
                     InstructionReturnCode.EXIT -> return
@@ -31,13 +30,17 @@ class Program(var prog: Array<BigInteger>) {
                     else -> ip += instruction.ipIncrement
                 }
             }
-            catch (e: AocException) {
-                log.error("exception ${e.message} thrown, ip = $ip")
-                return
-            }
+        } catch (e: AocException) {
+            log.error("exception thrown: ${e.message}, ip = $ip")
+            return
         }
     }
 
+    private fun initProgram() {
+        ip = 0
+        memory = Memory(prog)
+        InputOutput.output = mutableListOf()
+    }
 }
 
 class Memory(prog: Array<BigInteger>) {
