@@ -43,10 +43,10 @@ class Day17AsciiComputer(@Autowired var inputProcessor: InputProcessor17): Puzzl
             InputOutput.output = mutableListOf()
             InputOutput.setInputValues()
             program.run()
-            println(StringBuilder().also { s -> InputOutput.output.forEach { n -> s.append(n.toInt().toChar()) } }
-                .toString().trim('\n'))
             result = InputOutput.output.last().toString()
         }
+        println(StringBuilder().also { s -> InputOutput.output.forEach { n -> s.append(n.toInt().toChar()) } }
+            .toString().trim('\n'))
         return PuzzlePartSolution(2, result, elapsed)
     }
 
