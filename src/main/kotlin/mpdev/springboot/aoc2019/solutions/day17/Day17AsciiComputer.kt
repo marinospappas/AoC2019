@@ -2,6 +2,7 @@ package mpdev.springboot.aoc2019.solutions.day17
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
+import mpdev.springboot.aoc2019.utils.big
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -28,7 +29,6 @@ class Day17AsciiComputer(@Autowired var inputProcessor: InputProcessor17): Puzzl
             program.run()
             val output = StringBuilder().also { s -> InputOutput.output.forEach { n -> s.append(n.toInt().toChar()) } }
                 .toString().trim('\n')
-            println(output)
             val asciiProcessor = AsciiProcessor(output)
             result = asciiProcessor.process()
         }
@@ -36,15 +36,18 @@ class Day17AsciiComputer(@Autowired var inputProcessor: InputProcessor17): Puzzl
     }
 
     override fun solvePart2(): PuzzlePartSolution {
+        var result: String
         val elapsed = measureTimeMillis {
             val inputData2 = mutableListOf<String>().also { it.add(inputData[0].replaceFirst("1", "2")) }
             program = inputProcessor.process(inputData2)
+            InputOutput.output = mutableListOf()
+            InputOutput.setInputValues()
             program.run()
-            val output = StringBuilder().also { s -> InputOutput.output.forEach { n -> s.append(n.toInt().toChar()) } }
-                .toString().trim('\n')
-            println(output)
+            println(StringBuilder().also { s -> InputOutput.output.forEach { n -> s.append(n.toInt().toChar()) } }
+                .toString().trim('\n'))
+            result = InputOutput.output.last().toString()
         }
-        return PuzzlePartSolution(2, result.toString(), elapsed)
+        return PuzzlePartSolution(2, result, elapsed)
     }
 
 }

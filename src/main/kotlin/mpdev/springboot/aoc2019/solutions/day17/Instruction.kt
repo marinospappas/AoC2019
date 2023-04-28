@@ -50,12 +50,17 @@ class Instruction(ip: Int, var memory: Memory) {
     fun execute(): InstructionReturnCode {
         if (opCode == EXIT)
             return InstructionReturnCode.EXIT
+        if (opCode == IN) {
+        // TODO: implement logic to pause / print the output / accept input
+        }
         try {
             when (val result = opCode.execute(params)) {
                 is BigInteger -> { store(params.last(), result); return InstructionReturnCode.OK }
                 is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = BigInteger.valueOf(result.newIp.toLong()) }
                 is Relative -> return InstructionReturnCode.RELATIVE.also { res -> res.additionalData = result.incrBase }
             }
+            if (opCode == OUT)
+                InputOutput.printOutput()
         }
         catch (e: AocException) {
             return InstructionReturnCode.EXIT

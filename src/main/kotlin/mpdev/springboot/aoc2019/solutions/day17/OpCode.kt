@@ -13,7 +13,7 @@ enum class OpCode(val value: Int,
 
     ADD(1,   3, arrayOf(R,R,W), { a -> a[0] + a[1] } ),
     MULT(2,  3, arrayOf(R,R,W), { a -> a[0] * a[1] }),
-    IN(3,    1, arrayOf(W),     { _ -> InputOutput.input }),
+    IN(3,    1, arrayOf(W),     { _ -> InputOutput.readInput() }),
     OUT(4,   1, arrayOf(R),     { a -> InputOutput.output.add(a[0]) }),
     JIT(5,   2, arrayOf(R,R),   { a -> if (a[0] != 0.big()) Jump(a[1].toInt()) else Unit }),
     JIF(6,   2, arrayOf(R,R),   { a -> if (a[0] == 0.big()) Jump(a[1].toInt()) else Unit }),
