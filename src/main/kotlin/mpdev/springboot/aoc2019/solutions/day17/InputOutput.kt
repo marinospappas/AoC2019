@@ -20,7 +20,9 @@ object InputOutput {
     }
 
     fun setInputValues() {
-        input = "A,B,B,A,B,C,A,C,B,C\nL,4,L,6,L,8,L,12\nL,8,R,12,L,12\nR,12,L,6,L,6,L,8\nn\n".big()
+        val inputString = "A,B,B,A,B,C,A,C,B,C\nL,4,L,6,L,8,L,12\nL,8,R,12,L,12\nR,12,L,6,L,6,L,8\nn\n"
+        println("Input: $inputString")
+        input = inputString.big()
     }
 
     fun printOutput() {

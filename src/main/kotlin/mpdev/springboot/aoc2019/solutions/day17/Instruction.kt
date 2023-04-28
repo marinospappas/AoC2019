@@ -59,8 +59,6 @@ class Instruction(ip: Int, var memory: Memory) {
                 is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = BigInteger.valueOf(result.newIp.toLong()) }
                 is Relative -> return InstructionReturnCode.RELATIVE.also { res -> res.additionalData = result.incrBase }
             }
-            if (opCode == OUT)
-                InputOutput.printOutput()
         }
         catch (e: AocException) {
             return InstructionReturnCode.EXIT
