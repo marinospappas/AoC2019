@@ -21,6 +21,13 @@ object InputOutput {
 
     var output = mutableListOf<BigInteger>()
 
+    fun initInputOutput() {
+        inputIndex = 0
+        inputStringIndex = 0
+        input = mutableListOf<BigInteger>()
+        output = mutableListOf<BigInteger>()
+    }
+
     fun readInput(): BigInteger {
         if (inputIndex >= input.size)
             setInputString()

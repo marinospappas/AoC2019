@@ -2,7 +2,8 @@ package mpdev.springboot.aoc2019.solutions.day17
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import mpdev.springboot.aoc2019.utils.big
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -12,6 +13,10 @@ import kotlin.system.measureTimeMillis
 @Component
 @Order(17)
 class Day17AsciiComputer(@Autowired var inputProcessor: InputProcessor17): PuzzleSolver() {
+
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(this::class.java)
+    }
 
     override fun setDay() {
         day = 17         ////// update this when a puzzle solver for a new day is implemented
@@ -25,6 +30,8 @@ class Day17AsciiComputer(@Autowired var inputProcessor: InputProcessor17): Puzzl
     }
 
     override fun solvePart1(): PuzzlePartSolution {
+        log.info("solving day 17 part 1")
+        InputOutput.initInputOutput()
         val elapsed = measureTimeMillis {
             program.run()
             val output = StringBuilder().also { s -> InputOutput.output.forEach { n -> s.append(n.toInt().toChar()) } }
@@ -36,7 +43,9 @@ class Day17AsciiComputer(@Autowired var inputProcessor: InputProcessor17): Puzzl
     }
 
     override fun solvePart2(): PuzzlePartSolution {
+        log.info("solving day 17 part 2")
         var result: String
+        InputOutput.initInputOutput()
         val elapsed = measureTimeMillis {
             val inputData2 = mutableListOf<String>().also { it.add(inputData[0].replaceFirst("1", "2")) }
             program = inputProcessor.process(inputData2)
