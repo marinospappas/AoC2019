@@ -1,6 +1,5 @@
 package mpdev.springboot.aoc2019.solutions.day25
 
-import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.utils.big
 import java.lang.StringBuilder
 import java.math.BigInteger
@@ -20,16 +19,22 @@ object InputOutput {
     }
 
     private fun setInputString() {
-        printOutput()
+        printOutputAndClearBuffer()
         val inputString = "${readln()}\n"
         println(inputString.trim('\n'))
         input = inputString.big()
         inputIndex = 0
     }
 
-    private fun printOutput() {
+    private fun printOutputAndClearBuffer() {
         print(StringBuilder().also { s -> output.forEach { n -> s.append(n.toInt().toChar()) } }
-            .toString().trim('\n'))
+            .toString())
         output = mutableListOf()
+    }
+
+    fun printOutput(value: BigInteger) {
+        output.add(value)
+        if (value == BigInteger.valueOf(10L))
+            printOutputAndClearBuffer()
     }
 }

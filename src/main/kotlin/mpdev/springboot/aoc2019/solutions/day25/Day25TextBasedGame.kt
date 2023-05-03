@@ -5,7 +5,6 @@ import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
-import java.lang.StringBuilder
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -26,8 +25,6 @@ class Day25TextBasedGame(@Autowired var inputProcessor: InputProcessor25): Puzzl
     override fun solvePart1(): PuzzlePartSolution {
         val elapsed = measureTimeMillis {
             program.run()
-            println(StringBuilder().also { s -> InputOutput.output.forEach { n -> s.append(n.toInt().toChar()) } }
-                .toString().trim('\n'))
             result = InputOutput.output.last().toString()
         }
         // items:
