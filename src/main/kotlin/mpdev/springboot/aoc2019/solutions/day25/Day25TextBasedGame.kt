@@ -25,7 +25,8 @@ class Day25TextBasedGame(@Autowired var inputProcessor: InputProcessor25): Puzzl
     override fun solvePart1(): PuzzlePartSolution {
         val elapsed = measureTimeMillis {
             program.run()
-            result = InputOutput.output.last().toString()
+            if (InputOutput.output.isNotEmpty())
+                result = InputOutput.output.last().toString()
         }
         // items:
         //    antenna
