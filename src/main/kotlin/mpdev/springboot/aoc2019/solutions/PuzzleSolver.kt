@@ -15,7 +15,6 @@ abstract class PuzzleSolver {
     var day: Int = 0
 
     fun solve(): PuzzleSolution {
-        setDay()
         inputData = inputDataReader.read(day)
         initSolver()
         return PuzzleSolution(day = day, solution = setOf(solvePart1(), solvePart2()))
