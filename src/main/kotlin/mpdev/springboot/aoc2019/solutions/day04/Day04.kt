@@ -11,8 +11,12 @@ import kotlin.system.measureTimeMillis
 @Order(4)
 class Day04: PuzzleSolver() {
 
-    override fun setDay() {
+    final override fun setDay() {
         day = 4         ////// update this when a puzzle solver for a new day is implemented
+    }
+
+    init {
+        setDay()
     }
 
     var result = 0

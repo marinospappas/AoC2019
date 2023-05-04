@@ -18,8 +18,12 @@ class Day17AsciiComputer(@Autowired var inputProcessor: InputProcessor17): Puzzl
         private val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
-    override fun setDay() {
+    final override fun setDay() {
         day = 17         ////// update this when a puzzle solver for a new day is implemented
+    }
+
+    init {
+        setDay()
     }
 
     private lateinit var program: Program

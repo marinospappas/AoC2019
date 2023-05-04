@@ -13,8 +13,12 @@ import kotlin.system.measureTimeMillis
 @Order(9)
 class Day09CpuV3(@Autowired var inputProcessor: InputProcessor09): PuzzleSolver() {
 
-    override fun setDay() {
+    final override fun setDay() {
         day = 9         ////// update this when a puzzle solver for a new day is implemented
+    }
+
+    init {
+        setDay()
     }
 
     private lateinit var program: Program

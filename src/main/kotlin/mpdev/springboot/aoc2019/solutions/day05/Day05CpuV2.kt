@@ -13,8 +13,12 @@ class Day05CpuV2(@Autowired var inputProcessor: InputProcessor05): PuzzleSolver(
 
     var output = 19690720
 
-    override fun setDay() {
+    final override fun setDay() {
         day = 5         ////// update this when a puzzle solver for a new day is implemented
+    }
+
+    init {
+        setDay()
     }
 
     private lateinit var program: Program

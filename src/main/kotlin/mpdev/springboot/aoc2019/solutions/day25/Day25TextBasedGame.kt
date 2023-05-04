@@ -11,8 +11,12 @@ import kotlin.system.measureTimeMillis
 @Order(25)
 class Day25TextBasedGame(@Autowired var inputProcessor: InputProcessor25): PuzzleSolver() {
 
-    override fun setDay() {
+    final override fun setDay() {
         day = 25         ////// update this when a puzzle solver for a new day is implemented
+    }
+
+    init {
+        setDay()
     }
 
     private lateinit var program: Program
