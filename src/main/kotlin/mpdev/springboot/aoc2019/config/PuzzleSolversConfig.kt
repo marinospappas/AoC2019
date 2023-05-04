@@ -13,8 +13,8 @@ class PuzzleSolversConfig {
 
     @Bean
     fun puzzleSolvers(): Map<Int,PuzzleSolver> {
-        val p = mutableMapOf<Int,PuzzleSolver>()
-        puzzleSolversList.forEach { puzzleSolver -> p[puzzleSolver.day] = puzzleSolver }
-        return p
+        val solvers = mutableMapOf<Int,PuzzleSolver>()
+        puzzleSolversList.forEach { puzzleSolver -> solvers[puzzleSolver.day] = puzzleSolver }
+        return solvers
     }
 }
