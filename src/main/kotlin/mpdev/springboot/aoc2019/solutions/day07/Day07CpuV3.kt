@@ -24,7 +24,7 @@ class Day07CpuV3(@Autowired var inputProcessor: InputProcessor07): PuzzleSolver(
 
     override fun initSolver() {
         program = inputProcessor.process(inputData)
-        InputOutput.initInputOutput()
+        InputOutput.initInputOutput(5)      // 5 copies of the program will be running concurrently
     }
 
     override fun solvePart1(): PuzzlePartSolution {
