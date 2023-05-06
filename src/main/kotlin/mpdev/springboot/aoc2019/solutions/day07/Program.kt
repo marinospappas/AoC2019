@@ -19,8 +19,7 @@ class Program(var prog: Array<BigInteger>) {
         memory = Memory(prog)
         while (ip in prog.indices) {
             try {
-                log.info("program ${Thread.currentThread().name} running - ip = $ip")
-                log.info("program ${Thread.currentThread().name} running - mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
+                log.info("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
                 val instruction: Instruction
                 synchronized(this) { instruction = Instruction(ip, memory) }
                 log.info("program ${Thread.currentThread().name} - instruction ${instruction.opCode}")
