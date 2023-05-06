@@ -22,16 +22,19 @@ class Program(var prog: Array<BigInteger>) {
                 log.info("program ${Thread.currentThread().name} running - ip = $ip")
                 log.info("program ${Thread.currentThread().name} running - mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
                 val instruction: Instruction
-                synchronized(this) {instruction = Instruction(ip, memory)}
+                synchronized(this) { instruction = Instruction(ip, memory) }
                 log.info("program ${Thread.currentThread().name} - instruction ${instruction.opCode}")
-                when (val retCode = instruction.execute()) {
-                    InstructionReturnCode.EXIT -> return
-                    InstructionReturnCode.JUMP -> ip = retCode.additionalData.toInt()
-                    InstructionReturnCode.RELATIVE -> {
-                        memory.relativeBase += retCode.additionalData
-                        ip += instruction.ipIncrement
+                synchronized(this) {
+                    when (val retCode = instruction.execute()) {
+                        InstructionReturnCode.EXIT -> return
+                        InstructionReturnCode.JUMP -> ip = retCode.additionalData.toInt()
+                        InstructionReturnCode.RELATIVE -> {
+                            memory.relativeBase += retCode.additionalData
+                            ip += instruction.ipIncrement
+                        }
+
+                        else -> ip += instruction.ipIncrement
                     }
-                    else -> ip += instruction.ipIncrement
                 }
             }
             catch (e: AocException) {

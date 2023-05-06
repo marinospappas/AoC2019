@@ -22,7 +22,7 @@ enum class OpCode(val value: Int,
     EXIT(99, 0, arrayOf(),      { _ -> Int.MIN_VALUE });
 
     companion object {
-        fun fromValue(value: Int): OpCode {
+        fun fromValue(value: Int): OpCode = synchronized(this) {
             val opCode = when (value % 100) {
                 1 -> ADD
                 2 -> MULT

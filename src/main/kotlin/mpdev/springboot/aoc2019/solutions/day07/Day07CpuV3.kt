@@ -43,8 +43,12 @@ class Day07CpuV3(@Autowired var inputProcessor: InputProcessor07): PuzzleSolver(
     }
 
     override fun solvePart2(): PuzzlePartSolution {
+        val thrusts = mutableListOf<BigInteger>()
         val elapsed = measureTimeMillis {
-
+            AocUtils.permutations(mutableListOf(5,6,7,8,9)).forEach { phaseSequence ->
+                //thrusts.add(calculateTotalThrust(phaseSequence, true))
+            }
+            //result = thrusts.max()
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
