@@ -46,9 +46,9 @@ class Day07CpuV3(@Autowired var inputProcessor: InputProcessor07): PuzzleSolver(
         val thrusts = mutableListOf<BigInteger>()
         val elapsed = measureTimeMillis {
             AocUtils.permutations(mutableListOf(5,6,7,8,9)).forEach { phaseSequence ->
-                //thrusts.add(calculateTotalThrust(phaseSequence, true))
+                thrusts.add(calculateTotalThrust(phaseSequence, true))
             }
-            //result = thrusts.max()
+            result = thrusts.max()
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
@@ -68,7 +68,7 @@ class Day07CpuV3(@Autowired var inputProcessor: InputProcessor07): PuzzleSolver(
         val amplifiers = Array(NUMBER_OF_AMPS) {
             thread(start = true, name = "amplifier-$it") {
                 val program = inputProcessor.process(inputData)
-                Thread.sleep(5)
+                Thread.sleep(2)
                 program.run()
             }
         }
