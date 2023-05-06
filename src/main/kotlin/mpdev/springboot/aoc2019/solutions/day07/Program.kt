@@ -17,7 +17,6 @@ class Program(var prog: Array<BigInteger>) {
     fun run() {
         var ip = 0
         memory = Memory(prog)
-        InputOutput.output = mutableListOf()
         while (ip in prog.indices) {
             try {
                 val instruction = Instruction(ip, memory)

@@ -2,6 +2,7 @@ package mpdev.springboot.aoc2019.day07
 
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day07.Day07CpuV3
+import mpdev.springboot.aoc2019.solutions.day07.InputOutput
 import mpdev.springboot.aoc2019.solutions.day07.InputProcessor07
 import mpdev.springboot.aoc2019.utils.AocUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -13,6 +14,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.math.BigInteger
 import java.util.stream.Stream
+import kotlin.concurrent.thread
 
 class Day07Test {
 
@@ -35,12 +37,38 @@ class Day07Test {
         assertThat(puzzleSolver.day).isEqualTo(day)
     }
 
-    @ParameterizedTest
+    @Test
     @Order(2)
+    fun `Threads in a Pipeline Pass Output to Next Thread Input`() {
+        InputOutput.initInputOutput(5)
+        InputOutput.setInputValues(0, listOf(BigInteger("1"), BigInteger("5")))
+        InputOutput.setInputValues(1, listOf(BigInteger("2")))
+        InputOutput.setInputValues(2, listOf(BigInteger("3")))
+        InputOutput.setInputValues(3, listOf(BigInteger("4")))
+        InputOutput.setInputValues(4, listOf(BigInteger("5")))
+        val testThreads = Array(5) {
+            thread(start = true, name = "test-thread-$it") {
+                readWriteInThread()
+            }
+        }
+        testThreads.forEach { t -> t.join() }
+        val result = InputOutput.getOutputValues(4)
+        assertThat(result.size).isEqualTo(1)
+        assertThat(result[0].toInt()).isEqualTo(155)
+    }
+
+    private fun readWriteInThread() {
+        val input1 = InputOutput.readInput()
+        val input2 = InputOutput.readInput()
+        InputOutput.printOutput(input1 * BigInteger("10") + input2)
+    }
+
+    @ParameterizedTest
+    @Order(3)
     @MethodSource("provideArgsToTotalThrustTest")
     fun `Calculates Total Thrust correctly`(input: List<String>, phaseSequence: List<Int>, expected: BigInteger) {
         puzzleSolver.inputData = input
-        assertThat(puzzleSolver.calculateTotalThrustPart1(phaseSequence)).isEqualTo(expected)
+        assertThat(puzzleSolver.calculateTotalThrust(phaseSequence)).isEqualTo(expected)
     }
 
     @Test

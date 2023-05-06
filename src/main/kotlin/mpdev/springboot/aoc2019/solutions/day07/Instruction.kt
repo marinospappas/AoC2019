@@ -5,8 +5,6 @@ import mpdev.springboot.aoc2019.solutions.day07.OpCode.*
 import mpdev.springboot.aoc2019.solutions.day07.ParamReadWrite.*
 import mpdev.springboot.aoc2019.solutions.day07.ParamMode.*
 import mpdev.springboot.aoc2019.utils.big
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
 class Instruction(ip: Int, var memory: Memory) {
@@ -14,10 +12,6 @@ class Instruction(ip: Int, var memory: Memory) {
     private val opCode: OpCode
     val ipIncrement: Int
     private val params: Array<BigInteger>
-
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(this::class.java)
-    }
 
     init {
         try {
