@@ -32,7 +32,6 @@ class Program(var prog: Array<BigInteger>) {
                             memory.relativeBase += retCode.additionalData
                             ip += instruction.ipIncrement
                         }
-
                         else -> ip += instruction.ipIncrement
                     }
                 }
