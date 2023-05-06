@@ -7,9 +7,9 @@ import mpdev.springboot.aoc2019.solutions.day07.ParamMode.*
 import mpdev.springboot.aoc2019.utils.big
 import java.math.BigInteger
 
-class Instruction(ip: Int, var memory: Memory) {
+data class Instruction(val ip: Int, var memory: Memory) {
 
-    private val opCode: OpCode
+    val opCode: OpCode
     val ipIncrement: Int
     private val params: Array<BigInteger>
 
@@ -19,7 +19,7 @@ class Instruction(ip: Int, var memory: Memory) {
             ipIncrement = opCode.getIpIncrement()
             params = Array(opCode.numberOfParams) { 0.big() }
             for (i in 0 until opCode.numberOfParams)
-                params[i] = setInstructionParameter(ip+i, opCode.getParamMode(i), opCode.paramRwMode[i], ip)
+                params[i] = setInstructionParameter(ip + i, opCode.getParamMode(i), opCode.paramRwMode[i], ip)
         } catch (e: Exception) {
             throw AocException(e.message ?: "unknown exception")
         }

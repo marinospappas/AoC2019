@@ -69,7 +69,9 @@ class Day07CpuV3(@Autowired var inputProcessor: InputProcessor07): PuzzleSolver(
             }
         }
         amplifiers.forEach { t -> t.join() }
-        return InputOutput.getOutputValues(NUMBER_OF_AMPS-1).last()
+        val result = InputOutput.getOutputValues(NUMBER_OF_AMPS-1).last()
+        log.info("result: $result")
+        return result
     }
 
 }

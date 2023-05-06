@@ -2,7 +2,6 @@ package mpdev.springboot.aoc2019.solutions.day07
 
 import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.solutions.day07.ParamReadWrite.*
-import mpdev.springboot.aoc2019.solutions.day07.ParamMode.*
 import mpdev.springboot.aoc2019.utils.big
 import java.math.BigInteger
 
@@ -37,11 +36,11 @@ enum class OpCode(val value: Int,
                 99 -> EXIT
                 else -> throw AocException("Invalid OpCode [${value}]")
             }
-            opCode.paramMode = Array(opCode.numberOfParams) { NONE }
-            var modes = value / 100
-            for (i in opCode.paramMode.indices) {
-                opCode.paramMode[i] = ParamMode.fromIntValue(modes % 10)
-                modes /= 10
+            var paramModes = value / 100
+            opCode.paramMode = Array(opCode.numberOfParams) { i ->
+                val thisMode = ParamMode.fromIntValue(paramModes % 10)
+                paramModes /= 10
+                thisMode
             }
             return opCode
         }

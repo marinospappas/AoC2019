@@ -19,7 +19,11 @@ class Program(var prog: Array<BigInteger>) {
         memory = Memory(prog)
         while (ip in prog.indices) {
             try {
-                val instruction = Instruction(ip, memory)
+                log.info("program ${Thread.currentThread().name} running - ip = $ip")
+                log.info("program ${Thread.currentThread().name} running - mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
+                val instruction: Instruction
+                synchronized(this) {instruction = Instruction(ip, memory)}
+                log.info("program ${Thread.currentThread().name} - instruction ${instruction.opCode}")
                 when (val retCode = instruction.execute()) {
                     InstructionReturnCode.EXIT -> return
                     InstructionReturnCode.JUMP -> ip = retCode.additionalData.toInt()
@@ -31,7 +35,7 @@ class Program(var prog: Array<BigInteger>) {
                 }
             }
             catch (e: AocException) {
-                log.error("exception ${e.message} thrown, ip = $ip")
+                log.error("exception ${e.message} thrown, ip = $ip memory = ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
                 return
             }
         }
