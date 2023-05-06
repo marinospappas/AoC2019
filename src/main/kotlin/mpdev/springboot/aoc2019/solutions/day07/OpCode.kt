@@ -37,7 +37,7 @@ enum class OpCode(val value: Int,
                 else -> throw AocException("Invalid OpCode [${value}]")
             }
             var paramModes = value / 100
-            opCode.paramMode = Array(opCode.numberOfParams) { i ->
+            opCode.paramMode = Array(opCode.numberOfParams) {
                 val thisMode = ParamMode.fromIntValue(paramModes % 10)
                 paramModes /= 10
                 thisMode
