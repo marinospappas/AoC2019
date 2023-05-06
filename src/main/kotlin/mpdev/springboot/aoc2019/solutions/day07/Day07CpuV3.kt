@@ -68,7 +68,7 @@ class Day07CpuV3(@Autowired var inputProcessor: InputProcessor07): PuzzleSolver(
         val amplifiers = Array(NUMBER_OF_AMPS) {
             thread(start = true, name = "amplifier-$it") {
                 val program = inputProcessor.process(inputData)
-                Thread.sleep(2)
+                Thread.sleep(5)
                 program.run()
             }
         }
