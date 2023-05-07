@@ -30,7 +30,7 @@ class Day05: PuzzleSolver() {
             initInputOutput()
             setInputValues(listOf(1L))
             val program = Program(inputData[0])
-            thread(start = true, name = "self-test-0") {
+            thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run on a separate thread
                 program.run()
             }.join()
             result = getOutputValues().last()
@@ -43,7 +43,7 @@ class Day05: PuzzleSolver() {
             initInputOutput()
             setInputValues(listOf(5L))
             val program = Program(inputData[0])
-            thread(start = true, name = "self-test-0") {
+            thread(start = true, name = "self-test-0") {     // when input/output is required the intCode must run on a separate thread
                 program.run()
             }.join()
             result = getOutputValues().last()
