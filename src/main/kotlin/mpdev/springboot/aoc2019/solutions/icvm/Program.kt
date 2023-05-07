@@ -12,6 +12,10 @@ class Program(var prog: String) {
 
     private var memory = Memory(prog)
 
+    fun setLimitedMemory() {
+        memory.unlimitedMemory = false
+    }
+
     fun run() {
         var ip = 0L
         //memory = Memory(prog)
@@ -57,11 +61,20 @@ class Program(var prog: String) {
 class Memory(prog: String) {
     var mem: MutableMap<Long,Long> = mutableMapOf()
     var relativeBase: Long = 0L
+    var unlimitedMemory = true
 
     init {
         val progArray = prog.split(",")
         progArray.indices.forEach { i -> mem[i.toLong()] = progArray[i].toLong() }
     }
-    operator fun get(adr: Long): Long = mem[adr] ?: 0L
-    operator fun set(adr: Long, value: Long) { mem[adr] = value }
+    operator fun get(adr: Long): Long {
+        if (!unlimitedMemory && adr >= mem.keys.size)
+            throw AocException("memory address out of range: $adr for mem size ${mem.keys.size}")
+        return mem[adr] ?: 0L
+    }
+    operator fun set(adr: Long, value: Long) {
+        if (!unlimitedMemory && adr >= mem.keys.size)
+            throw AocException("memory address out of range: $adr for mem size ${mem.keys.size}")
+        mem[adr] = value
+    }
 }

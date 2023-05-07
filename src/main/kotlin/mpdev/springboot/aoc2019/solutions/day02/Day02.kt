@@ -40,6 +40,7 @@ class Day02: PuzzleSolver() {
             mainloop@ for (mem1 in 0..99)
                 for (mem2 in 0..99) {
                     val program = Program(inputData[0])
+                    program.setLimitedMemory()
                     program.setMemory(1, mem1)
                     program.setMemory(2, mem2)
                     program.run()
