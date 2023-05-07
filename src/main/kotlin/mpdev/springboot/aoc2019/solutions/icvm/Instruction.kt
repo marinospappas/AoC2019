@@ -1,9 +1,9 @@
-package mpdev.springboot.aoc2019.solutions.day07
+package mpdev.springboot.aoc2019.solutions.icvm
 
 import mpdev.springboot.aoc2019.utils.AocException
-import mpdev.springboot.aoc2019.solutions.day07.OpCode.*
-import mpdev.springboot.aoc2019.solutions.day07.ParamReadWrite.*
-import mpdev.springboot.aoc2019.solutions.day07.ParamMode.*
+import mpdev.springboot.aoc2019.solutions.icvm.OpCode.*
+import mpdev.springboot.aoc2019.solutions.icvm.ParamReadWrite.*
+import mpdev.springboot.aoc2019.solutions.icvm.ParamMode.*
 import mpdev.springboot.aoc2019.utils.big
 import java.math.BigInteger
 
@@ -46,7 +46,8 @@ data class Instruction(val ip: Int, var memory: Memory) {
             return InstructionReturnCode.EXIT
         try {
             when (val result = opCode.execute(params)) {
-                is BigInteger -> { store(params.last(), result); return InstructionReturnCode.OK }
+                is BigInteger -> { store(params.last(), result); return InstructionReturnCode.OK
+                }
                 is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = BigInteger.valueOf(result.newIp.toLong()) }
                 is Relative -> return InstructionReturnCode.RELATIVE.also { res -> res.additionalData = result.incrBase }
             }

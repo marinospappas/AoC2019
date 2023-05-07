@@ -2,12 +2,10 @@ package mpdev.springboot.aoc2019.solutions.day1
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
 @Component
-@Order(1)
 class Day01: PuzzleSolver() {
 
     final override fun setDay() {

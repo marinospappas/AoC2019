@@ -1,9 +1,8 @@
 package mpdev.springboot.aoc2019.day07
 
 import mpdev.springboot.aoc2019.input.InputDataReader
-import mpdev.springboot.aoc2019.solutions.day07.Day07CpuV3
-import mpdev.springboot.aoc2019.solutions.day07.InputOutput
-import mpdev.springboot.aoc2019.solutions.day07.InputProcessor07
+import mpdev.springboot.aoc2019.solutions.day07.Day07
+import mpdev.springboot.aoc2019.solutions.icvm.InputOutput
 import mpdev.springboot.aoc2019.utils.AocUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -18,9 +17,8 @@ import kotlin.concurrent.thread
 
 class Day07Test {
 
-    private val day = 7                                     ///////// Update this for a new dayN test
-    private val inputProcessor = InputProcessor07()         ///////// Update this for a new dayN test
-    private val puzzleSolver = Day07CpuV3(inputProcessor)   ///////// Update this for a new dayN test
+    private val day = 7                  ///////// Update this for a new dayN test
+    private val puzzleSolver = Day07()   ///////// Update this for a new dayN test
     private val inputDataReader = InputDataReader("src/test/resources/inputdata/input")
     private var inputLines: List<String> = inputDataReader.read(day)
 
@@ -41,11 +39,11 @@ class Day07Test {
     @Order(2)
     fun `Threads in a Pipeline Pass Output to Next Thread Input`() {
         InputOutput.initInputOutput(5)
-        InputOutput.setInputValues(0, listOf(BigInteger("1"), BigInteger("5")))
-        InputOutput.setInputValues(1, listOf(BigInteger("2")))
-        InputOutput.setInputValues(2, listOf(BigInteger("3")))
-        InputOutput.setInputValues(3, listOf(BigInteger("4")))
-        InputOutput.setInputValues(4, listOf(BigInteger("5")))
+        InputOutput.setInputValues(listOf(BigInteger("1"), BigInteger("5")), 0)
+        InputOutput.setInputValues(listOf(BigInteger("2")), 1)
+        InputOutput.setInputValues(listOf(BigInteger("3")), 2)
+        InputOutput.setInputValues(listOf(BigInteger("4")), 3)
+        InputOutput.setInputValues(listOf(BigInteger("5")), 4)
         val testThreads = Array(5) {
             thread(start = true, name = "test-thread-$it") {
                 readWriteInThread()
@@ -75,10 +73,10 @@ class Day07Test {
     @Order(4)
     fun `Threads in a Pipeline with Feedback Loop Pass Output to Next Thread Input`() {
         InputOutput.initInputOutput(4, true)
-        InputOutput.setInputValues(0, listOf(BigInteger("1"), BigInteger("5")))
-        InputOutput.setInputValues(1, listOf(BigInteger("2")))
-        InputOutput.setInputValues(2, listOf(BigInteger("3")))
-        InputOutput.setInputValues(3, listOf(BigInteger("4")))
+        InputOutput.setInputValues(listOf(BigInteger("1"), BigInteger("5")),0)
+        InputOutput.setInputValues(listOf(BigInteger("2")), 1)
+        InputOutput.setInputValues(listOf(BigInteger("3")), 2)
+        InputOutput.setInputValues(listOf(BigInteger("4")), 3)
         val testThreads = Array(4) {
             thread(start = true, name = "test-thread-$it") {
                 if (it == 0)

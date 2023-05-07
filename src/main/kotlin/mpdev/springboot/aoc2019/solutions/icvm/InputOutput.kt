@@ -1,7 +1,7 @@
-package mpdev.springboot.aoc2019.solutions.day07
+package mpdev.springboot.aoc2019.solutions.icvm
 
 import mpdev.springboot.aoc2019.utils.AocException
-import mpdev.springboot.aoc2019.solutions.day07.IoMode.*
+import mpdev.springboot.aoc2019.solutions.icvm.IoMode.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
@@ -14,7 +14,7 @@ object InputOutput {
 
     private var outputChannels = arrayOf<IoChannel>()
 
-    fun initInputOutput(numThreads: Int, loop: Boolean = false) {
+    fun initInputOutput(numThreads: Int = 0, loop: Boolean = false) {
         if (!loop) {
             inputChannels = Array(numThreads) { i ->
                 when (i) {
@@ -42,13 +42,13 @@ object InputOutput {
         }
     }
 
-    fun setInputValues(channel: Int, values: List<BigInteger>) {
+    fun setInputValues(values: List<BigInteger>, channel: Int = 0) {
         inputChannels[channel].data.addAll(values)
         inputChannels[channel].syncObject.dataReady = true
         log.info("set input values for channel [$channel] to ${inputChannels[channel].data}")
     }
 
-    fun getOutputValues(channel: Int): List<BigInteger> = outputChannels[channel].data
+    fun getOutputValues(channel: Int = 0): List<BigInteger> = outputChannels[channel].data
 
     //////// read input
     private fun readDirect(inputChannel: IoChannel): BigInteger {

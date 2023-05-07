@@ -2,16 +2,14 @@ package mpdev.springboot.aoc2019.solutions.day02
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.annotation.Order
+import mpdev.springboot.aoc2019.solutions.icvm.Program
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
 @Component
-@Order(2)
-class Day02CpuV1(@Autowired var inputProcessor: InputProcessor02): PuzzleSolver() {
+class Day02: PuzzleSolver() {
 
-    var output = 19690720
+    var part2Output = 19690720
 
     final override fun setDay() {
         day = 2         ////// update this when a puzzle solver for a new day is implemented
@@ -21,19 +19,17 @@ class Day02CpuV1(@Autowired var inputProcessor: InputProcessor02): PuzzleSolver(
         setDay()
     }
 
-    private lateinit var intCode: IntCode
     var result = 0
 
-    override fun initSolver() {
-        intCode = inputProcessor.process(inputData)
-    }
+    override fun initSolver() {}
 
     override fun solvePart1(): PuzzlePartSolution {
+        val program = Program(inputData[0])
         val elapsed = measureTimeMillis {
-            intCode.mem[1] = 12
-            intCode.mem[2] = 2
-            intCode.run()
-            result = intCode.mem[0]
+            program.setMemory(1, 12)
+            program.setMemory(2, 2)
+            program.run()
+            result = program.getMemory(0)
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
@@ -43,11 +39,11 @@ class Day02CpuV1(@Autowired var inputProcessor: InputProcessor02): PuzzleSolver(
         val elapsed = measureTimeMillis {
             mainloop@ for (mem1 in 0..99)
                 for (mem2 in 0..99) {
-                    intCode.restoreMem()
-                    intCode.mem[1] = mem1
-                    intCode.mem[2] = mem2
-                    intCode.run()
-                    if (intCode.mem[0] == output) {
+                    val program = Program(inputData[0])
+                    program.setMemory(1, mem1)
+                    program.setMemory(2, mem2)
+                    program.run()
+                    if (program.getMemory(0) == part2Output) {
                         result = 100 * mem1 + mem2
                         break@mainloop
                     }
@@ -55,7 +51,5 @@ class Day02CpuV1(@Autowired var inputProcessor: InputProcessor02): PuzzleSolver(
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
-
-
 
 }

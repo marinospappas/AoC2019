@@ -1,4 +1,4 @@
-package mpdev.springboot.aoc2019.solutions.day07
+package mpdev.springboot.aoc2019.solutions.icvm
 
 import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.utils.big
@@ -6,7 +6,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 
-class Program(var prog: Array<BigInteger>) {
+class Program(var prog: String) {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -16,7 +16,7 @@ class Program(var prog: Array<BigInteger>) {
 
     fun run() {
         var ip = 0
-        memory = Memory(prog)
+        //memory = Memory(prog)
         while (ip in prog.indices) {
             try {
                 log.info("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
@@ -42,13 +42,23 @@ class Program(var prog: Array<BigInteger>) {
         }
     }
 
+    fun getMemory(address: Int): Int = getMemory(address.big()).toInt()
+    fun getMemory(address: BigInteger): BigInteger = memory[address]
+
+    fun setMemory(address: Int, value: Int) {
+        setMemory(address.big(), value.big())
+    }
+    fun setMemory(address: BigInteger, value: BigInteger) {
+        memory[address] = value
+    }
 }
 
-class Memory(prog: Array<BigInteger>) {
+class Memory(prog: String) {
     var mem: MutableMap<BigInteger,BigInteger> = mutableMapOf()
     var relativeBase: BigInteger = 0.big()
     init {
-        prog.indices.forEach { i -> mem[i.big()] = prog[i] }
+        val progArray = prog.split(",")
+        progArray.indices.forEach { i -> mem[i.big()] = BigInteger(progArray[i]) }
     }
     operator fun get(i: BigInteger): BigInteger = mem[i] ?: 0.big()
     operator fun get(i: Int): BigInteger = mem[i.big()] ?: 0.big()
