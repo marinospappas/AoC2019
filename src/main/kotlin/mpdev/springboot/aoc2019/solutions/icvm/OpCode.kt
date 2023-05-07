@@ -4,22 +4,20 @@ import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.readInput
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.printOutput
 import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.solutions.icvm.ParamReadWrite.*
-import mpdev.springboot.aoc2019.utils.big
-import java.math.BigInteger
 
 enum class OpCode(val value: Int,
                   val numberOfParams: Int,
                   val paramRwMode: Array<ParamReadWrite>,
-                  val execute: (Array<BigInteger>) -> Any) {
+                  val execute: (Array<Long>) -> Any) {
 
     ADD(1,   3, arrayOf(R,R,W), { a -> a[0] + a[1] } ),
     MULT(2,  3, arrayOf(R,R,W), { a -> a[0] * a[1] }),
     IN(3,    1, arrayOf(W),     { _ -> readInput() }),
     OUT(4,   1, arrayOf(R),     { a -> printOutput(a[0]) }),
-    JIT(5,   2, arrayOf(R,R),   { a -> if (a[0] != 0.big()) Jump(a[1].toInt()) else Unit }),
-    JIF(6,   2, arrayOf(R,R),   { a -> if (a[0] == 0.big()) Jump(a[1].toInt()) else Unit }),
-    LT(7,    3, arrayOf(R,R,W), { a -> (if (a[0] < a[1]) 1 else 0).big() }),
-    EQ(8,    3, arrayOf(R,R,W), { a -> (if (a[0] == a[1]) 1 else 0).big() }),
+    JIT(5,   2, arrayOf(R,R),   { a -> if (a[0] != 0L) Jump(a[1]) else Unit }),
+    JIF(6,   2, arrayOf(R,R),   { a -> if (a[0] == 0L) Jump(a[1]) else Unit }),
+    LT(7,    3, arrayOf(R,R,W), { a -> if (a[0] < a[1]) 1L else 0L }),
+    EQ(8,    3, arrayOf(R,R,W), { a -> if (a[0] == a[1]) 1L else 0L }),
     REL(9,   1, arrayOf(R),     { a -> Relative(a[0]) }),
     EXIT(99, 0, arrayOf(),      { _ -> Int.MIN_VALUE });
 
@@ -50,7 +48,7 @@ enum class OpCode(val value: Int,
 
     private lateinit var paramMode: Array<ParamMode>
 
-    fun getIpIncrement() = numberOfParams + 1
+    fun getIpIncrement() = (numberOfParams + 1).toLong()
 
     fun getParamMode(indx: Int) = paramMode[indx]
 }
@@ -72,6 +70,6 @@ enum class ParamReadWrite {
     R, W
 }
 
-class Jump(val newIp: Int)
+class Jump(val newIp: Long)
 
-class Relative(val incrBase: BigInteger)
+class Relative(val incrBase: Long)

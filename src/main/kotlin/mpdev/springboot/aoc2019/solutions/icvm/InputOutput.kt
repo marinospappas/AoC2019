@@ -4,7 +4,6 @@ import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.solutions.icvm.IoMode.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.math.BigInteger
 
 object InputOutput {
 
@@ -42,16 +41,16 @@ object InputOutput {
         }
     }
 
-    fun setInputValues(values: List<BigInteger>, channel: Int = 0) {
+    fun setInputValues(values: List<Long>, channel: Int = 0) {
         inputChannels[channel].data.addAll(values)
         inputChannels[channel].syncObject.dataReady = true
         log.info("set input values for channel [$channel] to ${inputChannels[channel].data}")
     }
 
-    fun getOutputValues(channel: Int = 0): List<BigInteger> = outputChannels[channel].data
+    fun getOutputValues(channel: Int = 0): List<Long> = outputChannels[channel].data
 
     //////// read input
-    private fun readDirect(inputChannel: IoChannel): BigInteger {
+    private fun readDirect(inputChannel: IoChannel): Long {
         if (inputChannel.data.isEmpty())
             throw AocException("no more input")
         val result = inputChannel.data.removeAt(0)
@@ -59,8 +58,8 @@ object InputOutput {
         return result
     }
 
-    private fun readFromPipe(pipeChannel: IoChannel): BigInteger {
-        val result: BigInteger
+    private fun readFromPipe(pipeChannel: IoChannel): Long {
+        val result: Long
         synchronized(pipeChannel.syncObject) {
             while (!pipeChannel.syncObject.dataReady)
                 pipeChannel.syncObject.wait()
@@ -72,7 +71,7 @@ object InputOutput {
         return result
     }
 
-    fun readInput(): BigInteger {
+    fun readInput(): Long {
         val inputChannelIndex = Thread.currentThread().name.last().digitToInt()
         log.info("read input called channel $inputChannelIndex")
         val inputChannel = inputChannels[inputChannelIndex]
@@ -83,12 +82,12 @@ object InputOutput {
     }
 
     //////// write output
-    private fun printDirect(outputChannel: IoChannel, value: BigInteger) {
+    private fun printDirect(outputChannel: IoChannel, value: Long) {
         log.info("print direct value [$value]")
         outputChannel.data.add(value)
     }
 
-    private fun printToPipe(pipeChannel: IoChannel, value: BigInteger) {
+    private fun printToPipe(pipeChannel: IoChannel, value: Long) {
         synchronized(pipeChannel.syncObject) {
             pipeChannel.data.add(value)
             pipeChannel.syncObject.dataReady = true
@@ -96,7 +95,7 @@ object InputOutput {
         }
     }
 
-    fun printOutput(value: BigInteger) {
+    fun printOutput(value: Long) {
         val outputChannelIndex = Thread.currentThread().name.last().digitToInt()
         log.info("print output called channel $outputChannelIndex, value $value")
         val outputChannel = outputChannels[outputChannelIndex]
@@ -107,7 +106,7 @@ object InputOutput {
     }
 }
 
-class IoChannel(val data: MutableList<BigInteger> = mutableListOf(),
+class IoChannel(val data: MutableList<Long> = mutableListOf(),
                      val syncObject: SyncObject = SyncObject(),
                      val mode: IoMode = DIRECT)
 

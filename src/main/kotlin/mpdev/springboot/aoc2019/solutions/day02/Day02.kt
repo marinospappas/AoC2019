@@ -9,7 +9,7 @@ import kotlin.system.measureTimeMillis
 @Component
 class Day02: PuzzleSolver() {
 
-    var part2Output = 19690720
+    var part2Output = 19690720L
 
     final override fun setDay() {
         day = 2         ////// update this when a puzzle solver for a new day is implemented
@@ -19,7 +19,7 @@ class Day02: PuzzleSolver() {
         setDay()
     }
 
-    var result = 0
+    var result = 0L
 
     override fun initSolver() {}
 
@@ -29,7 +29,7 @@ class Day02: PuzzleSolver() {
             program.setMemory(1, 12)
             program.setMemory(2, 2)
             program.run()
-            result = program.getMemory(0)
+            result = program.getMemory(0L)
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
@@ -44,7 +44,7 @@ class Day02: PuzzleSolver() {
                     program.setMemory(2, mem2)
                     program.run()
                     if (program.getMemory(0) == part2Output) {
-                        result = 100 * mem1 + mem2
+                        result = 100L * mem1 + mem2
                         break@mainloop
                     }
                 }

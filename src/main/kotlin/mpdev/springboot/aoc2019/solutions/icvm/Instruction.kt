@@ -4,20 +4,18 @@ import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.solutions.icvm.OpCode.*
 import mpdev.springboot.aoc2019.solutions.icvm.ParamReadWrite.*
 import mpdev.springboot.aoc2019.solutions.icvm.ParamMode.*
-import mpdev.springboot.aoc2019.utils.big
-import java.math.BigInteger
 
-data class Instruction(val ip: Int, var memory: Memory) {
+data class Instruction(val ip: Long, var memory: Memory) {
 
     val opCode: OpCode
-    val ipIncrement: Int
-    private val params: Array<BigInteger>
+    val ipIncrement: Long
+    private val params: Array<Long>
 
     init {
         try {
             opCode = OpCode.fromValue(memory[ip].toInt())
             ipIncrement = opCode.getIpIncrement()
-            params = Array(opCode.numberOfParams) { 0.big() }
+            params = Array(opCode.numberOfParams) { 0L }
             for (i in 0 until opCode.numberOfParams)
                 params[i] = setInstructionParameter(ip + i, opCode.getParamMode(i), opCode.paramRwMode[i], ip)
         } catch (e: Exception) {
@@ -25,7 +23,7 @@ data class Instruction(val ip: Int, var memory: Memory) {
         }
     }
 
-    private fun setInstructionParameter(paramIndex: Int, paramMode: ParamMode, paramRw: ParamReadWrite, ip: Int): BigInteger {
+    private fun setInstructionParameter(paramIndex: Long, paramMode: ParamMode, paramRw: ParamReadWrite, ip: Long): Long {
         return if (paramRw == R)
             when (paramMode) {      // return the contents of the mem address or value if immediate
                 POSITION -> fetch(memory[paramIndex + 1])                               // positional parameter (memory address)
@@ -46,9 +44,9 @@ data class Instruction(val ip: Int, var memory: Memory) {
             return InstructionReturnCode.EXIT
         try {
             when (val result = opCode.execute(params)) {
-                is BigInteger -> { store(params.last(), result); return InstructionReturnCode.OK
+                is Long -> { store(params.last(), result); return InstructionReturnCode.OK
                 }
-                is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = BigInteger.valueOf(result.newIp.toLong()) }
+                is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = result.newIp }
                 is Relative -> return InstructionReturnCode.RELATIVE.also { res -> res.additionalData = result.incrBase }
             }
         }
@@ -58,14 +56,14 @@ data class Instruction(val ip: Int, var memory: Memory) {
         return InstructionReturnCode.OK
     }
 
-    private fun fetch(address: BigInteger): BigInteger {
-        if (address < 0.big())
+    private fun fetch(address: Long): Long {
+        if (address < 0L)
             throw AocException("Bad memory reference:[${address}]")
         return memory[address]
     }
 
-    private fun store(address: BigInteger, value: BigInteger) {
-        if (address < BigInteger.valueOf(0L))
+    private fun store(address: Long, value: Long) {
+        if (address < 0L)
             throw AocException("Bad memory reference:[${address}]")
         memory[address] = value
     }
@@ -77,5 +75,5 @@ enum class InstructionReturnCode {
     JUMP,
     RELATIVE;
 
-    var additionalData: BigInteger = 0.big()
+    var additionalData: Long = 0L
 }

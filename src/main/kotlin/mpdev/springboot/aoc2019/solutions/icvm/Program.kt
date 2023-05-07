@@ -1,10 +1,8 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
 import mpdev.springboot.aoc2019.utils.AocException
-import mpdev.springboot.aoc2019.utils.big
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.math.BigInteger
 
 class Program(var prog: String) {
 
@@ -15,7 +13,7 @@ class Program(var prog: String) {
     private var memory = Memory(prog)
 
     fun run() {
-        var ip = 0
+        var ip = 0L
         //memory = Memory(prog)
         while (ip in prog.indices) {
             try {
@@ -26,7 +24,7 @@ class Program(var prog: String) {
                 synchronized(this) {
                     when (val retCode = instruction.execute()) {
                         InstructionReturnCode.EXIT -> return
-                        InstructionReturnCode.JUMP -> ip = retCode.additionalData.toInt()
+                        InstructionReturnCode.JUMP -> ip = retCode.additionalData
                         InstructionReturnCode.RELATIVE -> {
                             memory.relativeBase += retCode.additionalData
                             ip += instruction.ipIncrement
@@ -42,25 +40,28 @@ class Program(var prog: String) {
         }
     }
 
-    fun getMemory(address: Int): Int = getMemory(address.big()).toInt()
-    fun getMemory(address: BigInteger): BigInteger = memory[address]
+    fun getMemory(address: Long): Long = memory[address]
+    fun getMemory(address: Int): Long = getMemory(address.toLong())
 
-    fun setMemory(address: Int, value: Int) {
-        setMemory(address.big(), value.big())
-    }
-    fun setMemory(address: BigInteger, value: BigInteger) {
+    fun setMemory(address: Long, value: Long) {
         memory[address] = value
+    }
+    fun setMemory(address: Int, value: Long) {
+        setMemory(address.toLong(), value)
+    }
+    fun setMemory(address: Int, value: Int) {
+        setMemory(address.toLong(), value.toLong())
     }
 }
 
 class Memory(prog: String) {
-    var mem: MutableMap<BigInteger,BigInteger> = mutableMapOf()
-    var relativeBase: BigInteger = 0.big()
+    var mem: MutableMap<Long,Long> = mutableMapOf()
+    var relativeBase: Long = 0L
+
     init {
         val progArray = prog.split(",")
-        progArray.indices.forEach { i -> mem[i.big()] = BigInteger(progArray[i]) }
+        progArray.indices.forEach { i -> mem[i.toLong()] = progArray[i].toLong() }
     }
-    operator fun get(i: BigInteger): BigInteger = mem[i] ?: 0.big()
-    operator fun get(i: Int): BigInteger = mem[i.big()] ?: 0.big()
-    operator fun set(i: BigInteger, value: BigInteger) { mem[i] = value }
+    operator fun get(adr: Long): Long = mem[adr] ?: 0L
+    operator fun set(adr: Long, value: Long) { mem[adr] = value }
 }

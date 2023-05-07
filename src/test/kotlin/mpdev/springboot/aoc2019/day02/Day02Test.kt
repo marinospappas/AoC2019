@@ -49,7 +49,7 @@ class Day02Test {
         val expected = listOf(1,9,10,3,2,3,11,0,99,30,40,50)
         val program = Program(inputLines[0])
         for (i in expected.indices)
-            assertThat(program.getMemory(i)).isEqualTo(expected[i])
+            assertThat(program.getMemory(i)).isEqualTo(expected[i].toLong())
     }
 
     @ParameterizedTest
@@ -62,7 +62,7 @@ class Day02Test {
     @Test
     @Order(5)
     fun `Solves Part 1`() {
-        val expected = 3500
+        val expected = 3500L
         val program = Program(inputLines[0])
         val elapsed = measureTimeMillis { program.run() }
         println("elapsed time part1: $elapsed  msec")
@@ -73,7 +73,7 @@ class Day02Test {
     @Order(6)
     fun `Solves Part 2`() {
         val expected = 910
-        puzzleSolver.part2Output = 3500
+        puzzleSolver.part2Output = 3500L
         val elapsed = measureTimeMillis { partResult = puzzleSolver.solvePart2().result.toInt() }
         println("elapsed time part2: $elapsed  msec")
         assertThat(partResult).isEqualTo(expected) }
