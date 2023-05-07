@@ -50,9 +50,6 @@ class Program(var prog: String) {
     fun setMemory(address: Long, value: Long) {
         memory[address] = value
     }
-    fun setMemory(address: Int, value: Long) {
-        setMemory(address.toLong(), value)
-    }
     fun setMemory(address: Int, value: Int) {
         setMemory(address.toLong(), value.toLong())
     }
@@ -64,7 +61,7 @@ class Memory(prog: String) {
     var unlimitedMemory = true
 
     init {
-        val progArray = prog.split(",")
+        val progArray = prog.replace(" ", "").split(",")
         progArray.indices.forEach { i -> mem[i.toLong()] = progArray[i].toLong() }
     }
     operator fun get(adr: Long): Long {

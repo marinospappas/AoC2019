@@ -13,7 +13,7 @@ object InputOutput {
 
     private var outputChannels = arrayOf<IoChannel>()
 
-    fun initInputOutput(numThreads: Int = 0, loop: Boolean = false) {
+    fun initInputOutput(numThreads: Int = 1, loop: Boolean = false) {
         if (!loop) {
             inputChannels = Array(numThreads) { i ->
                 when (i) {
@@ -72,7 +72,7 @@ object InputOutput {
     }
 
     fun readInput(): Long {
-        val inputChannelIndex = Thread.currentThread().name.last().digitToInt()
+        val inputChannelIndex = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
         log.info("read input called channel $inputChannelIndex")
         val inputChannel = inputChannels[inputChannelIndex]
         return if (inputChannel.mode == DIRECT)
@@ -96,7 +96,7 @@ object InputOutput {
     }
 
     fun printOutput(value: Long) {
-        val outputChannelIndex = Thread.currentThread().name.last().digitToInt()
+        val outputChannelIndex = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
         log.info("print output called channel $outputChannelIndex, value $value")
         val outputChannel = outputChannels[outputChannelIndex]
         if (outputChannel.mode == DIRECT)
