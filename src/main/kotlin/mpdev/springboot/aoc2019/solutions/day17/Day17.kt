@@ -35,7 +35,7 @@ class Day17: PuzzleSolver() {
     override fun initSolver() {}
 
     override fun solvePart1(): PuzzlePartSolution {
-        log.info("solving day 17 part 1")
+        log.info("solving day $day part 1")
         initInputOutput()
         val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
@@ -50,7 +50,7 @@ class Day17: PuzzleSolver() {
     }
 
     override fun solvePart2(): PuzzlePartSolution {
-        log.info("solving day 17 part 2")
+        log.info("solving day $day part 2")
         result = 0
         initInputOutput()
         val program = ICProgram(inputData[0])
