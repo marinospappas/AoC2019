@@ -13,7 +13,12 @@ object InputOutput {
 
     private var outputChannels = arrayOf<IoChannel>()
 
-    fun initInputOutput(numThreads: Int = 1, loop: Boolean = false) {
+    private var useStdout = false
+    private var useStdin = false
+
+    fun initInputOutput(numThreads: Int = 1, loop: Boolean = false, stdout: Boolean = false, stdin: Boolean = false) {
+        useStdout = stdout
+        useStdin = stdin
         if (!loop) {
             inputChannels = Array(numThreads) { i ->
                 when (i) {
@@ -47,7 +52,21 @@ object InputOutput {
         log.info("set input values for channel [$channel] to ${inputChannels[channel].data}")
     }
 
-    fun getOutputValues(channel: Int = 0): List<Long> = outputChannels[channel].data
+    fun setInputValuesAscii(value: String, channel: Int = 0) {
+        setInputValues(mutableListOf<Long>().also { list -> value.chars().forEach { c -> list.add(c.toLong()) } }, channel)
+    }
+
+    fun getOutputValues(channel: Int = 0, clearChannel: Boolean = true): List<Long> {
+        val outputValues = outputChannels[channel].data
+        if (clearChannel)
+            outputChannels[channel].data.removeAll { true }
+        return outputValues
+    }
+
+    fun getOutputValuesAscii(channel: Int = 0, clearChannel: Boolean = true): String {
+        val outputValues = getOutputValues(channel, clearChannel)
+        return StringBuilder().also { s -> outputValues.forEach { l -> s.append(l.toInt().toChar()) } }.toString()
+    }
 
     //////// read input
     private fun readDirect(inputChannel: IoChannel): Long {
@@ -83,8 +102,12 @@ object InputOutput {
 
     //////// write output
     private fun printDirect(outputChannel: IoChannel, value: Long) {
-        log.info("print direct value [$value]")
-        outputChannel.data.add(value)
+        if (useStdout)
+            print(value.toInt().toChar())
+        else {
+            log.info("print direct value [$value]")
+            outputChannel.data.add(value)
+        }
     }
 
     private fun printToPipe(pipeChannel: IoChannel, value: Long) {
