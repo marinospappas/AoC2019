@@ -45,7 +45,7 @@ class Day17: PuzzleSolver() {
         initInputOutput()
         val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
-            thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
+            thread(start = true, name = "vacuum-robot-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
             }.join()
             val output = getOutputValuesAscii().trim('\n')
@@ -62,7 +62,7 @@ class Day17: PuzzleSolver() {
         program.setMemory(0, 2)
         inputStringsPart2.forEach { s -> setInputValuesAscii(s) }
         val elapsed = measureTimeMillis {
-            thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
+            thread(start = true, name = "vacuum-robot-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
             }.join()
         }

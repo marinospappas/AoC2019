@@ -30,7 +30,7 @@ class Day09: PuzzleSolver() {
         setInputValues(listOf(1L))
         val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
-            thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
+            thread(start = true, name = "boost-prog-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
             }.join()
         }
@@ -43,7 +43,7 @@ class Day09: PuzzleSolver() {
         setInputValues(listOf(2L))
         val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
-            thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
+            thread(start = true, name = "boost-prog-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
             }.join()
         }
