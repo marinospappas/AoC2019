@@ -30,7 +30,7 @@ class Day17: PuzzleSolver() {
 
     var result = 0
 
-    private val inputStrings = arrayOf(
+    private val inputStringsPart2 = arrayOf(
         "A,B,B,A,B,C,A,C,B,C\n",
         "L,4,L,6,L,8,L,12\n",
         "L,8,R,12,L,12\n",
@@ -60,7 +60,7 @@ class Day17: PuzzleSolver() {
         initInputOutput()
         val program = ICProgram(inputData[0])
         program.setMemory(0, 2)
-        inputStrings.forEach { s -> setInputValuesAscii(s) }
+        inputStringsPart2.forEach { s -> setInputValuesAscii(s) }
         val elapsed = measureTimeMillis {
             thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
