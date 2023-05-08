@@ -22,7 +22,10 @@ abstract class PuzzleSolver {
         log.info("solver for day {} called", day)
         inputData = inputDataReader.read(day)
         initSolver()
-        return PuzzleSolution(day = day, solution = setOf(solvePart1(), solvePart2()))
+        val part1 = solvePart1()
+        val part2 = solvePart2()
+        log.info("day {} part 1 answer: {} part 2 answer: {}", day, part1.result, part2.result)
+        return PuzzleSolution(day = day, solution = setOf(part1, part2))
     }
 
     abstract fun setDay()
