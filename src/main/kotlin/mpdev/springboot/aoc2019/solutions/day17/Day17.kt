@@ -51,17 +51,26 @@ class Day17: PuzzleSolver() {
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day 17 part 2")
+        result = 0
         initInputOutput()
         val program = ICProgram(inputData[0])
         program.setMemory(0, 2)
-        inputStringsPart2.forEach { s -> setInputValuesAscii(s) }
         val elapsed = measureTimeMillis {
-            thread(start = true, name = "vacuum-robot-0") {    // when input/output is required the intCode must run in a separate thread
+            val t1 = thread(start = true, name = "vacuum-robot-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
-            }.join()
+            }
+            inputStringsPart2.forEach { s -> setInputValuesAscii(s) }
+            val t2 = thread(start = true, name = "output-thread-0") {   // thread that collects the output - exits when non-ascii char received
+                while (true) {
+                    result = getOutputValues(clearChannel = false).last().toInt()
+                    if (result > 127)
+                        break
+                    print(getOutputValuesAscii())
+                }
+            }
+            t1.join()
+            t2.join()
         }
-        println(getOutputValuesAscii(clearChannel = false))
-        result = getOutputValues().last().toInt()
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
 

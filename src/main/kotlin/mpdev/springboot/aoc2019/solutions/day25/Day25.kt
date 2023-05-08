@@ -2,7 +2,6 @@ package mpdev.springboot.aoc2019.solutions.day25
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
 import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initInputOutput
 import org.springframework.stereotype.Component
@@ -33,8 +32,7 @@ class Day25: PuzzleSolver() {
                 program.run()
             }.join()
         }
-        if (getOutputValues(clearChannel = false).isNotEmpty())
-            result = getOutputValues().last().toString()
+        result = "Day 25 Completed!!"
         // items:
         //    antenna
         //    semiconductor

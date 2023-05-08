@@ -64,11 +64,12 @@ class Day07: PuzzleSolver() {
                     listOf(phaseSequence[it].toLong()),
                 it)
         }
-        // execute the 5 copies of the program in 5 threads
+        // execute the 5 copies of the intcode program in 5 threads
         val amplifiers = Array(NUMBER_OF_AMPS) {
+            //TODO: there is some race condition here - needs more debugging
             thread(start = true, name = "amplifier-$it") {
                 val program = ICProgram(inputData[0])
-                Thread.sleep(5)
+                //Thread.sleep(5)
                 program.run()
             }
         }

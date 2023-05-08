@@ -21,18 +21,20 @@ class Day05: PuzzleSolver() {
         setDay()
     }
 
+    @Volatile
     var result = 0L
 
     override fun initSolver() {}
 
     override fun solvePart1(): PuzzlePartSolution {
         initInputOutput()
-        setInputValues(listOf(1L))
         val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
-             thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
+            val t = thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
-            }.join()
+            }
+            setInputValues(listOf(1L))
+            t.join()
             result = getOutputValues().last()
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
@@ -41,11 +43,12 @@ class Day05: PuzzleSolver() {
     override fun solvePart2(): PuzzlePartSolution {
         val elapsed = measureTimeMillis {
             initInputOutput()
-            setInputValues(listOf(5L))
             val program = ICProgram(inputData[0])
-            thread(start = true, name = "self-test-0") {     // when input/output is required the intCode must run in a separate thread
+            val t = thread(start = true, name = "self-test-0") {     // when input/output is required the intCode must run in a separate thread
                 program.run()
-            }.join()
+            }
+            setInputValues(listOf(5L))
+            t.join()
             result = getOutputValues().last()
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)

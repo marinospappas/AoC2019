@@ -27,12 +27,13 @@ class Day09: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         initInputOutput()
-        setInputValues(listOf(1L))
         val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
-            thread(start = true, name = "boost-prog-0") {    // when input/output is required the intCode must run in a separate thread
+            val t = thread(start = true, name = "boost-prog-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
-            }.join()
+            }
+            setInputValues(listOf(1L))
+            t.join()
         }
         result = getOutputValues().last()
         return PuzzlePartSolution(1, result.toString(), elapsed)
@@ -40,12 +41,13 @@ class Day09: PuzzleSolver() {
 
     override fun solvePart2(): PuzzlePartSolution {
         initInputOutput()
-        setInputValues(listOf(2L))
         val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
-            thread(start = true, name = "boost-prog-0") {    // when input/output is required the intCode must run in a separate thread
+            val t = thread(start = true, name = "boost-prog-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
-            }.join()
+            }
+            setInputValues(listOf(2L))
+            t.join()
         }
         result = getOutputValues().last()
         return PuzzlePartSolution(2, result.toString(), elapsed)
