@@ -57,7 +57,7 @@ object InputOutput {
     }
 
     fun getOutputValues(channel: Int = 0, clearChannel: Boolean = true): List<Long> {
-        val outputValues = outputChannels[channel].data
+        val outputValues = mutableListOf<Long>().also { list -> list.addAll(outputChannels[channel].data) }
         if (clearChannel)
             outputChannels[channel].data.removeAll { true }
         return outputValues

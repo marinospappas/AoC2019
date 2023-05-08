@@ -48,7 +48,7 @@ class Day17: PuzzleSolver() {
             thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
             }.join()
-            val output = getOutputValuesAscii(clearChannel = false).trim('\n')
+            val output = getOutputValuesAscii().trim('\n')
             val asciiProcessor = AsciiProcessor(output)
             result = asciiProcessor.process()
         }
@@ -66,8 +66,8 @@ class Day17: PuzzleSolver() {
                 program.run()
             }.join()
         }
-        result = getOutputValues(clearChannel = false).last().toInt()
         println(getOutputValuesAscii(clearChannel = false))
+        result = getOutputValues().last().toInt()
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
 
