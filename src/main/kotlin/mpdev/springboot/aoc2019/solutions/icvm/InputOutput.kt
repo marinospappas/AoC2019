@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 
 object InputOutput {
 
-    private val log: Logger = LoggerFactory.getLogger(this::class.java)
+    private val log: Logger = LoggerFactory.getLogger(this::class.java, )
 
     private var inputChannels = arrayOf<IoChannel>()
 
@@ -49,7 +49,7 @@ object InputOutput {
     fun setInputValues(values: List<Long>, channel: Int = 0) {
         inputChannels[channel].data.addAll(values)
         inputChannels[channel].syncObject.dataReady = true
-        log.info("set input values for channel [$channel] to ${inputChannels[channel].data}")
+        log.debug("set input values for channel [{}] to {}", channel, inputChannels[channel].data)
     }
 
     fun setInputValuesAscii(value: String, channel: Int = 0) {
@@ -70,10 +70,19 @@ object InputOutput {
 
     //////// read input
     private fun readDirect(inputChannel: IoChannel): Long {
-        if (inputChannel.data.isEmpty())
-            throw AocException("no more input")
+        if (inputChannel.data.isEmpty()) {
+            if (useStdin) {
+                val inputString = "${readln()}\n"
+                println(inputString.trim('\n'))
+                inputChannel.data.addAll(mutableListOf<Long>().also {
+                    list -> inputString.chars().forEach { c -> list.add(c.toLong()) } }
+                )
+            }
+            else
+                throw AocException("no more input")
+        }
         val result = inputChannel.data.removeAt(0)
-        log.info("read direct returns [$result]")
+        log.debug("read direct returns [$result]")
         return result
     }
 
@@ -86,13 +95,13 @@ object InputOutput {
             if (pipeChannel.data.isEmpty())
                 pipeChannel.syncObject.dataReady = false
         }
-        log.info("read from pipe returns [$result]")
+        log.debug("read from pipe returns [$result]")
         return result
     }
 
     fun readInput(): Long {
         val inputChannelIndex = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
-        log.info("read input called channel $inputChannelIndex")
+        log.debug("read input called channel $inputChannelIndex")
         val inputChannel = inputChannels[inputChannelIndex]
         return if (inputChannel.mode == DIRECT)
             readDirect(inputChannel)
@@ -105,7 +114,7 @@ object InputOutput {
         if (useStdout)
             print(value.toInt().toChar())
         else {
-            log.info("print direct value [$value]")
+            log.debug("print direct value [$value]")
             outputChannel.data.add(value)
         }
     }
@@ -120,7 +129,7 @@ object InputOutput {
 
     fun printOutput(value: Long) {
         val outputChannelIndex = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
-        log.info("print output called channel $outputChannelIndex, value $value")
+        log.debug("print output called channel $outputChannelIndex, value $value")
         val outputChannel = outputChannels[outputChannelIndex]
         if (outputChannel.mode == DIRECT)
             printDirect(outputChannel, value)

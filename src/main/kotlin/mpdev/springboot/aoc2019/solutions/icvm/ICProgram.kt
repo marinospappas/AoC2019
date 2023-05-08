@@ -18,13 +18,12 @@ class ICProgram(var prog: String) {
 
     fun run() {
         var ip = 0L
-        //memory = Memory(prog)
         while (ip in prog.indices) {
             try {
-                log.info("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
+                log.debug("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
                 val instruction: Instruction
                 synchronized(this) { instruction = Instruction(ip, memory) }
-                log.info("program ${Thread.currentThread().name} - instruction ${instruction.opCode}")
+                log.debug("program {} - instruction {}", Thread.currentThread().name, instruction.opCode)
                 synchronized(this) {
                     when (val retCode = instruction.execute()) {
                         InstructionReturnCode.EXIT -> return
