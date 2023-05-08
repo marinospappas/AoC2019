@@ -5,7 +5,7 @@ import mpdev.springboot.aoc2019.solutions.day05.Day05
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initInputOutput
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValues
-import mpdev.springboot.aoc2019.solutions.icvm.Program
+import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Order
@@ -47,7 +47,7 @@ class Day05Test {
     @Order(3)
     fun `Sets up Program object with correct memory contents`() {
         val expected = listOf(1,9,10,3,2,3,11,0,99,30,40,50)
-        val program = Program(inputLines[0])
+        val program = ICProgram(inputLines[0])
         for (i in expected.indices)
             assertThat(program.getMemory(i)).isEqualTo(expected[i].toLong())
     }
@@ -56,7 +56,7 @@ class Day05Test {
     @Order(5)
     @MethodSource("provideArgsToPart1Test")
     fun `Solves Part 1`(input: Int, inputLine: String, expected: Int) {
-        val program = Program(inputLine)
+        val program = ICProgram(inputLine)
         initInputOutput()
         setInputValues(listOf(input.toLong()))
         program.run()
@@ -68,7 +68,7 @@ class Day05Test {
     @Order(7)
     @MethodSource("provideArgsToPart2Test")
     fun `Solves Part 2`(input: Int, inputLine: String, expected: Int) {
-        val program = Program(inputLine)
+        val program = ICProgram(inputLine)
         initInputOutput()
         setInputValues(listOf(input.toLong()))
         program.run()

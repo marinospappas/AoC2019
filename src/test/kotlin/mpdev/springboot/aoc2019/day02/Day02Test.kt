@@ -3,7 +3,7 @@ package mpdev.springboot.aoc2019.day02
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day02.Day02
 import mpdev.springboot.aoc2019.solutions.icvm.OpCode
-import mpdev.springboot.aoc2019.solutions.icvm.Program
+import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
 import mpdev.springboot.aoc2019.utils.AocException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -47,7 +47,7 @@ class Day02Test {
     @Order(3)
     fun `Sets up IntCode object`() {
         val expected = listOf(1,9,10,3,2,3,11,0,99,30,40,50)
-        val program = Program(inputLines[0])
+        val program = ICProgram(inputLines[0])
         for (i in expected.indices)
             assertThat(program.getMemory(i)).isEqualTo(expected[i].toLong())
     }
@@ -63,7 +63,7 @@ class Day02Test {
     @Order(5)
     fun `Solves Part 1`() {
         val expected = 3500L
-        val program = Program(inputLines[0])
+        val program = ICProgram(inputLines[0])
         val elapsed = measureTimeMillis { program.run() }
         println("elapsed time part1: $elapsed  msec")
         assertThat(program.getMemory(0)).isEqualTo(expected)

@@ -6,7 +6,7 @@ import mpdev.springboot.aoc2019.utils.AocUtils
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initInputOutput
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValues
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
-import mpdev.springboot.aoc2019.solutions.icvm.Program
+import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -70,7 +70,7 @@ class Day07: PuzzleSolver() {
         // execute the 5 copies of the program in 5 threads
         val amplifiers = Array(NUMBER_OF_AMPS) {
             thread(start = true, name = "amplifier-$it") {
-                val program = Program(inputData[0])
+                val program = ICProgram(inputData[0])
                 Thread.sleep(5)
                 program.run()
             }

@@ -2,7 +2,7 @@ package mpdev.springboot.aoc2019.solutions.day02
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import mpdev.springboot.aoc2019.solutions.icvm.Program
+import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
@@ -24,7 +24,7 @@ class Day02: PuzzleSolver() {
     override fun initSolver() {}
 
     override fun solvePart1(): PuzzlePartSolution {
-        val program = Program(inputData[0])
+        val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
             program.setMemory(1, 12)
             program.setMemory(2, 2)
@@ -39,7 +39,7 @@ class Day02: PuzzleSolver() {
         val elapsed = measureTimeMillis {
             mainloop@ for (mem1 in 0..99)
                 for (mem2 in 0..99) {
-                    val program = Program(inputData[0])
+                    val program = ICProgram(inputData[0])
                     program.setLimitedMemory()
                     program.setMemory(1, mem1)
                     program.setMemory(2, mem2)

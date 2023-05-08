@@ -3,7 +3,7 @@ package mpdev.springboot.aoc2019.day09
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day09.Day09
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput
-import mpdev.springboot.aoc2019.solutions.icvm.Program
+import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Order
@@ -46,7 +46,7 @@ class Day09Test {
     @Order(3)
     fun `Sets up Program object with correct memory contents`() {
         val expected = listOf(1,9,10,3,2,3,11,0,99,30,40,50)
-        val program = Program(inputLines[0])
+        val program = ICProgram(inputLines[0])
         for (i in expected.indices)
             assertThat(program.getMemory(i)).isEqualTo(expected[i].toLong())
     }
@@ -55,7 +55,7 @@ class Day09Test {
     @Order(5)
     @MethodSource("provideArgsToPart1Test")
     fun `Solves Part 1`(input: Int, inputLine: String, expected: List<Long>) {
-        val program = Program(inputLine)
+        val program = ICProgram(inputLine)
         InputOutput.initInputOutput()
         InputOutput.setInputValues(listOf(input.toLong()))
         thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread

@@ -6,7 +6,7 @@ import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initInputOutput
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValuesAscii
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValuesAscii
-import mpdev.springboot.aoc2019.solutions.icvm.Program
+import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -43,7 +43,7 @@ class Day17: PuzzleSolver() {
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day 17 part 1")
         initInputOutput()
-        val program = Program(inputData[0])
+        val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
             thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
@@ -58,7 +58,7 @@ class Day17: PuzzleSolver() {
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day 17 part 2")
         initInputOutput()
-        val program = Program(inputData[0])
+        val program = ICProgram(inputData[0])
         program.setMemory(0, 2)
         inputStrings.forEach { s -> setInputValuesAscii(s) }
         val elapsed = measureTimeMillis {
