@@ -7,18 +7,12 @@ import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValuesAscii
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValuesAscii
 import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
 @Component
 class Day17: PuzzleSolver() {
-
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(this::class.java)
-    }
 
     final override fun setDay() {
         day = 17         ////// update this when a puzzle solver for a new day is implemented

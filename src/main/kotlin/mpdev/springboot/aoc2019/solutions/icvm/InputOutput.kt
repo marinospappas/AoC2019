@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 
 object InputOutput {
 
-    private val log: Logger = LoggerFactory.getLogger(this::class.java, )
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     private var inputChannels = arrayOf<IoChannel>()
 

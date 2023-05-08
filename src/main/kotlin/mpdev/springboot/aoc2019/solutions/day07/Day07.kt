@@ -7,8 +7,6 @@ import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initInputOutput
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValues
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
 import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
@@ -18,7 +16,6 @@ class Day07: PuzzleSolver() {
 
     companion object {
         const val NUMBER_OF_AMPS = 5
-        private val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
     final override fun setDay() {
@@ -57,7 +54,7 @@ class Day07: PuzzleSolver() {
 
     fun calculateTotalThrust(phaseSequence: List<Int>, loop: Boolean = false): Long {
         initInputOutput(NUMBER_OF_AMPS, loop)
-        log.info("processing sequence $phaseSequence")
+        log.debug("processing sequence {}", phaseSequence)
         // prepare the inputs
         phaseSequence.indices.forEach {
             setInputValues(
@@ -77,7 +74,7 @@ class Day07: PuzzleSolver() {
         }
         amplifiers.forEach { t -> t.join() }
         val result = getOutputValues(NUMBER_OF_AMPS-1).last()
-        log.info("result: $result")
+        log.debug("result: {}", result)
         return result
     }
 

@@ -6,9 +6,7 @@ import org.slf4j.LoggerFactory
 
 class ICProgram(var prog: String) {
 
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(this::class.java)
-    }
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     private var memory = Memory(prog)
 
