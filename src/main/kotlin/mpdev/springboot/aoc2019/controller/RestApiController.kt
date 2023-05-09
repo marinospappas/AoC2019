@@ -14,7 +14,7 @@ class RestApiController(@Autowired var puzzleSolvers: Map<Int,PuzzleSolver>) {
 
     @GetMapping("/day/{day}", produces = ["application/json"])
     fun getPuzzleSolution(@PathVariable day: Int): PuzzleSolution {
-        return puzzleSolvers[day]!!.solve()
+        return puzzleSolvers[day]?.solve() ?: PuzzleSolution(message = "Solution not implemented yet", day = day, solution = setOf())
     }
 
 }

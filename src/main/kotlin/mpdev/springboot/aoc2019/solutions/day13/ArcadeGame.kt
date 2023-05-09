@@ -11,37 +11,56 @@ class ArcadeGame {
     private var prevBallPosition = Point(-1,-1)
     private var paddlePosition = Point(-1,-1)
 
+    var maxX = 0
+    var maxY = 0
+
     private var firstRound = true
 
     fun receiveInput(inputData: List<Int>) {
         println("received: $inputData")
         updateBoard(inputData)
-        if (firstRound)
+        if (firstRound) {
+            maxX = board.keys.maxOf { it.x } + 1
+            maxY = board.keys.maxOf { it.y } + 1
             printBoard()
+        }
         firstRound = false
     }
 
+    private var paddleDirection = 0
+
     fun getJoystick(): List<Int> {
+        // follow the ball
+        return when  {
+            curBallPosition.x > paddlePosition.x -> listOf(1)
+            curBallPosition.x < paddlePosition.x -> listOf(-1)
+            else -> listOf(0)
+        }
+        /*
         if (prevBallPosition == Point(-1,-1))   // first move - paddle stays still
-            return listOf(0)
+            return listOf(0).also { paddleDirection = 0 }
         val ballPredictedX = predictBallXPosition()
         println("predicted ball x = $ballPredictedX")
         if (ballPredictedX < 0)                     // ball going up - paddle stays still
-            return listOf(0)
+            return listOf(0).also { paddleDirection = 0 }
         if (ballPredictedX == paddlePosition.x)     // ball will hit the paddle - paddle stays still
-            return listOf(0)
-        if (ballPredictedX < paddlePosition.x)     // ball will go left of the paddle - paddle goes left
-            return mutableListOf<Int>().also { list -> (1 .. paddlePosition.x-ballPredictedX).forEach { _ ->
-                list.add(-1) } }.also { list -> list.add(0) }
-        else
-            return mutableListOf<Int>().also { list -> (1 .. paddlePosition.x-ballPredictedX).forEach { _ ->
-                list.add(1) } }.also { list -> list.add(0) }
+            return listOf(0).also { paddleDirection = 0 }
+        if (paddleDirection == 0 && ballPredictedX < paddlePosition.x)      // ball will go left of the paddle - paddle goes left
+            return listOf(-1).also { paddleDirection = -1 }
+        if (paddleDirection == -1 && ballPredictedX < paddlePosition.x-1)      // ball will go left of the paddle - paddle goes left
+            return listOf(-1).also { paddleDirection = -1 }
+        if (paddleDirection == 0 && ballPredictedX > paddlePosition.x)      // ball will go right of the paddle - paddle goes right
+            return listOf(1).also { paddleDirection = 1 }
+        if (paddleDirection == 1 && ballPredictedX > paddlePosition.x+1)      // ball will go right of the paddle - paddle goes right
+            return listOf(1).also { paddleDirection = 1 }
+        return listOf(0).also { paddleDirection = 0 }
+         */
         //TODO: complete the algorithm to decide joystick tilt based on ball movement
     }
 
     private fun predictBallXPosition(): Int {
-        if (curBallPosition.y < prevBallPosition.y) // ball goes up - wait
-            return -1
+        if (curBallPosition.y < prevBallPosition.y) // ball goes up - return 0 or maxX to indicate direction of movement
+            return -1 //if (curBallPosition.x < prevBallPosition.x) 0 else 40
         // TODO: take ball bouncing into account
         // below is based on the ball going straight towards the bottom (no bouncing)
         return prevBallPosition.x + (curBallPosition.x - prevBallPosition.x) * (paddlePosition.y - prevBallPosition.y - 1)
@@ -68,8 +87,6 @@ class ArcadeGame {
     }
 
     private fun board2Grid(board: Map<Point, Tile>): Array<CharArray> {
-        val maxX = board.keys.maxOf { it.x } + 1
-        val maxY = board.keys.maxOf { it.y } + 1
         val grid: Array<CharArray> = Array(maxY) { CharArray(maxX) { EMPTY.ascii } }
         board.forEach { (pos, tile) -> grid[pos.y][pos.x] = tile.ascii }
         return grid
@@ -80,10 +97,19 @@ class ArcadeGame {
     fun printBoard() {
         val grid = board2Grid(board)
         for (i in grid.indices) {
+            print("${String.format("%2d",i)} ")
             for (j in grid.first().indices)
                 print(grid[i][j])
             println()
         }
+        print("   ")
+        for (i in grid.first().indices)
+            print(if (i%10 == 0) i/10 else " ")
+        println()
+        print("   ")
+        for (i in grid.first().indices)
+            print(i%10)
+        println()
         println("Score: $score")
         println("Ball previous: $prevBallPosition current: $curBallPosition")
         println("Paddle: $paddlePosition")
