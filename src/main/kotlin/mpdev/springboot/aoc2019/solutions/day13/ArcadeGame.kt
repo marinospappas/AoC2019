@@ -2,13 +2,47 @@ package mpdev.springboot.aoc2019.solutions.day13
 
 import java.awt.Point
 import mpdev.springboot.aoc2019.solutions.day13.Tile.*
-class ArcadeGame(inputData: List<Int>) {
 
-    var board: MutableMap<Point, Tile> = mutableMapOf()
+class ArcadeGame {
 
-    init {
-        for (i in inputData.indices step(3))
-            board[Point(inputData[i],inputData[i+1])] = Tile.fromInt(inputData[i+2])
+    private var board: MutableMap<Point, Tile> = mutableMapOf()
+    var score: Long = 0L
+    private var curBallPosition = Point(-1,-1)
+    private var prevBallPosition = Point(-1,-1)
+    private var paddlePosition = Point(-1,-1)
+
+    lateinit var inputData: List<Int>
+
+    fun receiveInput(inputData: List<Int>) {
+        //println("received: $inputData")
+        this.inputData = inputData
+    }
+
+    private var firstMove = true
+
+    fun getJoystick(): Int {
+        //TODO: algorithm to decide joystick tilt based on ball movement
+        return if (firstMove) 0 else 1
+    }
+
+    fun over() = curBallPosition.y > paddlePosition.y
+
+    fun updateBoard() {
+        for (i in inputData.indices step(3)) {
+            val position = Point(inputData[i], inputData[i + 1])
+            val tile = Tile.fromInt(inputData[i + 2])
+            if (position == Point(-1,0))
+                score = inputData[i + 2].toLong()
+            else
+                board[position] = tile
+            if (tile == BALL) {
+                prevBallPosition = Point(curBallPosition.x, curBallPosition.y)
+                curBallPosition = Point(position.x, position.y)
+            }
+            if (tile == HPADDLE) {
+                paddlePosition = Point(position.x, position.y)
+            }
+        }
     }
 
     private fun board2Grid(board: Map<Point, Tile>): Array<CharArray> {
@@ -19,12 +53,17 @@ class ArcadeGame(inputData: List<Int>) {
         return grid
     }
 
+    fun getNumberOfBlocks() = board.values.count { tile -> tile == BLOCK }
+
     fun printBoard() {
         val grid = board2Grid(board)
-        for (element in grid) {
-            for (i in 0 until grid.first().size)
-                print(element[i])
+        for (i in grid.indices) {
+            for (j in grid.first().indices)
+                print(grid[i][j])
             println()
         }
+        println("Score: $score")
+        //println("Ball previous: $prevBallPosition current: $curBallPosition")
+        //println("Paddle: $paddlePosition")
     }
 }

@@ -2,7 +2,7 @@ package mpdev.springboot.aoc2019.solutions.day13
 
 enum class Tile(val value: Int, val ascii: Char) {
     EMPTY(0, '.'),
-    WALL(1, '+'),
+    WALL(1, 'T'),
     BLOCK(2, 'B'),
     HPADDLE(3, '='),
     BALL(4, 'o'),
