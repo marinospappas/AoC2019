@@ -48,7 +48,7 @@ class Day13: PuzzleSolver() {
             t1.join()
             t2.interrupt()
             game = ArcadeGame()
-            sendOutputToGame(outputValues)
+            sendOutputToGame(t1, outputValues)
             game.updateBoard()
             game.printBoard()
             result = game.getNumberOfBlocks()
@@ -77,14 +77,14 @@ class Day13: PuzzleSolver() {
                 }
             }
             game = ArcadeGame()
-            sendOutputToGame(outputValues)
+            sendOutputToGame(t1, outputValues)
             game.updateBoard()
             game.printBoard()
             while (true) {
                 if (game.getNumberOfBlocks() == 0 || game.over())
                     break
                 setInputValues(listOf(game.getJoystick().toLong()))
-                sendOutputToGame(outputValues)
+                sendOutputToGame(t1, outputValues)
                 game.updateBoard()
                 //game.printBoard()
             }
@@ -96,14 +96,10 @@ class Day13: PuzzleSolver() {
         return PuzzlePartSolution(2, result, elapsed)
     }
 
-    fun sendOutputToGame(output: MutableList<Long>) {
-        var prevOutputSize = output.size
-        while (true) {
-            Thread.sleep(3)
-            val curOutputSize = output.size
-            if (curOutputSize > 0 && curOutputSize == prevOutputSize)
-                break
-            prevOutputSize = curOutputSize
+    fun sendOutputToGame(gameThread: Thread, output: MutableList<Long>) {
+        while (gameThread.state == Thread.State.RUNNABLE) {
+            // when the game thread goes into WAIT state, then it has stopped producing output
+            Thread.sleep(1)
         }
         game.receiveInput(output.toList().map { it.toInt() })
         output.clear()
