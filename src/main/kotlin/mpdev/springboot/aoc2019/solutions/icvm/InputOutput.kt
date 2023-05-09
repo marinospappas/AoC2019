@@ -33,7 +33,6 @@ object InputOutput {
         val inputChannel = inputChannels[channel]
         synchronized(inputChannel) {
             inputChannel.data.addAll(values)
-            inputChannel.dataReady = true
             inputChannel.notify()
         }
         log.debug("set input values for channel [{}] to {}", channel, inputChannels[channel].data)
@@ -52,7 +51,7 @@ object InputOutput {
         val outputValues: List<Long>
         log.debug("getOutputValues called for channel {}", channel)
         synchronized(outputChannel) {
-            while (!outputChannel.dataReady) {
+            while (outputChannel.data.isEmpty()) {
                 log.debug("getOutputValues is waiting for output")
                 outputChannel.wait()
                 log.debug("getOutputValues has been notified")
@@ -62,8 +61,6 @@ object InputOutput {
             outputValues = mutableListOf<Long>().also { list -> list.addAll(outputChannel.data) }
             if (clearChannel)
                 outputChannels[channel].data.removeAll { true }
-            if (outputChannel.data.isEmpty())
-                outputChannel.dataReady = false
         }
         return outputValues
     }
@@ -95,11 +92,9 @@ object InputOutput {
         val inputChannel = inputChannels[inputChannelIndex]
         val result: Long
         synchronized(inputChannel) {
-            while (!inputChannel.dataReady)
+            while (inputChannel.data.isEmpty())
                 inputChannel.wait()
             result = inputChannel.data.removeAt(0)
-            if (inputChannel.data.isEmpty())
-                inputChannel.dataReady = false
         }
         log.debug("read from pipe returns [$result]")
         if (asciiInputProvided)
@@ -124,7 +119,6 @@ object InputOutput {
         val outputChannel = outputChannels[outputChannelIndex]
         synchronized(outputChannel) {
             outputChannel.data.add(value)
-            outputChannel.dataReady = true
             outputChannel.notify()
             log.debug("print out to channel has notified - output ready: {}", outputChannel.data)
         }
@@ -138,5 +132,5 @@ object InputOutput {
     }
 }
 
-class IoChannel(val data: MutableList<Long> = mutableListOf(), var dataReady: Boolean = false): Object()
+class IoChannel(val data: MutableList<Long> = mutableListOf()): Object()
 

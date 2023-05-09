@@ -30,15 +30,18 @@ class ArcadeGame {
     private var paddleDirection = 0
 
     fun getJoystick(): List<Int> {
+        return listOf(0)
         // follow the ball
+        /*
         val tilt = when  {
-            curBallPosition.x > paddlePosition.x -> 1
-            curBallPosition.x < paddlePosition.x -> -1
-            curBallPosition.x == paddlePosition.x && paddlePosition.y - curBallPosition.y > 1 -> paddleDirection
+            ballDirection() > 0 && curBallPosition.x >= paddlePosition.x -> 1
+            ballDirection() < 0 && curBallPosition.x <= paddlePosition.x -> -1
+            //curBallPosition.x == paddlePosition.x && paddlePosition.y - curBallPosition.y > 1 -> paddleDirection
             else -> 0
         }
         paddleDirection = tilt
         return listOf(tilt)
+        */
         /*
         if (prevBallPosition == Point(-1,-1))   // first move - paddle stays still
             return listOf(0).also { paddleDirection = 0 }
@@ -60,6 +63,8 @@ class ArcadeGame {
          */
         //TODO: complete the algorithm to decide joystick tilt based on ball movement
     }
+
+    private fun ballDirection(): Int = curBallPosition.x - prevBallPosition.x
 
     private fun predictBallXPosition(): Int {
         if (curBallPosition.y < prevBallPosition.y) // ball goes up - return 0 or maxX to indicate direction of movement
