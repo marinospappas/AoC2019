@@ -31,11 +31,14 @@ class ArcadeGame {
 
     fun getJoystick(): List<Int> {
         // follow the ball
-        return when  {
-            curBallPosition.x > paddlePosition.x -> listOf(1)
-            curBallPosition.x < paddlePosition.x -> listOf(-1)
-            else -> listOf(0)
+        val tilt = when  {
+            curBallPosition.x > paddlePosition.x -> 1
+            curBallPosition.x < paddlePosition.x -> -1
+            curBallPosition.x == paddlePosition.x && paddlePosition.y - curBallPosition.y > 1 -> paddleDirection
+            else -> 0
         }
+        paddleDirection = tilt
+        return listOf(tilt)
         /*
         if (prevBallPosition == Point(-1,-1))   // first move - paddle stays still
             return listOf(0).also { paddleDirection = 0 }
