@@ -11,23 +11,45 @@ class ArcadeGame {
     private var prevBallPosition = Point(-1,-1)
     private var paddlePosition = Point(-1,-1)
 
-    lateinit var inputData: List<Int>
+    private var firstRound = true
 
     fun receiveInput(inputData: List<Int>) {
-        //println("received: $inputData")
-        this.inputData = inputData
+        println("received: $inputData")
+        updateBoard(inputData)
+        if (firstRound)
+            printBoard()
+        firstRound = false
     }
 
-    private var firstMove = true
+    fun getJoystick(): List<Int> {
+        if (prevBallPosition == Point(-1,-1))   // first move - paddle stays still
+            return listOf(0)
+        val ballPredictedX = predictBallXPosition()
+        println("predicted ball x = $ballPredictedX")
+        if (ballPredictedX < 0)                     // ball going up - paddle stays still
+            return listOf(0)
+        if (ballPredictedX == paddlePosition.x)     // ball will hit the paddle - paddle stays still
+            return listOf(0)
+        if (ballPredictedX < paddlePosition.x)     // ball will go left of the paddle - paddle goes left
+            return mutableListOf<Int>().also { list -> (1 .. paddlePosition.x-ballPredictedX).forEach { _ ->
+                list.add(-1) } }.also { list -> list.add(0) }
+        else
+            return mutableListOf<Int>().also { list -> (1 .. paddlePosition.x-ballPredictedX).forEach { _ ->
+                list.add(1) } }.also { list -> list.add(0) }
+        //TODO: complete the algorithm to decide joystick tilt based on ball movement
+    }
 
-    fun getJoystick(): Int {
-        //TODO: algorithm to decide joystick tilt based on ball movement
-        return if (firstMove) 0 else 1
+    private fun predictBallXPosition(): Int {
+        if (curBallPosition.y < prevBallPosition.y) // ball goes up - wait
+            return -1
+        // TODO: take ball bouncing into account
+        // below is based on the ball going straight towards the bottom (no bouncing)
+        return prevBallPosition.x + (curBallPosition.x - prevBallPosition.x) * (paddlePosition.y - prevBallPosition.y - 1)
     }
 
     fun over() = curBallPosition.y > paddlePosition.y
 
-    fun updateBoard() {
+    private fun updateBoard(inputData: List<Int>) {
         for (i in inputData.indices step(3)) {
             val position = Point(inputData[i], inputData[i + 1])
             val tile = Tile.fromInt(inputData[i + 2])
@@ -63,7 +85,8 @@ class ArcadeGame {
             println()
         }
         println("Score: $score")
-        //println("Ball previous: $prevBallPosition current: $curBallPosition")
-        //println("Paddle: $paddlePosition")
+        println("Ball previous: $prevBallPosition current: $curBallPosition")
+        println("Paddle: $paddlePosition")
+        println()
     }
 }

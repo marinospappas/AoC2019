@@ -21,10 +21,8 @@ class Day13: PuzzleSolver() {
         setDay()
     }
 
-    var result = 0
-
+    var result = 0L
     override fun initSolver() {}
-
     private lateinit var game: ArcadeGame
 
     override fun solvePart1(): PuzzlePartSolution {
@@ -37,21 +35,12 @@ class Day13: PuzzleSolver() {
                 program.run()
             }
             val t2 = thread(start = true, name = "output-thread-0") {   // thread that collects the output - exits when non-ascii char received
-                try {
-                    while (true) {
-                        outputValues.addAll(getOutputValues())
-                    }
-                } catch (e: InterruptedException) {
-                    log.info("output thread exiting")
-                }
+                getGameOutput(outputValues)
             }
             t1.join()
             t2.interrupt()
-            game = ArcadeGame()
-            sendOutputToGame(t1, outputValues)
-            game.updateBoard()
-            game.printBoard()
-            result = game.getNumberOfBlocks()
+            setupGame(outputValues, t1)
+            result = game.getNumberOfBlocks().toLong()
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
@@ -68,37 +57,45 @@ class Day13: PuzzleSolver() {
                 program.run()
             }
             val t2 = thread(start = true, name = "output-thread-0") {  // thread that collects the output - exits when non-ascii char received
-                try {
-                    while (true) {
-                        outputValues.addAll(getOutputValues())
-                    }
-                } catch (e: InterruptedException) {
-                    log.info("output thread exiting")
-                }
+                getGameOutput(outputValues)
             }
-            game = ArcadeGame()
-            sendOutputToGame(t1, outputValues)
-            game.updateBoard()
-            game.printBoard()
-            while (true) {
-                if (game.getNumberOfBlocks() == 0 || game.over())
-                    break
-                setInputValues(listOf(game.getJoystick().toLong()))
-                sendOutputToGame(t1, outputValues)
-                game.updateBoard()
-                //game.printBoard()
-            }
+            setupGame(outputValues, t1)
+            playGame(outputValues, t1)
             t1.join()
             t2.interrupt()
-            game.printBoard()
             result = if (game.score == 0L) "Game Over!!!" else game.score.toString()
         }
         return PuzzlePartSolution(2, result, elapsed)
     }
 
-    fun sendOutputToGame(gameThread: Thread, output: MutableList<Long>) {
-        while (gameThread.state == Thread.State.RUNNABLE) {
-            // when the game thread goes into WAIT state, then it has stopped producing output
+    fun setupGame(data: MutableList<Long>, gameThread: Thread) {
+        game = ArcadeGame()
+        sendOutputToGame(gameThread, data)
+    }
+
+    fun playGame(data: MutableList<Long>, gameThread: Thread) {
+        while (game.getNumberOfBlocks() > 0 && !game.over()) {
+            val joystick = game.getJoystick().map { it.toLong() }
+            println("joystick movement $joystick")
+            setInputValues(joystick)
+            sendOutputToGame(gameThread, data)
+            game.printBoard()
+        }
+        game.printBoard()
+    }
+
+    private fun getGameOutput(outputValues: MutableList<Long>) {
+        try {
+            while (true) {
+                outputValues.addAll(getOutputValues())
+            }
+        } catch (e: InterruptedException) {
+            log.info("output thread exiting")
+        }
+    }
+
+    private fun sendOutputToGame(gameThread: Thread, output: MutableList<Long>) {
+        while (gameThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output
             Thread.sleep(1)
         }
         game.receiveInput(output.toList().map { it.toInt() })
