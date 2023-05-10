@@ -1,7 +1,7 @@
 package mpdev.springboot.aoc2019.day01
 
 import mpdev.springboot.aoc2019.input.InputDataReader
-import mpdev.springboot.aoc2019.solutions.day1.Day01
+import mpdev.springboot.aoc2019.solutions.day01.Day01
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Order

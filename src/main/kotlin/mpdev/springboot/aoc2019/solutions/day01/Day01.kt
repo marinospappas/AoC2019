@@ -1,4 +1,4 @@
-package mpdev.springboot.aoc2019.solutions.day1
+package mpdev.springboot.aoc2019.solutions.day01
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
