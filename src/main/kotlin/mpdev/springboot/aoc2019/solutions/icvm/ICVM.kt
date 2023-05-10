@@ -34,14 +34,14 @@ class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
     }
 
     fun setProgramInput(data: Int, channelId: Int = 0) {
-        setProgramInputLong(listOf(data.toLong()), channelId)
+        setProgramInput(listOf(data.toLong()), channelId)
     }
 
     fun setProgramInput(data: List<Int>, channelId: Int = 0) {
-        setProgramInputLong(data.map { it.toLong() }, channelId)
+        setProgramInput(data.map { it.toLong() }, channelId)
     }
 
-    fun setProgramInputLong(data: List<Long>, channelId: Int = 0) {
+    fun setProgramInput(data: List<Long>, channelId: Int = 0) {
         InputOutput.setInputValues(data, channelId)
     }
 
