@@ -4,7 +4,7 @@ import mpdev.springboot.aoc2019.utils.AocException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class ICProgram(var prog: String) {
+class ICProgram(prog: String) {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -16,7 +16,7 @@ class ICProgram(var prog: String) {
 
     fun run() {
         var ip = 0L
-        while (ip in prog.indices) {
+        while (true) {
             try {
                 log.debug("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
                 val instruction: Instruction

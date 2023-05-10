@@ -37,7 +37,7 @@ class Day07Test {
     @Test
     @Order(2)
     fun `Threads in a Pipeline Pass Output to Next Thread Input`() {
-        InputOutput.initInputOutput(5)
+        InputOutput.initIoChannels(5)
         InputOutput.setInputValues(listOf(1L, 5L), 0)
         InputOutput.setInputValues(listOf(2L), 1)
         InputOutput.setInputValues(listOf(3L), 2)
@@ -71,7 +71,7 @@ class Day07Test {
     @Test
     @Order(4)
     fun `Threads in a Pipeline with Feedback Loop Pass Output to Next Thread Input`() {
-        InputOutput.initInputOutput(4, true)
+        InputOutput.initIoChannels(4, true)
         InputOutput.setInputValues(listOf(1L, 5L),0)
         InputOutput.setInputValues(listOf(2L), 1)
         InputOutput.setInputValues(listOf(3L), 2)

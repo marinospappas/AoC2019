@@ -7,26 +7,34 @@ object InputOutput {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    private var inputChannels = arrayOf<IoChannel>()
+    private lateinit var inputChannels: MutableList<IoChannel>
 
-    private var outputChannels = arrayOf<IoChannel>()
+    private lateinit var outputChannels: MutableList<IoChannel>
 
     private var useStdout = false
     private var useStdin = false
 
     private var asciiInputProvided = false
 
-    fun initInputOutput(numThreads: Int = 1, loop: Boolean = false, stdout: Boolean = false, stdin: Boolean = false) {
+    fun initIoChannels(numThreads: Int = 1, loop: Boolean = false, stdout: Boolean = false, stdin: Boolean = false) {
         useStdout = stdout
         useStdin = stdin
         asciiInputProvided = false
-        outputChannels = Array(numThreads) { IoChannel() }
-        inputChannels = Array(numThreads) { i -> if (i == 0) IoChannel() else outputChannels[i - 1] }
-        log.debug("initialised io channel for {} thread(s)", numThreads)
+        outputChannels = mutableListOf()
+        repeat(numThreads) { _ -> outputChannels.add(IoChannel()) }
+        inputChannels = mutableListOf()
+        repeat(numThreads) { i -> if (i == 0) inputChannels.add(IoChannel()) else inputChannels.add(outputChannels[i - 1]) }
+        log.debug("initialised io channels for {} thread(s)", numThreads)
         if (loop) {
             inputChannels[0] = outputChannels.last()
             log.debug("feedback loop enabled (first input is connected to last output")
         }
+    }
+
+    fun addIoChannel(ioMode: IOMode, loop: Boolean = false): Int {
+        outputChannels.add(IoChannel())
+        inputChannels.add( if (ioMode == IOMode.DIRECT) IoChannel() else inputChannels.last())
+        return outputChannels.lastIndex
     }
 
     fun setInputValues(values: List<Long>, channel: Int = 0) {
@@ -134,3 +142,7 @@ object InputOutput {
 
 class IoChannel(val data: MutableList<Long> = mutableListOf()): Object()
 
+enum class IOMode {
+    PIPE,
+    DIRECT
+}

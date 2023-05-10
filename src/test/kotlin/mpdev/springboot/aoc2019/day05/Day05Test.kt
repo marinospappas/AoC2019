@@ -2,7 +2,7 @@ package mpdev.springboot.aoc2019.day05
 
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day05.Day05
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initInputOutput
+import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initIoChannels
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValues
 import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
@@ -57,7 +57,7 @@ class Day05Test {
     @MethodSource("provideArgsToPart1Test")
     fun `Solves Part 1`(input: Int, inputLine: String, expected: Int) {
         val program = ICProgram(inputLine)
-        initInputOutput()
+        initIoChannels()
         setInputValues(listOf(input.toLong()))
         program.run()
         assertThat(getOutputValues().size).isEqualTo(1)
@@ -69,7 +69,7 @@ class Day05Test {
     @MethodSource("provideArgsToPart2Test")
     fun `Solves Part 2`(input: Int, inputLine: String, expected: Int) {
         val program = ICProgram(inputLine)
-        initInputOutput()
+        initIoChannels()
         setInputValues(listOf(input.toLong()))
         program.run()
         assertThat(getOutputValues().size).isEqualTo(1)

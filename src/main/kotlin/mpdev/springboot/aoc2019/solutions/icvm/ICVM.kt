@@ -6,11 +6,11 @@ import kotlin.concurrent.thread
 
 const val DEF_PROG_THREAD = "intcode-0"
 
-class ICVM(intCodeProgramString: String) {
+open class ICVM(intCodeProgramString: String) {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    private var program: ICProgram
+    protected var program: ICProgram
     private lateinit var programThread: Thread
     private lateinit var outputThread: Thread
 
@@ -18,22 +18,13 @@ class ICVM(intCodeProgramString: String) {
 
     init {
         program = ICProgram(intCodeProgramString)
-        InputOutput.initInputOutput()
+        InputOutput.initIoChannels()
     }
 
     /// public functions
 
     fun runProgram(threadName: String = DEF_PROG_THREAD) {
-        // start intcode program thread
-        programThread = thread(start = true, name = threadName) {
-            program.run()
-        }
-        log.info("IntCode Program Thread started: {} {}", programThread.name, programThread.state)
-        // start output thread
-        outputThread = thread(start = true, name = "output-thread-0") {   // thread that collects the output - exits when non-ascii char received
-            getIntCodeOutput(outputValues)
-        }
-        log.info("Receive Output Thread started: {} {}", outputThread.name, programThread.state)
+        runIntCodeProgram(threadName, program)
     }
 
     fun setProgramInput(data: Int, channelId: Int = 0) {
@@ -83,6 +74,19 @@ class ICVM(intCodeProgramString: String) {
     }
 
     /// private / internal functions
+    protected fun runIntCodeProgram(threadName: String, program: ICProgram) {
+        // start intcode program thread
+        programThread = thread(start = true, name = threadName) {
+            program.run()
+        }
+        log.info("IntCode Program Thread started: {} {}", programThread.name, programThread.state)
+        // start output thread
+        outputThread = thread(start = true, name = "output-thread-0") {   // thread that collects the output - exits when non-ascii char received
+            getIntCodeOutput(outputValues)
+        }
+        log.info("Receive Output Thread started: {} {}", outputThread.name, programThread.state)
+    }
+
     private fun getIntCodeOutput(outputValues: MutableList<Long>) {
         // runs in a loop in a separate thread wait-ing for output until interrupted
         try {

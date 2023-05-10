@@ -3,7 +3,7 @@ package mpdev.springboot.aoc2019.solutions.day07
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import mpdev.springboot.aoc2019.utils.AocUtils
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initInputOutput
+import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initIoChannels
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValues
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
 import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
@@ -53,7 +53,7 @@ class Day07: PuzzleSolver() {
     }
 
     fun calculateTotalThrust(phaseSequence: List<Int>, loop: Boolean = false): Long {
-        initInputOutput(NUMBER_OF_AMPS, loop)
+        initIoChannels(NUMBER_OF_AMPS, loop)
         log.debug("processing sequence {}", phaseSequence)
         // prepare the inputs
         phaseSequence.indices.forEach {
