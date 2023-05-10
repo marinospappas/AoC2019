@@ -49,12 +49,14 @@ class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
         InputOutput.setInputValues(data, channelId)
     }
 
-    fun getProgramOutput(): List<Int> {
+    fun getProgramOutput() = getProgramOutputLong().map { it.toInt() }
+
+    fun getProgramOutputLong(): List<Long> {
         Thread.sleep(1)     // required in case the program thread is still in WAIT
         while (programThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output
             Thread.sleep(1)
         }
-        val output = outputValues.toList().map { it.toInt() }
+        val output = outputValues.toList()
         outputValues.clear()
         log.debug("returning output: {}", output)
         return output
