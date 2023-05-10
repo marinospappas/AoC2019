@@ -2,8 +2,12 @@ package mpdev.springboot.aoc2019.solutions.day13
 
 import java.awt.Point
 import mpdev.springboot.aoc2019.solutions.day13.Tile.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class ArcadeGame {
+
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     private var board: MutableMap<Point, Tile> = mutableMapOf()
     var score: Long = 0L
@@ -17,7 +21,7 @@ class ArcadeGame {
     private var firstRound = true
 
     fun receiveInput(inputData: List<Int>) {
-        println("received: $inputData")
+        //println("received: $inputData")
         updateBoard(inputData)
         if (firstRound) {
             maxX = board.keys.maxOf { it.x } + 1
@@ -119,8 +123,8 @@ class ArcadeGame {
             print(i%10)
         println()
         println("Score: $score")
-        println("Ball previous: $prevBallPosition current: $curBallPosition")
-        println("Paddle: $paddlePosition")
+        log.debug("Ball previous: {} current: {}", prevBallPosition, curBallPosition)
+        log.debug("Paddle: {}", paddlePosition)
         println()
     }
 }

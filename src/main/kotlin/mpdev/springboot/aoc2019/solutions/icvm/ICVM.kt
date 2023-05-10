@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import kotlin.concurrent.thread
 
 const val DEF_PROG_THREAD = "intcode-0"
+
 class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -26,13 +27,13 @@ class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
         // start intcode program thread
         programThread = thread(start = true, name = threadName) {
             program.run()
-            log.info("IntCode Program Thread started: {} {}", programThread.name, programThread.state)
         }
+        log.info("IntCode Program Thread started: {} {}", programThread.name, programThread.state)
         // start output thread
         outputThread = thread(start = true, name = "output-thread-0") {   // thread that collects the output - exits when non-ascii char received
             getIntCodeOutput(outputValues)
-            log.info("Receive Output Thread started: {} {}", outputThread.name, programThread.state)
         }
+        log.info("Receive Output Thread started: {} {}", outputThread.name, programThread.state)
     }
 
     fun setProgramInput(data: Int, channelId: Int = 0) {
@@ -49,24 +50,26 @@ class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
     }
 
     fun getProgramOutput(): List<Int> {
-        Thread.sleep(3)     // required in case the program thread is still in WAIT
+        Thread.sleep(1)     // required in case the program thread is still in WAIT
         while (programThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output
             Thread.sleep(1)
         }
-        if (programThread.state == Thread.State.TERMINATED) {
-            log.info("IntCOde Program Thread state: {}", programThread.state)
-            return emptyList()
-        }
         val output = outputValues.toList().map { it.toInt() }
         outputValues.clear()
-        log.debug("returing output: {}", output)
+        log.debug("returning output: {}", output)
         return output
     }
+
+    fun programIsRunning() = programThread.state != Thread.State.TERMINATED
 
     fun waitProgram() {
         programThread.join()
         log.info("IntCode Program Thread completed")
         outputThread.interrupt()
+    }
+
+    fun setProgramMemory(address: Int, data: Int) {
+        program.setMemory(address, data)
     }
 
     /// private / internal functions

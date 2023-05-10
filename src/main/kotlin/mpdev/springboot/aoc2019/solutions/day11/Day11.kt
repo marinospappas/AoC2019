@@ -54,9 +54,10 @@ class Day11: PuzzleSolver() {
             val input = controller.getInputForRobot()
             icvm.setProgramInput(input)
             val output = icvm.getProgramOutput()
-            if (output.isEmpty())
-                return
-            controller.receiveRobotOutput(output)
+            if (output.isNotEmpty())
+                controller.receiveRobotOutput(output)
+            if (!icvm.programIsRunning())
+                break
         }
     }
 }
