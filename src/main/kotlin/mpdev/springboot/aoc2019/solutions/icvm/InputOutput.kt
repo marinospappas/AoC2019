@@ -16,24 +16,23 @@ object InputOutput {
 
     private var asciiInputProvided = false
 
-    fun initIoChannels(numThreads: Int = 1, loop: Boolean = false, stdout: Boolean = false, stdin: Boolean = false) {
+    fun initIoChannels(stdout: Boolean = false, stdin: Boolean = false) {
         useStdout = stdout
         useStdin = stdin
         asciiInputProvided = false
-        outputChannels = mutableListOf()
-        repeat(numThreads) { _ -> outputChannels.add(IoChannel()) }
-        inputChannels = mutableListOf()
-        repeat(numThreads) { i -> if (i == 0) inputChannels.add(IoChannel()) else inputChannels.add(outputChannels[i - 1]) }
-        log.debug("initialised io channels for {} thread(s)", numThreads)
-        if (loop) {
-            inputChannels[0] = outputChannels.last()
-            log.debug("feedback loop enabled (first input is connected to last output")
-        }
+        outputChannels = mutableListOf<IoChannel>().also { list -> list.add(IoChannel()) }
+        inputChannels = mutableListOf<IoChannel>().also { list -> list.add(IoChannel()) }
+        log.debug("initialised io channels")
     }
 
     fun addIoChannel(ioMode: IOMode, loop: Boolean = false): Int {
         outputChannels.add(IoChannel())
         inputChannels.add( if (ioMode == IOMode.DIRECT) IoChannel() else inputChannels.last())
+        if (loop){
+            inputChannels[0] = outputChannels.last()
+            log.debug("feedback loop enabled (first input is connected to last output")
+        }
+        log.debug("added io channel {}", outputChannels.lastIndex)
         return outputChannels.lastIndex
     }
 

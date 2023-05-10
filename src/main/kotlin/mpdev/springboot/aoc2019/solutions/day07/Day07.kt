@@ -3,12 +3,9 @@ package mpdev.springboot.aoc2019.solutions.day07
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import mpdev.springboot.aoc2019.utils.AocUtils
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initIoChannels
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValues
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
-import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
+import mpdev.springboot.aoc2019.solutions.icvm.ICVMMultipleInstances
+import mpdev.springboot.aoc2019.solutions.icvm.IOMode
 import org.springframework.stereotype.Component
-import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -26,12 +23,13 @@ class Day07: PuzzleSolver() {
         setDay()
     }
 
-    var result = 0L
+    var result = 0
 
     override fun initSolver() {}
 
     override fun solvePart1(): PuzzlePartSolution {
-        val thrusts = mutableListOf<Long>()
+        log.info("solving day $day part 1")
+        val thrusts = mutableListOf<Int>()
         val elapsed = measureTimeMillis {
             AocUtils.permutations(mutableListOf(0,1,2,3,4)).forEach { phaseSequence ->
                 thrusts.add(calculateTotalThrust(phaseSequence))
@@ -42,7 +40,8 @@ class Day07: PuzzleSolver() {
     }
 
     override fun solvePart2(): PuzzlePartSolution {
-        val thrusts = mutableListOf<Long>()
+        log.info("solving day $day part 2")
+        val thrusts = mutableListOf<Int>()
         val elapsed = measureTimeMillis {
             AocUtils.permutations(mutableListOf(5,6,7,8,9)).forEach { phaseSequence ->
                 thrusts.add(calculateTotalThrust(phaseSequence, true))
@@ -52,29 +51,24 @@ class Day07: PuzzleSolver() {
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
 
-    fun calculateTotalThrust(phaseSequence: List<Int>, loop: Boolean = false): Long {
-        initIoChannels(NUMBER_OF_AMPS, loop)
+    fun calculateTotalThrust(phaseSequence: List<Int>, loop: Boolean = false): Int {
         log.debug("processing sequence {}", phaseSequence)
+        // setup the 5 instances of the IntCOde program
+        val icvm = ICVMMultipleInstances(inputData[0])
+        repeat(NUMBER_OF_AMPS - 2) { _ -> icvm.cloneInstance(IOMode.PIPE)}
+        icvm.cloneInstance(IOMode.PIPE, loop)
         // prepare the inputs
         phaseSequence.indices.forEach {
-            setInputValues(
-                if (it == 0)
-                    listOf(phaseSequence[it].toLong(), 0L)
-                else
-                    listOf(phaseSequence[it].toLong()),
-                it)
+            if (it == 0)
+                icvm.setInstanceInput(listOf(phaseSequence[it], 0), 0)
+            else
+                icvm.setInstanceInput(phaseSequence[it], it)
         }
-        // execute the 5 copies of the intcode program in 5 threads
-        val amplifiers = Array(NUMBER_OF_AMPS) {
-            //TODO: there is some race condition here - needs more debugging
-            thread(start = true, name = "amplifier-$it") {
-                val program = ICProgram(inputData[0])
-                //Thread.sleep(5)
-                program.run()
-            }
-        }
-        amplifiers.forEach { t -> t.join() }
-        val result = getOutputValues(NUMBER_OF_AMPS-1).last()
+        // execute the 5 copies of the intCode program in 5 threads
+        repeat(NUMBER_OF_AMPS) { icvm.runInstance(it, "amplifier") }
+        // and wait until all complete
+        repeat(NUMBER_OF_AMPS) { icvm.waitInstance(it) }
+        val result = icvm.getInstanceOutput(NUMBER_OF_AMPS-1).last()
         log.debug("result: {}", result)
         return result
     }

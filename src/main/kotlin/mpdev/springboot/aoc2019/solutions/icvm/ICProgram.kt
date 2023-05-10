@@ -10,6 +10,10 @@ class ICProgram(prog: String) {
 
     private var memory = Memory(prog)
 
+    lateinit var intCodeThread: Thread
+    lateinit var outputThread: Thread
+    val outputValues = mutableListOf<Long>()
+
     fun setLimitedMemory() {
         memory.unlimitedMemory = false
     }
