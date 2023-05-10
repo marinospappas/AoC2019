@@ -6,7 +6,7 @@ import kotlin.concurrent.thread
 
 const val DEF_PROG_THREAD = "intcode-0"
 
-class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
+class ICVM(intCodeProgramString: String) {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -18,7 +18,7 @@ class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
 
     init {
         program = ICProgram(intCodeProgramString)
-        InputOutput.initInputOutput(numberOfThreads)
+        InputOutput.initInputOutput()
     }
 
     /// public functions
