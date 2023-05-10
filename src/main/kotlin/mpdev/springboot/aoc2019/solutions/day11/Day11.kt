@@ -27,9 +27,9 @@ class Day11: PuzzleSolver() {
         val icvm = ICVM(inputData[0])
         controller.initPanels()
         val elapsed = measureTimeMillis {
-            icvm.runProgram()
-            guideRobot(icvm)
-            icvm.waitProgram()
+        //    icvm.runProgram()
+        //    guideRobot(icvm)
+        //    icvm.waitProgram()
             result = controller.countPanels()
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)

@@ -53,14 +53,17 @@ class RobotController {
     }
 
     private fun panels2Grid(panels: Map<Point,Int>): Array<CharArray> {
-        val maxX = panels.keys.maxOf { it.x } + 1
-        val maxY = panels.keys.maxOf { it.y } + 1
-        val grid: Array<CharArray> = Array(maxY) { CharArray(maxX) { '.' } }
-        panels.forEach { (pos, color) -> grid[pos.y][pos.x] = if (color == BLACK) ' ' else '█' }
+        val maxX = panels.keys.maxOf { it.x }
+        val maxY = panels.keys.maxOf { it.y }
+        val minX = panels.keys.minOf { it.x }
+        val minY = panels.keys.minOf { it.y }
+        val grid: Array<CharArray> = Array(maxY - minY + 1) { CharArray(maxX - minX + 1) { ' ' } }
+        panels.forEach { (pos, color) -> grid[pos.y - minY][pos.x - minX] = if (color == BLACK) ' ' else '█' }
         return grid
     }
 
     fun printGrid() {
+        Thread.sleep(10)
         val grid = panels2Grid(panels)
         for (i in grid.lastIndex downTo 0) {
             for (j in grid.first().indices)
