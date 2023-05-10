@@ -1,6 +1,5 @@
 package mpdev.springboot.aoc2019.solutions.day11
 
-import mpdev.springboot.aoc2019.solutions.day13.Tile
 import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.utils.plus
 import java.awt.Point
@@ -19,11 +18,11 @@ class RobotController {
 
     private var robotPosition = Point(0,0)     // starting at position 0,0
     private var directionOfMovement = 0             // facing up
-    private val panels = mutableMapOf<Point,Int>().also { p -> p[robotPosition] = BLACK }
+    private var panels = mutableMapOf<Point,Int>().also { p -> p[robotPosition] = BLACK }
 
     fun initPanels(part: Int = 1) {
         directionOfMovement = 0             // facing up
-        panels.clear()
+        panels = mutableMapOf()
         panels[robotPosition] = if (part == 1) BLACK else WHITE
     }
 
@@ -56,8 +55,8 @@ class RobotController {
     private fun panels2Grid(panels: Map<Point,Int>): Array<CharArray> {
         val maxX = panels.keys.maxOf { it.x } + 1
         val maxY = panels.keys.maxOf { it.y } + 1
-        val grid: Array<CharArray> = Array(maxY) { CharArray(maxX) { Tile.EMPTY.ascii } }
-        panels.forEach { (pos, color) -> grid[pos.y][pos.x] = if (color == BLACK) '.' else 'O' }
+        val grid: Array<CharArray> = Array(maxY) { CharArray(maxX) { '.' } }
+        panels.forEach { (pos, color) -> grid[pos.y][pos.x] = if (color == BLACK) ' ' else '█' }
         return grid
     }
 

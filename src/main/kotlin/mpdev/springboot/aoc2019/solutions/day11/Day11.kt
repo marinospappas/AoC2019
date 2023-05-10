@@ -6,6 +6,7 @@ import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initInputOutput
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
 import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValues
+import mpdev.springboot.aoc2019.utils.AocException
 import org.springframework.stereotype.Component
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
@@ -75,6 +76,7 @@ class Day11: PuzzleSolver() {
                 outputValues.addAll(getOutputValues())
             }
         } catch (e: InterruptedException) {
+            Thread.sleep(10)
             log.info("output thread exiting")
         }
     }
@@ -93,8 +95,10 @@ class Day11: PuzzleSolver() {
         while (gameThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output
             Thread.sleep(1)
         }
-        if (gameThread.state == Thread.State.TERMINATED)     // if output.isEmpty
+        if (gameThread.state == Thread.State.TERMINATED)
             return false
+        if (output.isEmpty())
+            throw AocException("empty output")
         controller.receiveRobotOutput(output.toList().map { it.toInt() })
         output.clear()
         return true
