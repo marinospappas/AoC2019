@@ -2,13 +2,8 @@ package mpdev.springboot.aoc2019.solutions.day11
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initInputOutput
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
-import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValues
-import mpdev.springboot.aoc2019.utils.AocException
+import mpdev.springboot.aoc2019.solutions.icvm.ICVM
 import org.springframework.stereotype.Component
-import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -29,20 +24,12 @@ class Day11: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day $day part 1")
-        val outputValues = mutableListOf<Long>()
-        initInputOutput()
-        val program = ICProgram(inputData[0])
+        val icvm = ICVM(inputData[0])
         controller.initPanels()
         val elapsed = measureTimeMillis {
-            val t1 = thread(start = true, name = "paint-robot-0") {    // when input/output is required the intCode must run in a separate thread
-                program.run()
-            }
-            val t2 = thread(start = true, name = "output-thread-0") {   // thread that collects the output - exits when non-ascii char received
-                getRobotOutput(outputValues)
-            }
-            guideRobot(outputValues, t1)
-            t1.join()
-            t2.interrupt()
+            icvm.runProgram()
+            guideRobot(icvm)
+            icvm.waitProgram()
             result = controller.countPanels()
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
@@ -50,57 +37,26 @@ class Day11: PuzzleSolver() {
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
-        val outputValues = mutableListOf<Long>()
-        initInputOutput()
-        val program = ICProgram(inputData[0])
+        val icvm = ICVM(inputData[0])
         controller.initPanels(2)
         val elapsed = measureTimeMillis {
-            val t1 = thread(start = true, name = "paint-robot-0") {    // when input/output is required the intCode must run in a separate thread
-                program.run()
-            }
-            val t2 = thread(start = true, name = "output-thread-0") {   // thread that collects the output - exits when non-ascii char received
-                getRobotOutput(outputValues)
-            }
-            guideRobot(outputValues, t1)
-            t1.join()
-            t2.interrupt()
+            icvm.runProgram()
+            guideRobot(icvm)
+            icvm.waitProgram()
             controller.printGrid()
             result = controller.countPanels()
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
 
-    private fun getRobotOutput(outputValues: MutableList<Long>) {
-        try {
-            while (true) {
-                outputValues.addAll(getOutputValues())
-            }
-        } catch (e: InterruptedException) {
-            Thread.sleep(10)
-            log.info("output thread exiting")
-        }
-    }
-
-    fun guideRobot(data: MutableList<Long>, gameThread: Thread) {
+    fun guideRobot(icvm: ICVM) {
         while (true) {
-            val robotInput = listOf(controller.getInputForRobot().toLong())
-            setInputValues(robotInput)
-            if (!sendOutputToController(gameThread, data))
+            val input = controller.getInputForRobot()
+            icvm.setProgramInput(input)
+            val output = icvm.getProgramOutput()
+            if (output.isEmpty())
                 return
+            controller.receiveRobotOutput(output)
         }
-    }
-
-    private fun sendOutputToController(gameThread: Thread, output: MutableList<Long>): Boolean {
-        Thread.sleep(1)
-        while (gameThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output
-            Thread.sleep(1)
-        }
-        if (gameThread.state == Thread.State.TERMINATED)
-            return false
-        if (output.isEmpty())
-            throw AocException("empty output")
-        controller.receiveRobotOutput(output.toList().map { it.toInt() })
-        output.clear()
-        return true
     }
 }
