@@ -72,6 +72,14 @@ class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
         program.setMemory(address, data)
     }
 
+    fun getProgramMemory(address: Int) = getProgramMemoryLong(address).toInt()
+
+    fun getProgramMemoryLong(address: Int) = program.getMemory(address)
+
+    fun setLimitedMemory() {
+        program.setLimitedMemory()
+    }
+
     /// private / internal functions
     private fun getIntCodeOutput(outputValues: MutableList<Long>) {
         // runs in a loop in a separate thread wait-ing for output until interrupted
