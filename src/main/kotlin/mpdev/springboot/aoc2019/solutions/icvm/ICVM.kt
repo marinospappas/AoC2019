@@ -26,13 +26,13 @@ class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
         // start intcode program thread
         programThread = thread(start = true, name = threadName) {
             program.run()
+            log.info("IntCode Program Thread started: {} {}", programThread.name, programThread.state)
         }
-        log.info("IntCode Program Thread started: {} {}", programThread.name, programThread.state)
         // start output thread
         outputThread = thread(start = true, name = "output-thread-0") {   // thread that collects the output - exits when non-ascii char received
             getIntCodeOutput(outputValues)
+            log.info("Receive Output Thread started: {} {}", outputThread.name, programThread.state)
         }
-        log.info("Receive Output Thread started: {} {}", outputThread.name, programThread.state)
     }
 
     fun setProgramInput(data: Int, channelId: Int = 0) {
@@ -49,7 +49,7 @@ class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
     }
 
     fun getProgramOutput(): List<Int> {
-        Thread.sleep(1)     // required in case the program thread is still in WAIT
+        Thread.sleep(3)     // required in case the program thread is still in WAIT
         while (programThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output
             Thread.sleep(1)
         }
@@ -71,7 +71,7 @@ class ICVM(intCodeProgramString: String, numberOfThreads: Int = 1) {
 
     /// private / internal functions
     private fun getIntCodeOutput(outputValues: MutableList<Long>) {
-        // runs in a loop in a separate thread until interrupted
+        // runs in a loop in a separate thread wait-ing for output until interrupted
         try {
             while (true) {
                 outputValues.addAll(InputOutput.getOutputValues())
