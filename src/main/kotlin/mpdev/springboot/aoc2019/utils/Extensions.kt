@@ -1,6 +1,10 @@
 package mpdev.springboot.aoc2019.utils
 
+import java.awt.Point
 import java.lang.StringBuilder
+
+operator fun Point.plus(other: Point) =
+    Point(this.x + other.x, this.y + other.y)
 
 fun String.splitRepeatedChars(): List<String> {
     if (isEmpty())
