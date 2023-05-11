@@ -2,10 +2,10 @@ package mpdev.springboot.aoc2019.solutions.icvm
 
 open class ICVM(intCodeProgramString: String): AbstractICVM() {
 
-    protected var program: ICProgram
+    protected var program: Program
 
     init {
-        program = ICProgram(intCodeProgramString)
+        program = Program(intCodeProgramString)
         InputOutput.initIoChannel()
     }
 

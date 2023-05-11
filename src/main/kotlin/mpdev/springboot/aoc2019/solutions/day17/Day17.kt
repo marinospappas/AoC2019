@@ -6,7 +6,7 @@ import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initIoChannel
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValuesAscii
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValuesAscii
-import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
+import mpdev.springboot.aoc2019.solutions.icvm.Program
 import org.springframework.stereotype.Component
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
@@ -37,7 +37,7 @@ class Day17: PuzzleSolver() {
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day $day part 1")
         initIoChannel()
-        val program = ICProgram(inputData[0])
+        val program = Program(inputData[0])
         val elapsed = measureTimeMillis {
             thread(start = true, name = "vacuum-robot-0") {    // when input/output is required the intCode must run in a separate thread
                 program.run()
@@ -53,7 +53,7 @@ class Day17: PuzzleSolver() {
         log.info("solving day $day part 2")
         result = 0
         initIoChannel()
-        val program = ICProgram(inputData[0])
+        val program = Program(inputData[0])
         program.setMemory(0, 2)
         val elapsed = measureTimeMillis {
             val t1 = thread(start = true, name = "vacuum-robot-0") {    // when input/output is required the intCode must run in a separate thread

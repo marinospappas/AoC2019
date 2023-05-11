@@ -13,7 +13,7 @@ abstract class AbstractICVM {
     protected val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     /// protected / internal functions
-    protected fun runIntCodeProgram(threadName: String, program: ICProgram) {
+    protected fun runIntCodeProgram(threadName: String, program: Program) {
         // start IntCode program thread
         program.intCodeThread = thread(start = true, name = threadName) {
             program.run()
@@ -21,19 +21,19 @@ abstract class AbstractICVM {
         log.info("IntCode Program Thread started: {} {}", program.intCodeThread.name, program.intCodeThread.state)
     }
 
-    protected fun intCodeProgramIsRunning(program: ICProgram) = program.intCodeThread.state != Thread.State.TERMINATED
+    protected fun intCodeProgramIsRunning(program: Program) = program.intCodeThread.state != Thread.State.TERMINATED
 
-    protected fun waitIntCodeProgram(program: ICProgram) {
+    protected fun waitIntCodeProgram(program: Program) {
         program.intCodeThread.join()
         log.info("IntCode Program Thread completed")
     }
 
-    fun setIntCodeProgramInputLong(data: List<Long>, program: ICProgram) {
+    fun setIntCodeProgramInputLong(data: List<Long>, program: Program) {
         log.debug("set program input to {}", data)
         InputOutput.setInputValues(data, program.inputChannelId)
     }
 
-    protected fun getIntCodeProgramOutputLong(program: ICProgram): List<Long> {
+    protected fun getIntCodeProgramOutputLong(program: Program): List<Long> {
         Thread.sleep(1)     // required in case the program thread is still in WAIT
         while (program.intCodeThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output this time round
             Thread.sleep(1)

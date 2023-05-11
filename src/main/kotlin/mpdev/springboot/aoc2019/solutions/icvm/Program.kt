@@ -4,7 +4,7 @@ import mpdev.springboot.aoc2019.utils.AocException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class ICProgram(prog: String) {
+class Program(prog: String) {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 

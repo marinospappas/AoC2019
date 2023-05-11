@@ -6,10 +6,10 @@ class ICVMMultipleInstances(private val intCodeProgramString: String): ICVM(intC
         const val DEF_PROG_INSTANCE_PREFIX = "intcd-inst"
     }
 
-    private var instances = mutableListOf<ICProgram>().also { list -> list.add(program) }
+    private var instances = mutableListOf<Program>().also { list -> list.add(program) }
 
     fun cloneInstance(ioMode: IOMode, loop: Boolean = false) {
-        val newInstance = ICProgram(intCodeProgramString)
+        val newInstance = Program(intCodeProgramString)
         instances.add(newInstance)
         val newChannel = InputOutput.addIoChannel(ioMode, loop)
         newInstance.inputChannelId = newChannel
