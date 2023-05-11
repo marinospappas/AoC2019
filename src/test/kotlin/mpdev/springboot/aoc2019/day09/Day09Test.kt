@@ -56,7 +56,7 @@ class Day09Test {
     @MethodSource("provideArgsToPart1Test")
     fun `Solves Part 1`(input: Int, inputLine: String, expected: List<Long>) {
         val program = ICProgram(inputLine)
-        InputOutput.initIoChannels()
+        InputOutput.initIoChannel()
         InputOutput.setInputValues(listOf(input.toLong()))
         thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
             program.run()

@@ -3,7 +3,7 @@ package mpdev.springboot.aoc2019.solutions.day25
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import mpdev.springboot.aoc2019.solutions.icvm.ICProgram
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initIoChannels
+import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initIoChannel
 import org.springframework.stereotype.Component
 import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
@@ -25,7 +25,7 @@ class Day25: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day 17 part 1")
-        initIoChannels(stdin = true, stdout = true)
+        initIoChannel(stdin = true, stdout = true)
         val program = ICProgram(inputData[0])
         val elapsed = measureTimeMillis {
             thread(start = true, name = "text-game-0") {    // when input/output is required the intCode must run in a separate thread

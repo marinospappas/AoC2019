@@ -2,6 +2,7 @@ package mpdev.springboot.aoc2019.day07
 
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day07.Day07
+import mpdev.springboot.aoc2019.solutions.icvm.IOMode
 import mpdev.springboot.aoc2019.solutions.icvm.InputOutput
 import mpdev.springboot.aoc2019.utils.AocUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -37,7 +38,11 @@ class Day07Test {
     @Test
     @Order(2)
     fun `Threads in a Pipeline Pass Output to Next Thread Input`() {
-        InputOutput.initIoChannels(5)
+        InputOutput.initIoChannel()
+        InputOutput.addIoChannel(IOMode.PIPE)
+        InputOutput.addIoChannel(IOMode.PIPE)
+        InputOutput.addIoChannel(IOMode.PIPE)
+        InputOutput.addIoChannel(IOMode.PIPE)
         InputOutput.setInputValues(listOf(1L, 5L), 0)
         InputOutput.setInputValues(listOf(2L), 1)
         InputOutput.setInputValues(listOf(3L), 2)
@@ -71,7 +76,11 @@ class Day07Test {
     @Test
     @Order(4)
     fun `Threads in a Pipeline with Feedback Loop Pass Output to Next Thread Input`() {
-        InputOutput.initIoChannels(4, true)
+        InputOutput.initIoChannel()
+        InputOutput.addIoChannel(IOMode.PIPE)
+        InputOutput.addIoChannel(IOMode.PIPE)
+        InputOutput.addIoChannel(IOMode.PIPE, true)
+
         InputOutput.setInputValues(listOf(1L, 5L),0)
         InputOutput.setInputValues(listOf(2L), 1)
         InputOutput.setInputValues(listOf(3L), 2)

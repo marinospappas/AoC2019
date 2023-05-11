@@ -73,7 +73,7 @@ class Day02Test {
     @Order(6)
     fun `Solves Part 2`() {
         val expected = 910
-        puzzleSolver.part2Output = 3500L
+        puzzleSolver.part2Output = 3500
         val elapsed = measureTimeMillis { partResult = puzzleSolver.solvePart2().result.toInt() }
         println("elapsed time part2: $elapsed  msec")
         assertThat(partResult).isEqualTo(expected) }

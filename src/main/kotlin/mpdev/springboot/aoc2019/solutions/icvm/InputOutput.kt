@@ -16,7 +16,7 @@ object InputOutput {
 
     private var asciiInputProvided = false
 
-    fun initIoChannels(stdout: Boolean = false, stdin: Boolean = false) {
+    fun initIoChannel(stdout: Boolean = false, stdin: Boolean = false) {
         useStdout = stdout
         useStdin = stdin
         asciiInputProvided = false
@@ -26,8 +26,8 @@ object InputOutput {
     }
 
     fun addIoChannel(ioMode: IOMode, loop: Boolean = false): Int {
+        inputChannels.add( if (ioMode == IOMode.DIRECT) IoChannel() else outputChannels.last())
         outputChannels.add(IoChannel())
-        inputChannels.add( if (ioMode == IOMode.DIRECT) IoChannel() else inputChannels.last())
         if (loop){
             inputChannels[0] = outputChannels.last()
             log.debug("feedback loop enabled (first input is connected to last output")

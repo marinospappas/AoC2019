@@ -1,21 +1,19 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-import mpdev.springboot.aoc2019.utils.AocException
-
-class ICVMMultipleInstances(val intCodeProgramString: String): ICVM(intCodeProgramString) {
+class ICVMMultipleInstances(private val intCodeProgramString: String): ICVM(intCodeProgramString) {
 
     companion object {
         const val DEF_PROG_INSTANCE_PREFIX = "intcd-inst"
     }
 
     private var instances = mutableListOf<ICProgram>().also { list -> list.add(program) }
-    private val ioChannelMap = mutableMapOf(0 to 0)
 
     fun cloneInstance(ioMode: IOMode, loop: Boolean = false) {
-        val curNumOrInstances = instances.size
-        instances.add(ICProgram(intCodeProgramString))
+        val newInstance = ICProgram(intCodeProgramString)
+        instances.add(newInstance)
         val newChannel = InputOutput.addIoChannel(ioMode, loop)
-        ioChannelMap[curNumOrInstances] = newChannel
+        newInstance.inputChannelId = newChannel
+        newInstance.OutputChannelId = newChannel
     }
 
     fun runInstance(instanceId: Int, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX) {
@@ -23,13 +21,11 @@ class ICVMMultipleInstances(val intCodeProgramString: String): ICVM(intCodeProgr
     }
 
     fun setInstanceInput(data: Int, instanceId: Int) {
-        setProgramInputLong(listOf(data.toLong()), ioChannelMap[instanceId]
-            ?: throw AocException("ioChannel not found for instance $instanceId"))
+        setIntCodeProgramInputLong(listOf(data.toLong()), instances[instanceId])
     }
 
     fun setInstanceInput(data: List<Int>, instanceId: Int) {
-        setProgramInputLong(data.map { it.toLong() }, ioChannelMap[instanceId]
-            ?: throw AocException("ioChannel not found for instance $instanceId"))
+        setIntCodeProgramInputLong(data.map { it.toLong() }, instances[instanceId])
     }
 
     fun getInstanceOutput(instanceId: Int) =
@@ -41,6 +37,5 @@ class ICVMMultipleInstances(val intCodeProgramString: String): ICVM(intCodeProgr
     fun waitInstance(instanceId: Int) {
         instances[instanceId].intCodeThread.join()
         log.info("IntCode Instance Thread {} completed", instanceId)
-        instances[instanceId].outputThread.interrupt()
     }
 }
