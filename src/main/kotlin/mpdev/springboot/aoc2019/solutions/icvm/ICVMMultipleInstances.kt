@@ -13,7 +13,7 @@ class ICVMMultipleInstances(private val intCodeProgramString: String): ICVM(intC
         instances.add(newInstance)
         val newChannel = InputOutput.addIoChannel(ioMode, loop)
         newInstance.inputChannelId = newChannel
-        newInstance.OutputChannelId = newChannel
+        newInstance.outputChannelId = newChannel
     }
 
     fun runInstance(instanceId: Int, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX) {

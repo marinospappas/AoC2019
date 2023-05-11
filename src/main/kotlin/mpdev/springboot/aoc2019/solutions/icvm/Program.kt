@@ -11,10 +11,8 @@ class Program(prog: String) {
     private var memory = Memory(prog)
 
     lateinit var intCodeThread: Thread
-    //lateinit var outputThread: Thread
-    //val outputValues = mutableListOf<Long>()
     var inputChannelId = 0
-    var OutputChannelId = 0
+    var outputChannelId = 0
 
     fun setLimitedMemory() {
         memory.unlimitedMemory = false

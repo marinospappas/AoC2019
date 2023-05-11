@@ -38,7 +38,7 @@ abstract class AbstractICVM {
         while (program.intCodeThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output this time round
             Thread.sleep(1)
         }
-        val output = InputOutput.getOutputValues(program.OutputChannelId)
+        val output = InputOutput.getOutputValues(program.outputChannelId)
         log.debug("returning output: {}", output)
         return output
     }
