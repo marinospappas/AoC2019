@@ -26,7 +26,7 @@ object InputOutput {
     }
 
     fun addIoChannel(ioMode: IOMode, loop: Boolean = false): Int {
-        inputChannels.add( if (ioMode == IOMode.DIRECT) IoChannel() else outputChannels.last())
+        inputChannels.add( if (ioMode != IOMode.PIPE) IoChannel() else outputChannels.last())
         outputChannels.add(IoChannel())
         log.debug("added io channels {}", outputChannels.lastIndex)
         if (loop){
@@ -143,5 +143,6 @@ class IoChannel(val data: MutableList<Long> = mutableListOf()): Object()
 
 enum class IOMode {
     PIPE,
-    DIRECT
+    DIRECT,
+    NETWORKED
 }
