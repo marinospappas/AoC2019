@@ -23,10 +23,6 @@ open class ICVM(intCodeProgramString: String): AbstractICVM() {
         setIntCodeProgramInputLong(data.map { it.toLong() }, program)
     }
 
-    fun setProgramInputLong(data: List<Long>) {
-        setIntCodeProgramInputLong(data, program)
-    }
-
     fun getProgramOutput() = getIntCodeProgramOutputLong(program).map { it.toInt() }
 
     fun getProgramOutputLong() = getIntCodeProgramOutputLong(program)
@@ -36,6 +32,8 @@ open class ICVM(intCodeProgramString: String): AbstractICVM() {
     fun waitProgram() {
         waitIntCodeProgram(program)
     }
+
+    // these functions have not been implemented in ICVM MultiInstance
 
     fun setProgramMemory(address: Int, data: Int) {
         program.setMemory(address, data)

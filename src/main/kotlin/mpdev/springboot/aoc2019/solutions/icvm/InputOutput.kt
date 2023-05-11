@@ -22,17 +22,17 @@ object InputOutput {
         asciiInputProvided = false
         outputChannels = mutableListOf<IoChannel>().also { list -> list.add(IoChannel()) }
         inputChannels = mutableListOf<IoChannel>().also { list -> list.add(IoChannel()) }
-        log.debug("initialised io channels")
+        log.debug("initialised io channels 0")
     }
 
     fun addIoChannel(ioMode: IOMode, loop: Boolean = false): Int {
         inputChannels.add( if (ioMode == IOMode.DIRECT) IoChannel() else outputChannels.last())
         outputChannels.add(IoChannel())
+        log.debug("added io channels {}", outputChannels.lastIndex)
         if (loop){
             inputChannels[0] = outputChannels.last()
             log.debug("feedback loop enabled (first input is connected to last output")
         }
-        log.debug("added io channel {}", outputChannels.lastIndex)
         return outputChannels.lastIndex
     }
 

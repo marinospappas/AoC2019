@@ -4,7 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.concurrent.thread
 
-open class AbstractICVM {
+abstract class AbstractICVM {
 
     companion object {
         const val DEF_PROG_THREAD = "intcode-0"
@@ -35,7 +35,7 @@ open class AbstractICVM {
 
     protected fun getIntCodeProgramOutputLong(program: ICProgram): List<Long> {
         Thread.sleep(1)     // required in case the program thread is still in WAIT
-        while (program.intCodeThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output
+        while (program.intCodeThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output this time round
             Thread.sleep(1)
         }
         val output = InputOutput.getOutputValues(program.OutputChannelId)
