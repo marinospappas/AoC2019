@@ -6,36 +6,32 @@ class ICVMMultipleInstances(private val intCodeProgramString: String): ICVM(intC
         const val DEF_PROG_INSTANCE_PREFIX = "intcd-inst"
     }
 
-    private var instances = mutableListOf<Program>().also { list -> list.add(program) }
-
     fun cloneInstance(ioMode: IOMode, loop: Boolean = false) {
         val newInstance = Program(intCodeProgramString)
-        instances.add(newInstance)
-        val newChannel = InputOutput.addIoChannel(ioMode, loop)
-        newInstance.inputChannelId = newChannel
-        newInstance.outputChannelId = newChannel
+        threadTable.add(newInstance)
+        InputOutput.setIoChannels(threadTable.lastIndex, ioMode, loop)
     }
 
     fun runInstance(instanceId: Int, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX) {
-        runIntCodeProgram("$threadNamePrefix-$instanceId", instances[instanceId])
+        runIntCodeProgram("$threadNamePrefix-$instanceId", threadTable[instanceId])
     }
 
     fun setInstanceInput(data: Int, instanceId: Int) {
-        setIntCodeProgramInputLong(listOf(data.toLong()), instances[instanceId])
+        setIntCodeProgramInputLong(listOf(data.toLong()), threadTable[instanceId])
     }
 
     fun setInstanceInput(data: List<Int>, instanceId: Int) {
-        setIntCodeProgramInputLong(data.map { it.toLong() }, instances[instanceId])
+        setIntCodeProgramInputLong(data.map { it.toLong() }, threadTable[instanceId])
     }
 
     fun getInstanceOutput(instanceId: Int) =
-        getIntCodeProgramOutputLong(instances[instanceId]).map { it.toInt() }
+        getIntCodeProgramOutputLong(threadTable[instanceId]).map { it.toInt() }
 
     fun instanceIsRunning(instanceId: Int) =
-        instances[instanceId].intCodeThread.state != Thread.State.TERMINATED
+        threadTable[instanceId].intCodeThread.state != Thread.State.TERMINATED
 
     fun waitInstance(instanceId: Int) {
-        instances[instanceId].intCodeThread.join()
+        threadTable[instanceId].intCodeThread.join()
         log.info("IntCode Instance Thread {} completed", instanceId)
     }
 }

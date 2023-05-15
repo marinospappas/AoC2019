@@ -11,8 +11,9 @@ class Program(prog: String) {
     private var memory = Memory(prog)
 
     lateinit var intCodeThread: Thread
-    var inputChannelId = 0
-    var outputChannelId = 0
+    var threadName = Thread.currentThread().name
+    lateinit var inputChannel: IoChannel
+    lateinit var outputChannel: IoChannel
 
     fun setLimitedMemory() {
         memory.unlimitedMemory = false

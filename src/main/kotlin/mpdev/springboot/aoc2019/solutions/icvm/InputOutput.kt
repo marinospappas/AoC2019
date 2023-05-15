@@ -7,45 +7,30 @@ object InputOutput {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    private lateinit var inputChannels: MutableList<IoChannel>
-
-    private lateinit var outputChannels: MutableList<IoChannel>
-
     private var useStdout = false
     private var useStdin = false
 
     private var asciiInputProvided = false
 
-    fun initIoChannel(stdout: Boolean = false, stdin: Boolean = false) {
+    fun setIoChannels(icvmThreadId: Int = 0, ioMode: IOMode = IOMode.DIRECT, stdout: Boolean = false, stdin: Boolean = false) {
         useStdout = stdout
         useStdin = stdin
         asciiInputProvided = false
-        outputChannels = mutableListOf<IoChannel>().also { list -> list.add(IoChannel()) }
-        inputChannels = mutableListOf<IoChannel>().also { list -> list.add(IoChannel()) }
-        log.debug("initialised io channels 0")
+        AbstractICVM.threadTable[icvmThreadId].outputChannel =
+            if (ioMode == IOMode.NETWORKED) NetworkChannel() else DirectIo()
+        AbstractICVM.threadTable[icvmThreadId].inputChannel =
+            if (ioMode != IOMode.PIPE) IoChannel() else AbstractICVM.threadTable.last().outputChannel
+        log.debug("initialised io channels for icvm thread {}", icvmThreadId)
     }
 
-    fun addIoChannel(ioMode: IOMode, loop: Boolean = false): Int {
-        inputChannels.add( if (ioMode != IOMode.PIPE) IoChannel() else outputChannels.last())
-        outputChannels.add(IoChannel())
-        log.debug("added io channels {}", outputChannels.lastIndex)
-        if (loop){
-            inputChannels[0] = outputChannels.last()
-            log.debug("feedback loop enabled (first input is connected to last output")
-        }
-        return outputChannels.lastIndex
-    }
-
-    fun setInputValues(values: List<Long>, channel: Int = 0) {
-        val inputChannel = inputChannels[channel]
+    fun setInputValues(values: List<Long>, inputChannel: IoChannel = AbstractICVM.threadTable[0].inputChannel) {
         synchronized(inputChannel) {
             inputChannel.data.addAll(values)
             inputChannel.notify()
         }
-        log.debug("set input values for channel [{}] to {}", channel, inputChannels[channel].data)
     }
 
-    fun setInputValuesAscii(value: String, channel: Int = 0) {
+    fun setInputValuesAscii(value: String, channel: IoChannel = AbstractICVM.threadTable[0].inputChannel) {
         setInputValues(
             mutableListOf<Long>().also { list -> value.chars().forEach { c -> list.add(c.toLong()) } },
             channel
@@ -53,10 +38,8 @@ object InputOutput {
         asciiInputProvided = true
     }
 
-    fun getOutputValues(channel: Int = 0, clearChannel: Boolean = true): List<Long> {
-        val outputChannel = outputChannels[channel]
+    fun getOutputValues(outputChannel: IoChannel = AbstractICVM.threadTable[0].outputChannel, clearChannel: Boolean = true): List<Long> {
         val outputValues: List<Long>
-        log.debug("getOutputValues called for channel {}", channel)
         synchronized(outputChannel) {
             while (outputChannel.data.isEmpty()) {
                 log.debug("getOutputValues is waiting for output")
@@ -67,20 +50,20 @@ object InputOutput {
             log.debug("output data: {}", outputChannel.data)
             outputValues = mutableListOf<Long>().also { list -> list.addAll(outputChannel.data) }
             if (clearChannel)
-                outputChannels[channel].data.removeAll { true }
+                outputChannel.data.removeAll { true }
         }
         return outputValues
     }
 
-    fun getOutputValuesAscii(channel: Int = 0, clearChannel: Boolean = true): String {
-        val outputValues = getOutputValues(channel, clearChannel)
+    fun getOutputValuesAscii(outputChannel: IoChannel = AbstractICVM.threadTable[0].outputChannel, clearChannel: Boolean = true): String {
+        val outputValues = getOutputValues(outputChannel, clearChannel)
         return StringBuilder().also { s -> outputValues.forEach { l -> s.append(l.toInt().toChar()) } }.toString()
     }
 
     //////// read input
     private fun readFromStdin(): Long {
-        val inputChannelIndex = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
-        val inputChannel = inputChannels[inputChannelIndex]
+        val icvmThreadId = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
+        val inputChannel = AbstractICVM.threadTable[icvmThreadId].inputChannel
         if (inputChannel.data.isEmpty()) {
             val inputString = "${readln()}\n"
             println(inputString.trim('\n'))
@@ -94,9 +77,9 @@ object InputOutput {
     }
 
     private fun readFromChannel(): Long {
-        val inputChannelIndex = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
-        log.debug("read input from channel called channel id: {}", inputChannelIndex)
-        val inputChannel = inputChannels[inputChannelIndex]
+        val icvmThreadId = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
+        log.debug("read input from channel called thread id: {}", icvmThreadId)
+        val inputChannel = AbstractICVM.threadTable[icvmThreadId].inputChannel
         val result: Long
         synchronized(inputChannel) {
             while (inputChannel.data.isEmpty())
@@ -120,10 +103,10 @@ object InputOutput {
     }
 
     private fun printToChannel(value: Long) {
-        val outputChannelIndex =
+        val icvmThreadId =
             if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
-        log.debug("print output to channel called channel id: {}, value to print: {}", outputChannelIndex, value)
-        val outputChannel = outputChannels[outputChannelIndex]
+        log.debug("print output to channel called thread id: {}, value to print: {}", icvmThreadId, value)
+        val outputChannel = AbstractICVM.threadTable[icvmThreadId].outputChannel
         synchronized(outputChannel) {
             outputChannel.data.add(value)
             outputChannel.notify()
@@ -139,7 +122,9 @@ object InputOutput {
     }
 }
 
-class IoChannel(val data: MutableList<Long> = mutableListOf()): Object()
+open class IoChannel(val data: MutableList<Long> = mutableListOf()): Object()
+
+class DirectIo: IoChannel()
 
 enum class IOMode {
     PIPE,

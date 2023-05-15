@@ -8,6 +8,8 @@ abstract class AbstractICVM {
 
     companion object {
         const val DEF_PROG_THREAD = "intcode-0"
+        // the ICVM "process table"
+        val threadTable = mutableListOf<Program>()
     }
 
     protected val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -30,7 +32,7 @@ abstract class AbstractICVM {
 
     fun setIntCodeProgramInputLong(data: List<Long>, program: Program) {
         log.debug("set program input to {}", data)
-        InputOutput.setInputValues(data, program.inputChannelId)
+        InputOutput.setInputValues(data, program.inputChannel)
     }
 
     protected fun getIntCodeProgramOutputLong(program: Program): List<Long> {
@@ -38,7 +40,7 @@ abstract class AbstractICVM {
         while (program.intCodeThread.state == Thread.State.RUNNABLE) {     // game thread state WAIT = no more output this time round
             Thread.sleep(1)
         }
-        val output = InputOutput.getOutputValues(program.outputChannelId)
+        val output = InputOutput.getOutputValues(program.outputChannel)
         log.debug("returning output: {}", output)
         return output
     }

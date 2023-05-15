@@ -12,11 +12,11 @@ object NetworkIo {
 
     fun buildPacketInOutputChannel(outputValue: Long, outputChannel: NetworkChannel) {
         synchronized(outputChannel) {
-            if (outputChannel.data.isEmpty()) {
-                outputChannel.data.add(Packet(address = outputValue.toInt()))
+            if (outputChannel.nicData.isEmpty()) {
+                outputChannel.nicData.add(Packet(address = outputValue.toInt()))
                 return
             }
-            val lastPacket = outputChannel.data.last()
+            val lastPacket = outputChannel.nicData.last()
             if (lastPacket.valueX == Long.MIN_VALUE)
                 lastPacket.valueX = outputValue
             else if (lastPacket.valueY == Long.MIN_VALUE)
@@ -33,13 +33,14 @@ object NetworkIo {
         if (packet.address == BROADCAST_ADDRESS)
             broadcastQueue.add(packet)
         else
-            InputOutput.setInputValues(listOf(packet.valueX, packet.valueY), packet.address)
+            InputOutput.setInputValues(listOf(packet.valueX, packet.valueY),
+                AbstractICVM.threadTable[packet.address].inputChannel)
     }
 
     fun getBroadcastQueue() = broadcastQueue.toList()
 }
 
-class NetworkChannel(val data: MutableList<Packet> = mutableListOf()): Object()
+class NetworkChannel(val nicData: MutableList<Packet> = mutableListOf()): IoChannel()
 
 class Packet(val address: Int, var valueX: Long = Long.MIN_VALUE, var valueY: Long = Long.MIN_VALUE) {
     fun isComplete() =
