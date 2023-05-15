@@ -2,6 +2,8 @@ package mpdev.springboot.aoc2019.solutions.icvm
 
 object NetworkIo {
 
+    val BROADCAST_ADDRESS = 0xFF
+
     private lateinit var broadcastQueue: MutableList<Packet>
 
     fun initialiseNetwork() {
@@ -28,7 +30,7 @@ object NetworkIo {
     }
 
     private fun sendPacketToDestination(packet: Packet) {
-        if (packet.address == 0xFF)
+        if (packet.address == BROADCAST_ADDRESS)
             broadcastQueue.add(packet)
         else
             InputOutput.setInputValues(listOf(packet.valueX, packet.valueY), packet.address)
