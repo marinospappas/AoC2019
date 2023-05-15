@@ -1,6 +1,6 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-object NetworkIO {
+object NetworkIo {
 
     private lateinit var broadcastQueue: MutableList<Packet>
 
@@ -12,22 +12,26 @@ object NetworkIO {
         synchronized(outputChannel) {
             if (outputChannel.data.isEmpty()) {
                 outputChannel.data.add(Packet(address = outputValue.toInt()))
-            } else {
-                val lastPacket = outputChannel.data.last()
-                if (lastPacket.valueX == Long.MIN_VALUE)
-                    lastPacket.valueX = outputValue
-                else if (lastPacket.valueY == Long.MIN_VALUE)
-                    lastPacket.valueY = outputValue
-                if (lastPacket.isComplete()) {
-                    sendPacketToDestination(lastPacket)
-                    outputChannel.data.removeAt(outputChannel.data.lastIndex)
-                }
+                return
+            }
+            val lastPacket = outputChannel.data.last()
+            if (lastPacket.valueX == Long.MIN_VALUE)
+                lastPacket.valueX = outputValue
+            else if (lastPacket.valueY == Long.MIN_VALUE)
+                lastPacket.valueY = outputValue
+
+            if (lastPacket.isComplete()) {
+                sendPacketToDestination(lastPacket)
+                outputChannel.data.removeAt(outputChannel.data.lastIndex)
             }
         }
     }
 
-    fun sendPacketToDestination(packet: Packet) {
-
+    private fun sendPacketToDestination(packet: Packet) {
+        if (packet.address == 0xFF)
+            broadcastQueue.add(packet)
+        else
+            InputOutput.setInputValues(listOf(packet.valueX, packet.valueY), packet.address)
     }
 
     fun getBroadcastQueue() = broadcastQueue.toList()
