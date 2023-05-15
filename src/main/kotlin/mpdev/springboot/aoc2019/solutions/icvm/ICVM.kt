@@ -9,7 +9,10 @@ open class ICVM(intCodeProgramString: String): AbstractICVM() {
         InputOutput.initIoChannel()
     }
 
-    /// public functions
+    companion object {
+        // the ICVM "process table"
+        val threadList = mutableListOf<Program>()
+    }
 
     fun runProgram(threadName: String = DEF_PROG_THREAD) {
         runIntCodeProgram(threadName, program)
