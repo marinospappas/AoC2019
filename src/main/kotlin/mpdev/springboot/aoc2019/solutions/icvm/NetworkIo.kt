@@ -29,7 +29,7 @@ class NetworkIo {
     fun readFromChannel(networkChannel: NetworkChannel): Long {
         var result: Long
         synchronized(networkChannel) {      // network read is non-blocking
-            Thread.sleep(10)
+            //Thread.sleep(10)
             if (networkChannel.data.isEmpty()) {
                 return -1
             }
