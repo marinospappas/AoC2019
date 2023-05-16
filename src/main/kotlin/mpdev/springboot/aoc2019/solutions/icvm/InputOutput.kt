@@ -12,9 +12,15 @@ class InputOutput {
 
     private var asciiInputProvided = false
 
+    private val netIo = NetworkIo()
+
+    init {
+        netIo.initialiseNetworkIo()
+    }
+
     fun setIoChannels(icvmThreadId: Int = 0, ioMode: IOMode = IOMode.DIRECT, loop: Boolean = false, stdout: Boolean = false, stdin: Boolean = false) {
         if (ioMode == IOMode.NETWORKED)
-            NetworkIo.setIoChannels(icvmThreadId)
+            netIo.setIoChannels(icvmThreadId)
         else {
             useStdout = stdout
             useStdin = stdin
@@ -49,7 +55,7 @@ class InputOutput {
     private fun readFromChannel(inputChannel: IoChannel): Long {
         val result: Long
         if (inputChannel is NetworkChannel)
-            result = NetworkIo.readFromChannel(inputChannel)
+            result = netIo.readFromChannel(inputChannel)
         else {
             synchronized(inputChannel) {
                 while (inputChannel.data.isEmpty())
@@ -75,7 +81,7 @@ class InputOutput {
 
     private fun printToChannel(outputChannel: IoChannel, value: Long) {
         if (outputChannel is NetworkChannel)
-            NetworkIo.writeToChannel(value, outputChannel)
+            netIo.writeToChannel(value, outputChannel)
         else
             synchronized(outputChannel) {
                 outputChannel.data.add(value)

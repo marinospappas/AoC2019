@@ -3,13 +3,18 @@ package mpdev.springboot.aoc2019.solutions.icvm
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object NetworkIo {
+class NetworkIo {
 
-    private const val BROADCAST_ADDRESS = 0xFF
+    private val BROADCAST_ADDRESS = 0xFF
+
+    companion object {
+
+        private lateinit var broadcastQueue: MutableList<Packet>
+
+        fun getBroadcastQueue() = broadcastQueue.toList()
+    }
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
-
-    private lateinit var broadcastQueue: MutableList<Packet>
 
     fun initialiseNetworkIo() {
         broadcastQueue = mutableListOf()
@@ -58,7 +63,6 @@ object NetworkIo {
         {} //TODO: InputOutput.setInputValues(listOf(packet.valueX, packet.valueY), AbstractICVM.threadTable[packet.address].inputChannel)
     }
 
-    fun getBroadcastQueue() = broadcastQueue.toList()
 }
 
 class NetworkChannel(val nicData: MutableList<Packet> = mutableListOf()): IoChannel()

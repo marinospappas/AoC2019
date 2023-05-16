@@ -29,7 +29,6 @@ class Day23: PuzzleSolver() {
         log.info("solving day $day part 1")
         val icvm = ICVMMultipleInstances(inputData[0], ioMode = IOMode.NETWORKED)
         repeat(NUMBER_OF_NODES-1) { _ -> icvm.cloneInstance(IOMode.NETWORKED)}
-        NetworkIo.initialiseNetworkIo()
         // set network address
         repeat(NUMBER_OF_NODES) { icvm.setInstanceInput(it, it) }
         Thread.sleep(1000)
