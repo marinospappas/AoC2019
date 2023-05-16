@@ -2,9 +2,8 @@ package mpdev.springboot.aoc2019.solutions.day25
 
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import mpdev.springboot.aoc2019.solutions.icvm.Program
+import mpdev.springboot.aoc2019.solutions.icvm.ICVM
 import org.springframework.stereotype.Component
-import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -25,11 +24,10 @@ class Day25: PuzzleSolver() {
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day 17 part 1")
         // TODO: initIoChannel(stdin = true, stdout = true)
-        val program = Program(inputData[0])
+        val icvm = ICVM(inputData[0], useStdin = true, useStdout = true)
         val elapsed = measureTimeMillis {
-            thread(start = true, name = "text-game-0") {    // when input/output is required the intCode must run in a separate thread
-                program.run()
-            }.join()
+            icvm.runProgram()
+            icvm.waitProgram()
         }
         result = "Day 25 Completed!!"
         // items:
