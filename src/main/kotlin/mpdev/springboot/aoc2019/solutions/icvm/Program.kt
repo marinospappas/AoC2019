@@ -11,7 +11,7 @@ class Program(prog: String) {
     private var memory = Memory(prog)
 
     lateinit var intCodeThread: Thread
-    var threadName = Thread.currentThread().name
+    lateinit var threadName: String
     lateinit var inputChannel: IoChannel
     lateinit var outputChannel: IoChannel
 

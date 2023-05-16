@@ -7,7 +7,7 @@ import kotlin.concurrent.thread
 abstract class AbstractICVM {
 
     companion object {
-        const val DEF_PROG_THREAD = "intcode-0"
+        const val DEF_PROG_INSTANCE_PREFIX = "intcode-thread"
         // the ICVM "process table"
         val threadTable = mutableListOf<Program>()
     }
@@ -15,9 +15,9 @@ abstract class AbstractICVM {
     protected val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     /// protected / internal functions
-    protected fun runIntCodeProgram(threadName: String, program: Program) {
+    protected fun runIntCodeProgram(program: Program) {
         // start IntCode program thread
-        program.intCodeThread = thread(start = true, name = threadName) {
+        program.intCodeThread = thread(start = true, name = program.threadName) {
             program.run()
         }
         log.info("IntCode Program Thread started: {} {}", program.intCodeThread.name, program.intCodeThread.state)

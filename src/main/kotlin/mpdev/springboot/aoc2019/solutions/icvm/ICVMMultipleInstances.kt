@@ -1,19 +1,17 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-class ICVMMultipleInstances(private val intCodeProgramString: String): ICVM(intCodeProgramString) {
+class ICVMMultipleInstances(private val intCodeProgramString: String, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX):
+    ICVM(intCodeProgramString, threadNamePrefix) {
 
-    companion object {
-        const val DEF_PROG_INSTANCE_PREFIX = "intcd-inst"
-    }
-
-    fun cloneInstance(ioMode: IOMode, loop: Boolean = false) {
+    fun cloneInstance(ioMode: IOMode, loop: Boolean = false, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX) {
         val newInstance = Program(intCodeProgramString)
         threadTable.add(newInstance)
-        InputOutput.setIoChannels(threadTable.lastIndex, ioMode, loop)
+        threadTable.last().threadName = "$threadNamePrefix-${threadTable.lastIndex}"
+        InputOutput.setIoChannels(threadTable.lastIndex, ioMode = ioMode, loop = loop)
     }
 
-    fun runInstance(instanceId: Int, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX) {
-        runIntCodeProgram("$threadNamePrefix-$instanceId", threadTable[instanceId])
+    fun runInstance(instanceId: Int) {
+        runIntCodeProgram(threadTable[instanceId])
     }
 
     fun setInstanceInput(data: Int, instanceId: Int) {

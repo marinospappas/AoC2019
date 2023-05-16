@@ -1,19 +1,21 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-open class ICVM(intCodeProgramString: String): AbstractICVM() {
+open class ICVM(intCodeProgramString: String, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX): AbstractICVM() {
 
     private var mainThread: Program
 
     init {
+        // clears the thread table and creates the first instance of the IntCOde program
         if (threadTable.isNotEmpty())
             threadTable.clear()
         threadTable.add(Program(intCodeProgramString))
         mainThread = threadTable[0]
+        mainThread.threadName = "$threadNamePrefix-0"
         InputOutput.setIoChannels()
     }
 
-    fun runProgram(threadName: String = DEF_PROG_THREAD) {
-        runIntCodeProgram(threadName, mainThread)
+    fun runProgram() {
+        runIntCodeProgram(mainThread)
     }
 
     fun setProgramInput(data: Int) {

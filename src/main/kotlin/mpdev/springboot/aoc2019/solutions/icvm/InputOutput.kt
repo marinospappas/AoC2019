@@ -12,15 +12,19 @@ object InputOutput {
 
     private var asciiInputProvided = false
 
-    fun setIoChannels(icvmThreadId: Int = 0, ioMode: IOMode = IOMode.DIRECT, stdout: Boolean = false, stdin: Boolean = false) {
+    fun setIoChannels(icvmThreadId: Int = 0, ioMode: IOMode = IOMode.DIRECT, loop: Boolean = false, stdout: Boolean = false, stdin: Boolean = false) {
         useStdout = stdout
         useStdin = stdin
         asciiInputProvided = false
+        AbstractICVM.threadTable[icvmThreadId].inputChannel =
+            if (ioMode != IOMode.PIPE) DirectIo() else AbstractICVM.threadTable[icvmThreadId-1].outputChannel
         AbstractICVM.threadTable[icvmThreadId].outputChannel =
             if (ioMode == IOMode.NETWORKED) NetworkChannel() else DirectIo()
-        AbstractICVM.threadTable[icvmThreadId].inputChannel =
-            if (ioMode != IOMode.PIPE) IoChannel() else AbstractICVM.threadTable.last().outputChannel
         log.debug("initialised io channels for icvm thread {}", icvmThreadId)
+        if (loop) {
+            AbstractICVM.threadTable[0].inputChannel = AbstractICVM.threadTable.last().outputChannel
+            log.debug("loop i/o activated")
+        }
     }
 
     fun setInputValues(values: List<Long>, inputChannel: IoChannel = AbstractICVM.threadTable[0].inputChannel) {

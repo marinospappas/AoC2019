@@ -53,7 +53,7 @@ class Day07: PuzzleSolver() {
 
     fun calculateTotalThrust(phaseSequence: List<Int>, loop: Boolean = false): Int {
         log.debug("processing sequence {}", phaseSequence)
-        // setup the 5 instances of the IntCOde program
+        // setup the 5 instances of the IntCode program
         val icvm = ICVMMultipleInstances(inputData[0])
         repeat(NUMBER_OF_AMPS - 2) { _ -> icvm.cloneInstance(IOMode.PIPE)}
         icvm.cloneInstance(IOMode.PIPE, loop)
@@ -65,7 +65,7 @@ class Day07: PuzzleSolver() {
                 icvm.setInstanceInput(phaseSequence[it], it)
         }
         // execute the 5 copies of the intCode program in 5 threads
-        repeat(NUMBER_OF_AMPS) { icvm.runInstance(it, "amplifier") }
+        repeat(NUMBER_OF_AMPS) { icvm.runInstance(it) }
         // and wait until all complete
         repeat(NUMBER_OF_AMPS) { icvm.waitInstance(it) }
         val result = icvm.getInstanceOutput(NUMBER_OF_AMPS-1).last()
