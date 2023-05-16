@@ -6,6 +6,10 @@ class ICVMMultipleInstances(private val intCodeProgramString: String,
     ICVM(intCodeProgramString, threadNamePrefix, ioMode) {
 
     fun cloneInstance(ioMode: IOMode, loop: Boolean = false, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX) {
+        addInstance(intCodeProgramString, ioMode, loop, threadNamePrefix)
+    }
+
+    fun addInstance(intCodeProgramString: String, ioMode: IOMode, loop: Boolean = false, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX) {
         val newInstance = Program(intCodeProgramString)
         threadTable.add(newInstance)
         threadTable.last().threadName = "$threadNamePrefix-${threadTable.lastIndex}"

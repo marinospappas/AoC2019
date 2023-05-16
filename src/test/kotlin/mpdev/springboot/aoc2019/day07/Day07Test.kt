@@ -2,8 +2,8 @@ package mpdev.springboot.aoc2019.day07
 
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day07.Day07
+import mpdev.springboot.aoc2019.solutions.icvm.ICVMMultipleInstances
 import mpdev.springboot.aoc2019.solutions.icvm.IOMode
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput
 import mpdev.springboot.aoc2019.utils.AocUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -13,7 +13,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
-import kotlin.concurrent.thread
 
 class Day07Test {
 
@@ -34,35 +33,26 @@ class Day07Test {
     fun `Sets Day correctly`() {
         assertThat(puzzleSolver.day).isEqualTo(day)
     }
-/*
+
     @Test
     @Order(2)
     fun `Threads in a Pipeline Pass Output to Next Thread Input`() {
-        InputOutput.initIoChannel()
-        InputOutput.addIoChannel(IOMode.PIPE)
-        InputOutput.addIoChannel(IOMode.PIPE)
-        InputOutput.addIoChannel(IOMode.PIPE)
-        InputOutput.addIoChannel(IOMode.PIPE)
-        InputOutput.setInputValues(listOf(1L, 5L), 0)
-        InputOutput.setInputValues(listOf(2L), 1)
-        InputOutput.setInputValues(listOf(3L), 2)
-        InputOutput.setInputValues(listOf(4L), 3)
-        InputOutput.setInputValues(listOf(5L), 4)
-        val testThreads = Array(5) {
-            thread(start = true, name = "test-thread-$it") {
-                readWriteInThread()
-            }
-        }
-        testThreads.forEach { t -> t.join() }
-        val result = InputOutput.getOutputValues(4)
+        // IntCode program: output = 10 * input1 + input2
+        val icvm = ICVMMultipleInstances("3,0,3,1,1002,0,10,2,1,2,1,2,4,2,99")
+        repeat(4) { _ -> icvm.cloneInstance(IOMode.PIPE)}
+        // prepare the inputs
+        icvm.setInstanceInput(listOf(1,5), 0)
+        icvm.setInstanceInput(listOf(2), 1)
+        icvm.setInstanceInput(listOf(3), 2)
+        icvm.setInstanceInput(listOf(4), 3)
+        icvm.setInstanceInput(listOf(5), 4)
+        // execute the 5 copies of the intCode program in 5 threads
+        repeat(5) { icvm.runInstance(it) }
+        // and wait until all complete
+        repeat(5) { icvm.waitInstance(it) }
+        val result = icvm.getInstanceOutput(4)
         assertThat(result.size).isEqualTo(1)
-        assertThat(result[0].toInt()).isEqualTo(155)
-    }
-
-    private fun readWriteInThread() {
-        val input1 = InputOutput.readInput()
-        val input2 = InputOutput.readInput()
-        InputOutput.printOutput(input1 * 10L + input2)
+        assertThat(result[0]).isEqualTo(155)
     }
 
     @ParameterizedTest
@@ -76,39 +66,26 @@ class Day07Test {
     @Test
     @Order(4)
     fun `Threads in a Pipeline with Feedback Loop Pass Output to Next Thread Input`() {
-        InputOutput.initIoChannel()
-        InputOutput.addIoChannel(IOMode.PIPE)
-        InputOutput.addIoChannel(IOMode.PIPE)
-        InputOutput.addIoChannel(IOMode.PIPE, true)
-
-        InputOutput.setInputValues(listOf(1L, 5L),0)
-        InputOutput.setInputValues(listOf(2L), 1)
-        InputOutput.setInputValues(listOf(3L), 2)
-        InputOutput.setInputValues(listOf(4L), 3)
-        val testThreads = Array(4) {
-            thread(start = true, name = "test-thread-$it") {
-                if (it == 0)
-                    readWriteInThread1()
-                else
-                    readWriteInThread()
-            }
-        }
-        testThreads.forEach { t -> t.join() }
-        val result = InputOutput.getOutputValues(0)
+        // IntCode program1: output1 = 10 * input1 + input2, output2 = 10 * input3
+        val icvm = ICVMMultipleInstances("3,0,3,1,1002,0,10,2,1,2,1,2,4,2,3,0,1002,0,10,1,4,1,99")
+        // IntCode program2: output = 10 * input1 + input2
+        val program2 = "3,0,3,1,1002,0,10,2,1,2,1,2,4,2,99"
+        repeat(2) { _ -> icvm.addInstance(program2, IOMode.PIPE)}
+        icvm.addInstance(program2, IOMode.PIPE, loop = true)
+        // prepare the inputs
+        icvm.setInstanceInput(listOf(1,5), 0)
+        icvm.setInstanceInput(listOf(2), 1)
+        icvm.setInstanceInput(listOf(3), 2)
+        icvm.setInstanceInput(listOf(4), 3)
+        // execute the 5 copies of the intCode program in 5 threads
+        repeat(4) { icvm.runInstance(it) }
+        // and wait until all complete
+        repeat(4) { icvm.waitInstance(it) }
+        val result = icvm.getInstanceOutput(0)
         assertThat(result.size).isEqualTo(1)
-        assertThat(result[0].toInt()).isEqualTo(1050)
+        assertThat(result[0]).isEqualTo(1050)
     }
 
-    private fun readWriteInThread1() {
-        var input1 = InputOutput.readInput()
-        val input2 = InputOutput.readInput()
-        InputOutput.printOutput(input1 * 10L + input2)
-        input1 = InputOutput.readInput()
-        InputOutput.printOutput(input1 * 10L)
-    }
-
-
- */
     @ParameterizedTest
     @Order(5)
     @MethodSource("provideArgsToTotalThrustTest2")

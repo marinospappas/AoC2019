@@ -2,6 +2,7 @@ package mpdev.springboot.aoc2019.day02
 
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day02.Day02
+import mpdev.springboot.aoc2019.solutions.icvm.ICVM
 import mpdev.springboot.aoc2019.solutions.icvm.OpCode
 import mpdev.springboot.aoc2019.solutions.icvm.Program
 import mpdev.springboot.aoc2019.utils.AocException
@@ -63,10 +64,12 @@ class Day02Test {
     @Order(5)
     fun `Solves Part 1`() {
         val expected = 3500L
-        val program = Program(inputLines[0])
-        val elapsed = measureTimeMillis { program.run() }
+        val icvm = ICVM(inputLines[0])
+        icvm.runProgram()
+        icvm.waitProgram()
+        val elapsed = measureTimeMillis { icvm.runProgram() }
         println("elapsed time part1: $elapsed  msec")
-        assertThat(program.getMemory(0)).isEqualTo(expected)
+        assertThat(icvm.getProgramMemory(0)).isEqualTo(expected)
     }
 
     @Test

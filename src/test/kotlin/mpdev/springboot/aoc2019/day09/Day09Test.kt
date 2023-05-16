@@ -2,7 +2,7 @@ package mpdev.springboot.aoc2019.day09
 
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day09.Day09
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput
+import mpdev.springboot.aoc2019.solutions.icvm.ICVM
 import mpdev.springboot.aoc2019.solutions.icvm.Program
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
-import kotlin.concurrent.thread
 
 class Day09Test {
 
@@ -50,24 +49,20 @@ class Day09Test {
         for (i in expected.indices)
             assertThat(program.getMemory(i)).isEqualTo(expected[i].toLong())
     }
-/*
+
     @ParameterizedTest
     @Order(5)
     @MethodSource("provideArgsToPart1Test")
     fun `Solves Part 1`(input: Int, inputLine: String, expected: List<Long>) {
-        val program = Program(inputLine)
-        InputOutput.initIoChannel()
-        InputOutput.setInputValues(listOf(input.toLong()))
-        thread(start = true, name = "self-test-0") {    // when input/output is required the intCode must run in a separate thread
-            program.run()
-        }.join()
-        val result = InputOutput.getOutputValues()
+        val icvm = ICVM(inputLine)
+        icvm.runProgram()
+        icvm.setProgramInput(input)
+        icvm.waitProgram()
+        val result = icvm.getProgramOutputLong()
         println(result)
         assertThat(result).isEqualTo(expected)
     }
 
-
- */
     companion object {
         @JvmStatic
         fun provideArgsToPart1Test(): Stream<Arguments> = Stream.of(

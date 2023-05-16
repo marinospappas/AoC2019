@@ -63,21 +63,19 @@ class Day05Test {
         assertThat(output.last()).isEqualTo(expected.toLong())
     }
 
-    /*
     @ParameterizedTest
     @Order(7)
     @MethodSource("provideArgsToPart2Test")
     fun `Solves Part 2`(input: Int, inputLine: String, expected: Int) {
-        val program = Program(inputLine)
-        initIoChannel()
-        setInputValues(listOf(input.toLong()))
-        program.run()
-        assertThat(getOutputValues().size).isEqualTo(1)
-        assertThat(getOutputValues().last()).isEqualTo(expected.toLong())
+        val icvm = ICVM(inputLine)
+        icvm.runProgram()
+        icvm.setProgramInput(input)
+        icvm.waitProgram()
+        val output = icvm.getProgramOutput()
+        assertThat(output.size).isEqualTo(1)
+        assertThat(output.last()).isEqualTo(expected.toLong())
     }
 
-
-     */
     companion object {
         @JvmStatic
         fun provideArgsToPart1Test(): Stream<Arguments> = Stream.of(

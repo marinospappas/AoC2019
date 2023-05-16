@@ -30,7 +30,7 @@ abstract class AbstractICVM {
         log.info("IntCode Program Thread completed")
     }
 
-    fun setIntCodeProgramInputLong(data: List<Long>, program: Program) {
+    protected fun setIntCodeProgramInputLong(data: List<Long>, program: Program) {
         log.debug("set program input to {}", data)
         setInputValues(data, program.inputChannel)
     }

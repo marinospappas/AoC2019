@@ -30,8 +30,6 @@ class InputOutput {
         }
     }
 
-
-
     //////// read input
     private fun readFromStdin(): Long {
         val icvmThreadId =  Thread.currentThread().name.substringAfterLast('-', "0").toInt()
@@ -47,8 +45,6 @@ class InputOutput {
         log.debug("read direct returns [$result]")
         return result
     }
-
-    var i = 0
 
     private fun readFromChannel(inputChannel: IoChannel): Long {
         val result: Long
