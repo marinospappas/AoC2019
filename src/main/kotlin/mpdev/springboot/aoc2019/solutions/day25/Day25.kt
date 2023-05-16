@@ -23,7 +23,6 @@ class Day25: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day 17 part 1")
-        // TODO: initIoChannel(stdin = true, stdout = true)
         val icvm = ICVM(inputData[0], useStdin = true, useStdout = true)
         val elapsed = measureTimeMillis {
             icvm.runProgram()

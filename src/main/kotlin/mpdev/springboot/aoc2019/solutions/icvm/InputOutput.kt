@@ -13,17 +13,20 @@ object InputOutput {
     private var asciiInputProvided = false
 
     fun setIoChannels(icvmThreadId: Int = 0, ioMode: IOMode = IOMode.DIRECT, loop: Boolean = false, stdout: Boolean = false, stdin: Boolean = false) {
-        useStdout = stdout
-        useStdin = stdin
-        asciiInputProvided = false
-        AbstractICVM.threadTable[icvmThreadId].inputChannel =
-            if (ioMode != IOMode.PIPE) DirectIo() else AbstractICVM.threadTable[icvmThreadId-1].outputChannel
-        AbstractICVM.threadTable[icvmThreadId].outputChannel =
-            if (ioMode == IOMode.NETWORKED) NetworkChannel() else DirectIo()
-        log.debug("initialised io channels for icvm thread {}", icvmThreadId)
-        if (loop) {
-            AbstractICVM.threadTable[0].inputChannel = AbstractICVM.threadTable.last().outputChannel
-            log.debug("loop i/o activated")
+        if (ioMode == IOMode.NETWORKED)
+            NetworkIo.setIoChannels(icvmThreadId)
+        else {
+            useStdout = stdout
+            useStdin = stdin
+            asciiInputProvided = false
+            AbstractICVM.threadTable[icvmThreadId].inputChannel =
+                if (ioMode != IOMode.PIPE) DirectIo() else AbstractICVM.threadTable[icvmThreadId - 1].outputChannel
+            AbstractICVM.threadTable[icvmThreadId].outputChannel = DirectIo()
+            log.debug("initialised io channels for icvm thread {}", icvmThreadId)
+            if (loop) {
+                AbstractICVM.threadTable[0].inputChannel = AbstractICVM.threadTable.last().outputChannel
+                log.debug("loop i/o activated")
+            }
         }
     }
 
@@ -85,14 +88,18 @@ object InputOutput {
         log.debug("read input from channel called thread id: {}", icvmThreadId)
         val inputChannel = AbstractICVM.threadTable[icvmThreadId].inputChannel
         val result: Long
-        synchronized(inputChannel) {
-            while (inputChannel.data.isEmpty())
-                inputChannel.wait()
-            result = inputChannel.data.removeAt(0)
+        if (inputChannel is NetworkChannel)
+            result = NetworkIo.readFromChannel(inputChannel)
+        else {
+            synchronized(inputChannel) {
+                while (inputChannel.data.isEmpty())
+                    inputChannel.wait()
+                result = inputChannel.data.removeAt(0)
+            }
+            log.debug("read from channel returns [$result]")
+            if (asciiInputProvided)
+                print(result.toInt().toChar())
         }
-        log.debug("read from pipe returns [$result]")
-        if (asciiInputProvided)
-            print(result.toInt().toChar())
         return result
     }
 
@@ -111,11 +118,14 @@ object InputOutput {
             if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
         log.debug("print output to channel called thread id: {}, value to print: {}", icvmThreadId, value)
         val outputChannel = AbstractICVM.threadTable[icvmThreadId].outputChannel
-        synchronized(outputChannel) {
-            outputChannel.data.add(value)
-            outputChannel.notify()
-            log.debug("print out to channel has notified - output ready: {}", outputChannel.data)
-        }
+        if (outputChannel is NetworkChannel)
+            NetworkIo.writeToChannel(value, outputChannel)
+        else
+            synchronized(outputChannel) {
+                outputChannel.data.add(value)
+                outputChannel.notify()
+                log.debug("print out to channel has notified - output ready: {}", outputChannel.data)
+            }
     }
 
     fun printOutput(value: Long) {

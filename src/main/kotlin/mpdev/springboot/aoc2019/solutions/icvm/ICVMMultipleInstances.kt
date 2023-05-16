@@ -1,7 +1,9 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-class ICVMMultipleInstances(private val intCodeProgramString: String, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX):
-    ICVM(intCodeProgramString, threadNamePrefix) {
+class ICVMMultipleInstances(private val intCodeProgramString: String,
+                            threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX,
+                            ioMode: IOMode = IOMode.DIRECT):
+    ICVM(intCodeProgramString, threadNamePrefix, ioMode) {
 
     fun cloneInstance(ioMode: IOMode, loop: Boolean = false, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX) {
         val newInstance = Program(intCodeProgramString)

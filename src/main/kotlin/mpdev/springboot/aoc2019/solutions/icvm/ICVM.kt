@@ -1,7 +1,9 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-open class ICVM(intCodeProgramString: String, threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX,
-                useStdin: Boolean = false, useStdout: Boolean = false): AbstractICVM() {
+open class ICVM(intCodeProgramString: String,
+                threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX,
+                ioMode: IOMode = IOMode.DIRECT,
+                useStdin: Boolean = false, useStdout: Boolean = false,): AbstractICVM() {
 
     private var mainThread: Program
 
@@ -12,7 +14,7 @@ open class ICVM(intCodeProgramString: String, threadNamePrefix: String = DEF_PRO
         threadTable.add(Program(intCodeProgramString))
         mainThread = threadTable[0]
         mainThread.threadName = "$threadNamePrefix-0"
-        InputOutput.setIoChannels(stdin = useStdin, stdout = useStdout)
+        InputOutput.setIoChannels(ioMode = ioMode, stdin = useStdin, stdout = useStdout)
     }
 
     fun runProgram() {
