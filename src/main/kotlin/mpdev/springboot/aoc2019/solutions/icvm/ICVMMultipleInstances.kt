@@ -9,7 +9,7 @@ class ICVMMultipleInstances(private val intCodeProgramString: String,
         val newInstance = Program(intCodeProgramString)
         threadTable.add(newInstance)
         threadTable.last().threadName = "$threadNamePrefix-${threadTable.lastIndex}"
-        InputOutput.setIoChannels(threadTable.lastIndex, ioMode = ioMode, loop = loop)
+        threadTable.last().io.setIoChannels(threadTable.lastIndex, ioMode = ioMode, loop = loop)
     }
 
     fun runInstance(instanceId: Int) {

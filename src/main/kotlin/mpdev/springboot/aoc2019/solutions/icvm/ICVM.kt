@@ -14,7 +14,7 @@ open class ICVM(intCodeProgramString: String,
         threadTable.add(Program(intCodeProgramString))
         mainThread = threadTable[0]
         mainThread.threadName = "$threadNamePrefix-0"
-        InputOutput.setIoChannels(ioMode = ioMode, stdin = useStdin, stdout = useStdout)
+        mainThread.io.setIoChannels(ioMode = ioMode, stdin = useStdin, stdout = useStdout)
     }
 
     fun runProgram() {

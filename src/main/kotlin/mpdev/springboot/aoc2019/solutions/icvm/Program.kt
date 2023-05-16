@@ -14,6 +14,7 @@ class Program(prog: String) {
     lateinit var threadName: String
     lateinit var inputChannel: IoChannel
     lateinit var outputChannel: IoChannel
+    var io = InputOutput()
 
     fun setLimitedMemory() {
         memory.unlimitedMemory = false
@@ -21,6 +22,7 @@ class Program(prog: String) {
 
     fun run() {
         var ip = 0L
+        log.info("thread {} start up, input is {}", threadName, inputChannel.data)
         while (true) {
             try {
                 log.debug("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
@@ -33,6 +35,14 @@ class Program(prog: String) {
                         InstructionReturnCode.JUMP -> ip = retCode.additionalData
                         InstructionReturnCode.RELATIVE -> {
                             memory.relativeBase += retCode.additionalData
+                            ip += instruction.ipIncrement
+                        }
+                        InstructionReturnCode.READ -> {
+                            setMemory(retCode.additionalData, io.readInput(inputChannel))
+                            ip += instruction.ipIncrement
+                        }
+                        InstructionReturnCode.PRINT -> {
+                            io.printOutput(getMemory(retCode.additionalData), outputChannel)
                             ip += instruction.ipIncrement
                         }
                         else -> ip += instruction.ipIncrement

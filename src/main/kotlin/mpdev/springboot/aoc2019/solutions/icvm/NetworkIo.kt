@@ -24,8 +24,10 @@ object NetworkIo {
     fun readFromChannel(networkChannel: NetworkChannel): Long {
         var result: Long
         synchronized(networkChannel) {      // network read is non-blocking
-            if (networkChannel.data.isEmpty())
+            Thread.sleep(100)
+            if (networkChannel.data.isEmpty()) {
                 return -1
+            }
             result = networkChannel.data.removeAt(0)
         }
         return result
@@ -49,10 +51,11 @@ object NetworkIo {
     }
 
     private fun sendPacketToDestination(packet: Packet) {
+        log.info("network write: {}", packet)
         if (packet.address == BROADCAST_ADDRESS)
             broadcastQueue.add(packet)
         else
-            InputOutput.setInputValues(listOf(packet.valueX, packet.valueY), AbstractICVM.threadTable[packet.address].inputChannel)
+        {} //TODO: InputOutput.setInputValues(listOf(packet.valueX, packet.valueY), AbstractICVM.threadTable[packet.address].inputChannel)
     }
 
     fun getBroadcastQueue() = broadcastQueue.toList()
@@ -60,7 +63,7 @@ object NetworkIo {
 
 class NetworkChannel(val nicData: MutableList<Packet> = mutableListOf()): IoChannel()
 
-class Packet(val address: Int, var valueX: Long = Long.MIN_VALUE, var valueY: Long = Long.MIN_VALUE) {
+data class Packet(val address: Int, var valueX: Long = Long.MIN_VALUE, var valueY: Long = Long.MIN_VALUE) {
     fun isComplete() =
         address in 0..49 && valueX > Long.MIN_VALUE && valueY > Long.MIN_VALUE
 }

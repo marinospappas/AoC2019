@@ -3,9 +3,6 @@ package mpdev.springboot.aoc2019.solutions.day17
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import mpdev.springboot.aoc2019.solutions.icvm.ICVM
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValuesAscii
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValuesAscii
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
@@ -38,7 +35,7 @@ class Day17: PuzzleSolver() {
         val elapsed = measureTimeMillis {
             icvm.runProgram()
             icvm.waitProgram()
-            val output = getOutputValuesAscii().trim('\n')
+            val output = icvm.getOutputValuesAscii().trim('\n')
             val asciiProcessor = AsciiProcessor(output)
             result = asciiProcessor.process()
         }
@@ -50,12 +47,12 @@ class Day17: PuzzleSolver() {
         result = 0
         val icvm = ICVM(inputData[0])
         icvm.setProgramMemory(0, 2)
-        inputStringsPart2.forEach { s -> setInputValuesAscii(s) }
+        inputStringsPart2.forEach { s -> icvm.setInputValuesAscii(s) }
         val elapsed = measureTimeMillis {
             icvm.runProgram()
             icvm.waitProgram()
-            result = getOutputValues(clearChannel = false).last().toInt()
-            print(getOutputValuesAscii())
+            result = icvm.getOutputValues(clearChannel = false).last().toInt()
+            print(icvm.getOutputValuesAscii())
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }

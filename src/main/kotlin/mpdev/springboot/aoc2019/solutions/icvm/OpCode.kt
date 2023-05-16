@@ -1,7 +1,5 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.readInput
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.printOutput
 import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.solutions.icvm.ParamReadWrite.*
 
@@ -12,8 +10,8 @@ enum class OpCode(val value: Int,
 
     ADD(1,   3, arrayOf(R,R,W), { a -> a[0] + a[1] } ),
     MULT(2,  3, arrayOf(R,R,W), { a -> a[0] * a[1] }),
-    IN(3,    1, arrayOf(W),     { _ -> readInput() }),
-    OUT(4,   1, arrayOf(R),     { a -> printOutput(a[0]) }),
+    IN(3,    1, arrayOf(W),     { a -> Read(a[0]) }),
+    OUT(4,   1, arrayOf(R),     { a -> Print(a[0]) }),
     JIT(5,   2, arrayOf(R,R),   { a -> if (a[0] != 0L) Jump(a[1]) else Unit }),
     JIF(6,   2, arrayOf(R,R),   { a -> if (a[0] == 0L) Jump(a[1]) else Unit }),
     LT(7,    3, arrayOf(R,R,W), { a -> if (a[0] < a[1]) 1L else 0L }),
@@ -73,3 +71,7 @@ enum class ParamReadWrite {
 class Jump(val newIp: Long)
 
 class Relative(val incrBase: Long)
+
+class Read(address: Long)
+
+class Print(address: Long)

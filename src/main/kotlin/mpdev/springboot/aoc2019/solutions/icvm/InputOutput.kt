@@ -3,7 +3,7 @@ package mpdev.springboot.aoc2019.solutions.icvm
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object InputOutput {
+class InputOutput {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -30,46 +30,11 @@ object InputOutput {
         }
     }
 
-    fun setInputValues(values: List<Long>, inputChannel: IoChannel = AbstractICVM.threadTable[0].inputChannel) {
-        synchronized(inputChannel) {
-            inputChannel.data.addAll(values)
-            inputChannel.notify()
-        }
-    }
 
-    fun setInputValuesAscii(value: String, channel: IoChannel = AbstractICVM.threadTable[0].inputChannel) {
-        setInputValues(
-            mutableListOf<Long>().also { list -> value.chars().forEach { c -> list.add(c.toLong()) } },
-            channel
-        )
-        asciiInputProvided = true
-    }
-
-    fun getOutputValues(outputChannel: IoChannel = AbstractICVM.threadTable[0].outputChannel, clearChannel: Boolean = true): List<Long> {
-        val outputValues: List<Long>
-        synchronized(outputChannel) {
-            while (outputChannel.data.isEmpty()) {
-                log.debug("getOutputValues is waiting for output")
-                outputChannel.wait()
-                log.debug("getOutputValues has been notified")
-            }
-            log.debug("getOutputValues output is available")
-            log.debug("output data: {}", outputChannel.data)
-            outputValues = mutableListOf<Long>().also { list -> list.addAll(outputChannel.data) }
-            if (clearChannel)
-                outputChannel.data.removeAll { true }
-        }
-        return outputValues
-    }
-
-    fun getOutputValuesAscii(outputChannel: IoChannel = AbstractICVM.threadTable[0].outputChannel, clearChannel: Boolean = true): String {
-        val outputValues = getOutputValues(outputChannel, clearChannel)
-        return StringBuilder().also { s -> outputValues.forEach { l -> s.append(l.toInt().toChar()) } }.toString()
-    }
 
     //////// read input
     private fun readFromStdin(): Long {
-        val icvmThreadId = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
+        val icvmThreadId =  Thread.currentThread().name.substringAfterLast('-', "0").toInt()
         val inputChannel = AbstractICVM.threadTable[icvmThreadId].inputChannel
         if (inputChannel.data.isEmpty()) {
             val inputString = "${readln()}\n"
@@ -83,10 +48,9 @@ object InputOutput {
         return result
     }
 
-    private fun readFromChannel(): Long {
-        val icvmThreadId = if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
-        log.debug("read input from channel called thread id: {}", icvmThreadId)
-        val inputChannel = AbstractICVM.threadTable[icvmThreadId].inputChannel
+    var i = 0
+
+    private fun readFromChannel(inputChannel: IoChannel): Long {
         val result: Long
         if (inputChannel is NetworkChannel)
             result = NetworkIo.readFromChannel(inputChannel)
@@ -103,21 +67,17 @@ object InputOutput {
         return result
     }
 
-    fun readInput(): Long = if (useStdin)
+    fun readInput(ioChannel: IoChannel): Long = if (useStdin)
         readFromStdin()
     else
-        readFromChannel()
+        readFromChannel(ioChannel)
 
     //////// write output
     private fun printToStdout(value: Long) {
         print(value.toInt().toChar())
     }
 
-    private fun printToChannel(value: Long) {
-        val icvmThreadId =
-            if (Thread.currentThread().name == "main") 0 else Thread.currentThread().name.last().digitToInt()
-        log.debug("print output to channel called thread id: {}, value to print: {}", icvmThreadId, value)
-        val outputChannel = AbstractICVM.threadTable[icvmThreadId].outputChannel
+    private fun printToChannel(outputChannel: IoChannel, value: Long) {
         if (outputChannel is NetworkChannel)
             NetworkIo.writeToChannel(value, outputChannel)
         else
@@ -128,11 +88,11 @@ object InputOutput {
             }
     }
 
-    fun printOutput(value: Long) {
+    fun printOutput(value: Long, ioChannel: IoChannel) {
         if (useStdout)
             printToStdout(value)
         else
-            printToChannel(value)
+            printToChannel(ioChannel, value)
     }
 }
 
