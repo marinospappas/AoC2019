@@ -31,7 +31,6 @@ class Day23: PuzzleSolver() {
         repeat(NUMBER_OF_NODES-1) { _ -> icvm.cloneInstance(IOMode.NETWORKED)}
         // set network address
         repeat(NUMBER_OF_NODES) { icvm.setInstanceInput(it, it) }
-        Thread.sleep(1000)
         val elapsed = measureTimeMillis {
             // boot all network nodes
             repeat(NUMBER_OF_NODES) { icvm.runInstance(it) }
