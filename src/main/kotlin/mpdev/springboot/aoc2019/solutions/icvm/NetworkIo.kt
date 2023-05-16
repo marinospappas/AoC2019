@@ -29,7 +29,7 @@ class NetworkIo {
     fun readFromChannel(networkChannel: NetworkChannel): Long {
         var result: Long
         synchronized(networkChannel) {      // network read is non-blocking
-            Thread.sleep(100)
+            Thread.sleep(10)
             if (networkChannel.data.isEmpty()) {
                 return -1
             }
@@ -69,5 +69,5 @@ class NetworkChannel(val nicData: MutableList<Packet> = mutableListOf()): IoChan
 
 data class Packet(val address: Int, var valueX: Long = Long.MIN_VALUE, var valueY: Long = Long.MIN_VALUE) {
     fun isComplete() =
-        address in 0..49 && valueX > Long.MIN_VALUE && valueY > Long.MIN_VALUE
+        address in 0..255 && valueX > Long.MIN_VALUE && valueY > Long.MIN_VALUE
 }
