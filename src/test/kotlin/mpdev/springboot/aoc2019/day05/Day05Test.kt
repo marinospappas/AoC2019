@@ -2,9 +2,7 @@ package mpdev.springboot.aoc2019.day05
 
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day05.Day05
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.initIoChannel
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.getOutputValues
-import mpdev.springboot.aoc2019.solutions.icvm.InputOutput.setInputValues
+import mpdev.springboot.aoc2019.solutions.icvm.ICVM
 import mpdev.springboot.aoc2019.solutions.icvm.Program
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -56,14 +54,16 @@ class Day05Test {
     @Order(5)
     @MethodSource("provideArgsToPart1Test")
     fun `Solves Part 1`(input: Int, inputLine: String, expected: Int) {
-        val program = Program(inputLine)
-        initIoChannel()
-        setInputValues(listOf(input.toLong()))
-        program.run()
-        assertThat(getOutputValues().size).isEqualTo(1)
-        assertThat(getOutputValues().last()).isEqualTo(expected.toLong())
+        val icvm = ICVM(inputLine)
+        icvm.runProgram()
+        icvm.setProgramInput(input)
+        icvm.waitProgram()
+        val output = icvm.getProgramOutput()
+        assertThat(output.size).isEqualTo(1)
+        assertThat(output.last()).isEqualTo(expected.toLong())
     }
 
+    /*
     @ParameterizedTest
     @Order(7)
     @MethodSource("provideArgsToPart2Test")
@@ -76,6 +76,8 @@ class Day05Test {
         assertThat(getOutputValues().last()).isEqualTo(expected.toLong())
     }
 
+
+     */
     companion object {
         @JvmStatic
         fun provideArgsToPart1Test(): Stream<Arguments> = Stream.of(

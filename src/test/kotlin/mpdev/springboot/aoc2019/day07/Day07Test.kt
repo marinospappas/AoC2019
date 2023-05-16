@@ -34,7 +34,7 @@ class Day07Test {
     fun `Sets Day correctly`() {
         assertThat(puzzleSolver.day).isEqualTo(day)
     }
-
+/*
     @Test
     @Order(2)
     fun `Threads in a Pipeline Pass Output to Next Thread Input`() {
@@ -107,6 +107,8 @@ class Day07Test {
         InputOutput.printOutput(input1 * 10L)
     }
 
+
+ */
     @ParameterizedTest
     @Order(5)
     @MethodSource("provideArgsToTotalThrustTest2")

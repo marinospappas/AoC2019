@@ -42,7 +42,7 @@ class Program(prog: String) {
                             ip += instruction.ipIncrement
                         }
                         InstructionReturnCode.PRINT -> {
-                            io.printOutput(getMemory(retCode.additionalData), outputChannel)
+                            io.printOutput(retCode.additionalData, outputChannel)
                             ip += instruction.ipIncrement
                         }
                         else -> ip += instruction.ipIncrement

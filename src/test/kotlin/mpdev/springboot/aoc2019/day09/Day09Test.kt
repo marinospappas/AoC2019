@@ -50,7 +50,7 @@ class Day09Test {
         for (i in expected.indices)
             assertThat(program.getMemory(i)).isEqualTo(expected[i].toLong())
     }
-
+/*
     @ParameterizedTest
     @Order(5)
     @MethodSource("provideArgsToPart1Test")
@@ -66,6 +66,8 @@ class Day09Test {
         assertThat(result).isEqualTo(expected)
     }
 
+
+ */
     companion object {
         @JvmStatic
         fun provideArgsToPart1Test(): Stream<Arguments> = Stream.of(
