@@ -59,10 +59,14 @@ class NetworkIo {
         log.info("network write: {}", packet)
         if (packet.address == BROADCAST_ADDRESS)
             broadcastQueue.add(packet)
-        else
-        {} //TODO: InputOutput.setInputValues(listOf(packet.valueX, packet.valueY), AbstractICVM.threadTable[packet.address].inputChannel)
+        else {
+            val inputChannel = AbstractICVM.threadTable[packet.address].inputChannel
+            synchronized(inputChannel) {
+                inputChannel.data.addAll(listOf(packet.valueX, packet.valueY))
+                inputChannel.notify()
+            }
+        }
     }
-
 }
 
 class NetworkChannel(val nicData: MutableList<Packet> = mutableListOf()): IoChannel()
