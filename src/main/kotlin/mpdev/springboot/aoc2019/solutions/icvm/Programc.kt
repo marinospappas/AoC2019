@@ -16,6 +16,7 @@ class Programc(prog: String) {
     lateinit var outputChannel: IoChannelc
     var io = InputOutputc()
     var programState: ProgramState = READY
+    var isIdle = false      // used in network mode only
 
     fun setLimitedMemory() {
         memory.unlimitedMemory = false
@@ -47,6 +48,8 @@ class Programc(prog: String) {
                         programState = RUNNING
                         log.info("IntCode instance {} received input {}", threadName, input)
                         ip += instruction.ipIncrement
+                        // network mode - set idle state
+                        isIdle = outputChannel is NetworkChannel && input == -1L
                     }
                     InstructionReturnCode.PRINT -> {
                         log.info("IntCode instance {} sends to output {}", threadName, retCode.additionalData)

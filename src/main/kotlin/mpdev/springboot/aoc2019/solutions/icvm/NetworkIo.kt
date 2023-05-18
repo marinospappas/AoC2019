@@ -7,19 +7,34 @@ import org.slf4j.LoggerFactory
 
 class NetworkIo {
 
-    private val BROADCAST_ADDRESS = 0xFF
 
     companion object {
 
-        private lateinit var broadcastQueue: MutableList<Packet>
+        private val BROADCAST_ADDRESS = 0xFF
 
-        fun getBroadcastQueue() = broadcastQueue.toList()
+        private var natPacket: Packet? = null
+
+        private var sentToNode0 = mutableListOf<Long>()
+        fun getNatPacket() = natPacket
+
+        suspend fun sendNatPacketTo0() {
+            log.info("nat sending packet to node 0 {}", natPacket)
+            sentToNode0.add(natPacket!!.valueY)
+            AbstractICVMc.threadTable[0].inputChannel.data.send(natPacket!!.valueX)
+            AbstractICVMc.threadTable[0].inputChannel.data.send(natPacket!!.valueY)
+        }
+
+        fun sentSameValueTo0TwiceInARow() =
+            sentToNode0.size >=2 && sentToNode0.last() == sentToNode0[sentToNode0.lastIndex-1]
+
+        fun getSentToNode0() = sentToNode0
     }
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     fun initialiseNetworkIo() {
-        broadcastQueue = mutableListOf()
+        natPacket = null
+        sentToNode0 = mutableListOf()
     }
 
     fun setIoChannels(icvmThreadId: Int) {
@@ -28,19 +43,13 @@ class NetworkIo {
         log.debug("initialised network io channels for icvm thread {}", icvmThreadId)
     }
 
-    var count = 0
-
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun readFromChannel(networkChannel: NetworkChannel): Long {
-        if (count++ < 10)
         if (networkChannel.data.isEmpty) {
-            delay(100)
-            if (count < 10)
-                log.info("read from net channel no data - returning -1")
+            delay(20)
             return -1
         }
-        var result: Long = networkChannel.data.receive()
-        return result
+        return networkChannel.data.receive()
     }
 
     suspend fun writeToChannel(outputValue: Long, outputChannel: NetworkChannel) {
@@ -63,7 +72,7 @@ class NetworkIo {
     private suspend fun sendPacketToDestination(packet: Packet) {
         log.info("network write: {}", packet)
         if (packet.address == BROADCAST_ADDRESS)
-            broadcastQueue.add(packet)
+            natPacket = Packet(BROADCAST_ADDRESS, packet.valueX, packet.valueY)
         else {
             val inputChannel = AbstractICVMc.threadTable[packet.address].inputChannel
             inputChannel.data.send(packet.valueX)

@@ -5,10 +5,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import mpdev.springboot.aoc2019.solutions.day07.Day07
-import mpdev.springboot.aoc2019.solutions.icvm.ICVMMultipleInstancesc
-import mpdev.springboot.aoc2019.solutions.icvm.IOMode
-import mpdev.springboot.aoc2019.solutions.icvm.NetworkIo
+import mpdev.springboot.aoc2019.solutions.icvm.*
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
@@ -32,7 +29,7 @@ class Day23: PuzzleSolver() {
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day $day part 1")
         val icvm = ICVMMultipleInstancesc(inputData[0], ioMode = IOMode.NETWORKED)
-        repeat(NUMBER_OF_NODES-1) { _ -> icvm.cloneInstance(IOMode.NETWORKED)}
+        repeat(NUMBER_OF_NODES-1) { icvm.cloneInstance(IOMode.NETWORKED) }
         val elapsed = measureTimeMillis {
             runBlocking {
                 // set network address
@@ -42,23 +39,52 @@ class Day23: PuzzleSolver() {
                     launch { icvm.runInstance(it) }
                 }
                 // and wait until 255 address is detected
-                while(NetworkIo.getBroadcastQueue().isEmpty())
+                while(NetworkIo.getNatPacket() == null)
                     delay(2)
                 // stop all coroutines
                 repeat(NUMBER_OF_NODES) { jobs[it].cancel() }
                 repeat(NUMBER_OF_NODES) { icvm.waitInstance(it, jobs[it]) }
             }
         }
-        result = NetworkIo.getBroadcastQueue().first().valueY.toInt()
+        result = NetworkIo.getNatPacket()!!.valueY.toInt()
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
-        result = 0
+        val icvm = ICVMMultipleInstancesc(inputData[0], ioMode = IOMode.NETWORKED)
+        repeat(NUMBER_OF_NODES-1) { icvm.cloneInstance(IOMode.NETWORKED) }
         val elapsed = measureTimeMillis {
+            runBlocking {
+                // set network address
+                repeat(NUMBER_OF_NODES) { icvm.setInstanceInput(it, it) }
+                // boot all network nodes
+                val jobs = Array(NUMBER_OF_NODES) {
+                    launch { icvm.runInstance(it) }
+                }
+                // launch the NAT monitor
+                val jobNat = launch { natCoRoutine() }
+                // and wait until 2 packets of the same value are sent to node 0
+                while(!NetworkIo.sentSameValueTo0TwiceInARow())
+                    delay(2)
+                // stop all coroutines
+                repeat(NUMBER_OF_NODES) { jobs[it].cancel() }
+                jobNat.cancel()
+                log.info("NAT coroutine completed")
+                repeat(NUMBER_OF_NODES) { icvm.waitInstance(it, jobs[it]) }
+            }
         }
+        result = NetworkIo.getSentToNode0().last().toInt()
         return PuzzlePartSolution(2, result.toString(), elapsed)
+    }
+
+    suspend fun natCoRoutine() {
+        log.info("started NAT coroutine")
+        while (true) {
+            delay(100)
+            if (AbstractICVMc.threadTable.none { !it.isIdle })
+                NetworkIo.sendNatPacketTo0()
+        }
     }
 
 }
