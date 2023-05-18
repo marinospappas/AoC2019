@@ -42,10 +42,14 @@ class NetworkIo {
         log.debug("initialised network io channels for icvm thread {}", icvmThreadId)
     }
 
+    private val firstTimeDelay = 20L       // initial delay is higher to allow time for the other coroutines to launch
+    private val normalDelay = 2L
+    private  var delayMsec = firstTimeDelay
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun readFromChannel(networkChannel: NetworkChannel): Long {
         if (networkChannel.data.isEmpty) {
-            delay(20)
+            delay(delayMsec)
+            delayMsec = normalDelay     // subsequent delays can be shorter as everything is now up and running
             return -1
         }
         return networkChannel.data.receive()

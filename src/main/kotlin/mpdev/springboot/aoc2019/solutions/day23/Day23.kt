@@ -80,12 +80,17 @@ class Day23: PuzzleSolver() {
     }
 
     suspend fun natCoRoutine() {
+        val standardDelay = 5L
+        val idleDelay = 40L
+        var delayMsec = standardDelay
         log.info("started NAT coroutine")
         while (true) {
-            delay(50)
+            delay(delayMsec)
+            delayMsec = standardDelay
             if (AbstractICVMc.threadTable.none { !it.isIdle }) {
                 log.info("Nat sending packet to node 0 {}", NetworkIo.getNatPacket())
                 NetworkIo.sendNatPacketTo0()
+                delayMsec = idleDelay       // after idle is detected, increase delay to allow time for node 0 to resume
             }
         }
     }
