@@ -1,5 +1,7 @@
 package mpdev.springboot.aoc2019.day07
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day07.Day07
 import mpdev.springboot.aoc2019.solutions.icvm.ICVMMultipleInstances
@@ -40,17 +42,20 @@ class Day07Test {
         // IntCode program: output = 10 * input1 + input2
         val icvm = ICVMMultipleInstances("3,0,3,1,1002,0,10,2,1,2,1,2,4,2,99")
         repeat(4) { _ -> icvm.cloneInstance(IOMode.PIPE)}
-        // prepare the inputs
-        icvm.setInstanceInput(listOf(1,5), 0)
-        icvm.setInstanceInput(listOf(2), 1)
-        icvm.setInstanceInput(listOf(3), 2)
-        icvm.setInstanceInput(listOf(4), 3)
-        icvm.setInstanceInput(listOf(5), 4)
-        // execute the 5 copies of the intCode program in 5 threads
-        repeat(5) { icvm.runInstance(it) }
-        // and wait until all complete
-        repeat(5) { icvm.waitInstance(it) }
-        val result = icvm.getInstanceOutput(4)
+        val result: List<Int>
+        runBlocking {
+            // prepare the inputs
+            icvm.setInstanceInput(listOf(1, 5), 0)
+            icvm.setInstanceInput(listOf(2), 1)
+            icvm.setInstanceInput(listOf(3), 2)
+            icvm.setInstanceInput(listOf(4), 3)
+            icvm.setInstanceInput(listOf(5), 4)
+            // execute the 5 copies of the intCode program in 5 threads
+            val jobs = Array(5) { launch { icvm.runInstance(it) } }
+            // and wait until all complete
+            repeat(5) { icvm.waitInstance(it, jobs[it]) }
+            result = icvm.getInstanceOutput(4)
+        }
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isEqualTo(155)
     }
@@ -72,16 +77,19 @@ class Day07Test {
         val program2 = "3,0,3,1,1002,0,10,2,1,2,1,2,4,2,99"
         repeat(2) { _ -> icvm.addInstance(program2, IOMode.PIPE)}
         icvm.addInstance(program2, IOMode.PIPE, loop = true)
-        // prepare the inputs
-        icvm.setInstanceInput(listOf(1,5), 0)
-        icvm.setInstanceInput(listOf(2), 1)
-        icvm.setInstanceInput(listOf(3), 2)
-        icvm.setInstanceInput(listOf(4), 3)
-        // execute the 5 copies of the intCode program in 5 threads
-        repeat(4) { icvm.runInstance(it) }
-        // and wait until all complete
-        repeat(4) { icvm.waitInstance(it) }
-        val result = icvm.getInstanceOutput(0)
+        val result: List<Int>
+        runBlocking {
+            // prepare the inputs
+            icvm.setInstanceInput(listOf(1, 5), 0)
+            icvm.setInstanceInput(listOf(2), 1)
+            icvm.setInstanceInput(listOf(3), 2)
+            icvm.setInstanceInput(listOf(4), 3)
+            // execute the 5 copies of the intCode program in 5 threads
+            val jobs = Array(4) { launch { icvm.runInstance(it) } }
+            // and wait until all complete
+            repeat(4) { icvm.waitInstance(it, jobs[it]) }
+            result = icvm.getInstanceOutput(0)
+        }
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isEqualTo(1050)
     }

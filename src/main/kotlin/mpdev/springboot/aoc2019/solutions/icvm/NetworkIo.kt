@@ -19,8 +19,8 @@ class NetworkIo {
 
         suspend fun sendNatPacketTo0() {
             sentToNode0.add(natPacket!!.valueY)
-            AbstractICVMc.threadTable[0].inputChannel.data.send(natPacket!!.valueX)
-            AbstractICVMc.threadTable[0].inputChannel.data.send(natPacket!!.valueY)
+            AbstractICVM.threadTable[0].inputChannel.data.send(natPacket!!.valueX)
+            AbstractICVM.threadTable[0].inputChannel.data.send(natPacket!!.valueY)
         }
 
         fun sentSameValueTo0TwiceInARow() =
@@ -37,8 +37,8 @@ class NetworkIo {
     }
 
     fun setIoChannels(icvmThreadId: Int) {
-        AbstractICVMc.threadTable[icvmThreadId].inputChannel = NetworkChannel()
-        AbstractICVMc.threadTable[icvmThreadId].outputChannel = NetworkChannel()
+        AbstractICVM.threadTable[icvmThreadId].inputChannel = NetworkChannel()
+        AbstractICVM.threadTable[icvmThreadId].outputChannel = NetworkChannel()
         log.debug("initialised network io channels for icvm thread {}", icvmThreadId)
     }
 
@@ -77,7 +77,7 @@ class NetworkIo {
         if (packet.address == BROADCAST_ADDRESS)
             natPacket = Packet(BROADCAST_ADDRESS, packet.valueX, packet.valueY)
         else {
-            val inputChannel = AbstractICVMc.threadTable[packet.address].inputChannel
+            val inputChannel = AbstractICVM.threadTable[packet.address].inputChannel
             inputChannel.data.send(packet.valueX)
             inputChannel.data.send(packet.valueY)
         }

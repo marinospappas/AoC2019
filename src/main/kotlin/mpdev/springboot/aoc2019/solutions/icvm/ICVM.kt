@@ -1,5 +1,7 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
+import kotlinx.coroutines.Job
+
 open class ICVM(intCodeProgramString: String,
                 threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX,
                 ioMode: IOMode = IOMode.DIRECT,
@@ -15,28 +17,31 @@ open class ICVM(intCodeProgramString: String,
         mainThread = threadTable[0]
         mainThread.threadName = "$threadNamePrefix-0"
         mainThread.io.setIoChannels(ioMode = ioMode, stdin = useStdin, stdout = useStdout)
+        log.info("IntCode instance [0] configured")
     }
 
-    fun runProgram() {
+    suspend fun runProgram() {
+        log.info("IntCode instance [0] starting")
         runIntCodeProgram(mainThread)
     }
 
-    fun setProgramInput(data: Int) {
+    suspend fun setProgramInput(data: Int) {
         setIntCodeProgramInputLong(listOf(data.toLong()), mainThread)
     }
 
-    fun setProgramInput(data: List<Int>) {
+    suspend fun setProgramInput(data: List<Int>) {
         setIntCodeProgramInputLong(data.map { it.toLong() }, mainThread)
     }
 
-    fun getProgramOutput() = getIntCodeProgramOutputLong(mainThread).map { it.toInt() }
+    suspend fun getProgramOutput() = getIntCodeProgramOutputLong(mainThread).map { it.toInt() }
 
-    fun getProgramOutputLong() = getIntCodeProgramOutputLong(mainThread)
+    suspend fun getProgramOutputLong() = getIntCodeProgramOutputLong(mainThread)
 
     fun programIsRunning() = intCodeProgramIsRunning(mainThread)
 
-    fun waitProgram() {
-        waitIntCodeProgram(mainThread)
+    suspend fun waitProgram(job: Job) {
+        waitIntCodeProgram(job)
+        log.info("IntCode instance [0] completed")
     }
 
     // these functions have not been implemented in ICVM MultiInstance

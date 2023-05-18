@@ -4,7 +4,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import mpdev.springboot.aoc2019.solutions.icvm.ICVMc
+import mpdev.springboot.aoc2019.solutions.icvm.ICVM
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
@@ -25,7 +25,7 @@ class Day13: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day $day part 1")
-        val icvm = ICVMc(inputData[0])
+        val icvm = ICVM(inputData[0])
         var elapsed: Long
         runBlocking {
             elapsed = measureTimeMillis {
@@ -40,7 +40,7 @@ class Day13: PuzzleSolver() {
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
-        val icvm = ICVMc(inputData[0])
+        val icvm = ICVM(inputData[0])
         icvm.setProgramMemory(0, 2)
         var elapsed: Long = 0L
         /*
@@ -64,7 +64,7 @@ class Day13: PuzzleSolver() {
         game.receiveInput(data.toList())
     }
 
-    suspend fun playGame(icvm: ICVMc) {
+    suspend fun playGame(icvm: ICVM) {
         while (true) {
             val joystick = game.getJoystick()
             //println("joystick movement $joystick")

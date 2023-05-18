@@ -28,7 +28,7 @@ class Day23: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day $day part 1")
-        val icvm = ICVMMultipleInstancesc(inputData[0], ioMode = IOMode.NETWORKED)
+        val icvm = ICVMMultipleInstances(inputData[0], ioMode = IOMode.NETWORKED)
         repeat(NUMBER_OF_NODES-1) { icvm.cloneInstance(IOMode.NETWORKED) }
         val elapsed = measureTimeMillis {
             runBlocking {
@@ -52,7 +52,7 @@ class Day23: PuzzleSolver() {
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
-        val icvm = ICVMMultipleInstancesc(inputData[0], ioMode = IOMode.NETWORKED)
+        val icvm = ICVMMultipleInstances(inputData[0], ioMode = IOMode.NETWORKED)
         repeat(NUMBER_OF_NODES-1) { icvm.cloneInstance(IOMode.NETWORKED) }
         val elapsed = measureTimeMillis {
             runBlocking {
@@ -87,7 +87,7 @@ class Day23: PuzzleSolver() {
         while (true) {
             delay(delayMsec)
             delayMsec = standardDelay
-            if (AbstractICVMc.threadTable.none { !it.isIdle }) {
+            if (AbstractICVM.threadTable.none { !it.isIdle }) {
                 log.info("Nat sending packet to node 0 {}", NetworkIo.getNatPacket())
                 NetworkIo.sendNatPacketTo0()
                 delayMsec = idleDelay       // after idle is detected, increase delay to allow time for node 0 to resume

@@ -1,6 +1,7 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
 import mpdev.springboot.aoc2019.utils.AocException
+import mpdev.springboot.aoc2019.solutions.icvm.ProgramState.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -10,47 +11,57 @@ class Program(prog: String) {
 
     private var memory = Memory(prog)
 
-    lateinit var intCodeThread: Thread
     lateinit var threadName: String
-    lateinit var inputChannel: IoChannel
-    lateinit var outputChannel: IoChannel
+    lateinit var inputChannel: IoChannelc
+    lateinit var outputChannel: IoChannelc
     var io = InputOutput()
+    var programState: ProgramState = READY
+    var isIdle = false      // used in network mode only
 
     fun setLimitedMemory() {
         memory.unlimitedMemory = false
     }
 
-    fun run() {
+    suspend fun run() {
+        programState = RUNNING
         var ip = 0L
-        log.info("thread {} start up, input is {}", threadName, inputChannel.data)
         while (true) {
             try {
-                log.debug("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
-                val instruction: Instruction
-                synchronized(this) { instruction = Instruction(ip, memory) }
+                log.debug("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
+                val instruction = Instruction(ip, memory)
                 log.debug("program {} - instruction {}", Thread.currentThread().name, instruction.opCode)
-                synchronized(this) {
-                    when (val retCode = instruction.execute()) {
-                        InstructionReturnCode.EXIT -> return
-                        InstructionReturnCode.JUMP -> ip = retCode.additionalData
-                        InstructionReturnCode.RELATIVE -> {
-                            memory.relativeBase += retCode.additionalData
-                            ip += instruction.ipIncrement
-                        }
-                        InstructionReturnCode.READ -> {
-                            setMemory(retCode.additionalData, io.readInput(inputChannel))
-                            ip += instruction.ipIncrement
-                        }
-                        InstructionReturnCode.PRINT -> {
-                            io.printOutput(retCode.additionalData, outputChannel)
-                            ip += instruction.ipIncrement
-                        }
-                        else -> ip += instruction.ipIncrement
+                when (val retCode = instruction.execute()) {
+                    InstructionReturnCode.EXIT -> {
+                        programState = COMPLETED
+                        return
                     }
+                    InstructionReturnCode.JUMP -> ip = retCode.additionalData
+                    InstructionReturnCode.RELATIVE -> {
+                        memory.relativeBase += retCode.additionalData
+                        ip += instruction.ipIncrement
+                    }
+                    InstructionReturnCode.READ -> {
+                        programState = WAIT
+                        log.debug("IntCode instance {} waiting for input", threadName)
+                        val input = io.readInput(inputChannel)
+                        setMemory(retCode.additionalData, input)
+                        programState = RUNNING
+                        log.debug("IntCode instance {} received input {}", threadName, input)
+                        ip += instruction.ipIncrement
+                        // network mode - set idle state
+                        isIdle = outputChannel is NetworkChannel && input == -1L
+                    }
+                    InstructionReturnCode.PRINT -> {
+                        log.debug("IntCode instance {} sends to output {}", threadName, retCode.additionalData)
+                        io.printOutput(retCode.additionalData, outputChannel)
+                        ip += instruction.ipIncrement
+                    }
+                    else -> ip += instruction.ipIncrement
                 }
             }
             catch (e: AocException) {
                 log.error("exception ${e.message} thrown, ip = $ip memory = ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
+                programState = COMPLETED
                 return
             }
         }
@@ -86,4 +97,8 @@ class Memory(prog: String) {
             throw AocException("memory address out of range: $adr for mem size ${mem.keys.size}")
         mem[adr] = value
     }
+}
+
+enum class ProgramState {
+    READY, RUNNING, WAIT, COMPLETED
 }

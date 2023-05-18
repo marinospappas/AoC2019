@@ -1,5 +1,7 @@
 package mpdev.springboot.aoc2019.day02
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day02.Day02
 import mpdev.springboot.aoc2019.solutions.icvm.ICVM
@@ -65,10 +67,10 @@ class Day02Test {
     fun `Solves Part 1`() {
         val expected = 3500L
         val icvm = ICVM(inputLines[0])
-        icvm.runProgram()
-        icvm.waitProgram()
-        val elapsed = measureTimeMillis { icvm.runProgram() }
-        println("elapsed time part1: $elapsed  msec")
+        runBlocking {
+            val job = launch { icvm.runProgram() }
+            icvm.waitProgram(job)
+        }
         assertThat(icvm.getProgramMemory(0)).isEqualTo(expected)
     }
 

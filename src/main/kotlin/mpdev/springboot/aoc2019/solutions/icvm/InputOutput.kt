@@ -1,5 +1,7 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -9,8 +11,6 @@ class InputOutput {
 
     private var useStdout = false
     private var useStdin = false
-
-    private var asciiInputProvided = false
 
     private val netIo = NetworkIo()
 
@@ -24,11 +24,10 @@ class InputOutput {
         else {
             useStdout = stdout
             useStdin = stdin
-            asciiInputProvided = false
             AbstractICVM.threadTable[icvmThreadId].inputChannel =
-                if (ioMode != IOMode.PIPE) DirectIo() else AbstractICVM.threadTable[icvmThreadId - 1].outputChannel
-            AbstractICVM.threadTable[icvmThreadId].outputChannel = DirectIo()
-            log.debug("initialised io channels for icvm thread {}", icvmThreadId)
+                if (ioMode != IOMode.PIPE) DirectIoc() else AbstractICVM.threadTable[icvmThreadId - 1].outputChannel
+            AbstractICVM.threadTable[icvmThreadId].outputChannel = DirectIoc()
+            log.debug("initialised io channels for icvm instance {}", icvmThreadId)
             if (loop) {
                 AbstractICVM.threadTable[0].inputChannel = AbstractICVM.threadTable.last().outputChannel
                 log.debug("loop i/o activated")
@@ -37,40 +36,36 @@ class InputOutput {
     }
 
     //////// read input
-    private fun readFromStdin(): Long {
-        val icvmThreadId =  Thread.currentThread().name.substringAfterLast('-', "0").toInt()
-        val inputChannel = AbstractICVM.threadTable[icvmThreadId].inputChannel
-        if (inputChannel.data.isEmpty()) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun readFromStdin(inputChannel: IoChannelc): Long {
+        //val icvmThreadId =  Thread.currentThread().name.substringAfterLast('-', "0").toInt()
+        //val inputChannel = AbstractICVMc.threadTable[icvmThreadId].inputChannel
+        val channel = inputChannel.data
+        if (channel.isEmpty) {
             val inputString = "${readln()}\n"
             println(inputString.trim('\n'))
-            inputChannel.data.addAll(mutableListOf<Long>().also { list ->
+            mutableListOf<Long>().also { list ->
                 inputString.chars().forEach { c -> list.add(c.toLong()) }
-            })
+            }.forEach { channel.send(it) }
         }
-        val result = inputChannel.data.removeAt(0)
+        val result = channel.receive()
         log.debug("read direct returns [$result]")
         return result
     }
 
-    private fun readFromChannel(inputChannel: IoChannel): Long {
+    private suspend fun readFromChannel(inputChannel: IoChannelc): Long {
         val result: Long
-        //if (inputChannel is NetworkChannel)
-        //    result = netIo.readFromChannel(inputChannel)
-        //else {
-            synchronized(inputChannel) {
-                while (inputChannel.data.isEmpty())
-                    inputChannel.wait()
-                result = inputChannel.data.removeAt(0)
-            }
+        if (inputChannel is NetworkChannel)
+            result = netIo.readFromChannel(inputChannel)
+        else {
+            result = inputChannel.data.receive()
             log.debug("read from channel returns [$result]")
-            if (asciiInputProvided)
-                print(result.toInt().toChar())
-        //}
+        }
         return result
     }
 
-    fun readInput(ioChannel: IoChannel): Long = if (useStdin)
-        readFromStdin()
+    suspend fun readInput(ioChannel: IoChannelc): Long = if (useStdin)
+        readFromStdin(ioChannel)
     else
         readFromChannel(ioChannel)
 
@@ -79,18 +74,18 @@ class InputOutput {
         print(value.toInt().toChar())
     }
 
-    private fun printToChannel(outputChannel: IoChannel, value: Long) {
-        //if (outputChannel is NetworkChannel)
-        //    netIo.writeToChannel(value, outputChannel)
-        //else
-            synchronized(outputChannel) {
-                outputChannel.data.add(value)
-                outputChannel.notify()
-                log.debug("print out to channel has notified - output ready: {}", outputChannel.data)
-            }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun printToChannel(outputChannel: IoChannelc, value: Long) {
+        log.debug("printToChannel called")
+        if (outputChannel is NetworkChannel)
+            netIo.writeToChannel(value, outputChannel)
+        else
+        outputChannel.data.send(value)
+        log.debug("printToChannel completed - channel empty: {}", outputChannel.data.isEmpty)
     }
 
-    fun printOutput(value: Long, ioChannel: IoChannel) {
+    suspend fun printOutput(value: Long, ioChannel: IoChannelc) {
+        log.debug("printOutput called")
         if (useStdout)
             printToStdout(value)
         else
@@ -98,9 +93,10 @@ class InputOutput {
     }
 }
 
-open class IoChannel(val data: MutableList<Long> = mutableListOf()): Object()
+open class IoChannelc(val data: Channel<Long> = Channel(Channel.UNLIMITED))
 
-class DirectIo: IoChannel()
+class DirectIoc: IoChannelc()
+
 
 enum class IOMode {
     PIPE,

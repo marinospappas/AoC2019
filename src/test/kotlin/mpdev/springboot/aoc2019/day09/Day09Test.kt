@@ -1,5 +1,7 @@
 package mpdev.springboot.aoc2019.day09
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day09.Day09
 import mpdev.springboot.aoc2019.solutions.icvm.ICVM
@@ -55,10 +57,13 @@ class Day09Test {
     @MethodSource("provideArgsToPart1Test")
     fun `Solves Part 1`(input: Int, inputLine: String, expected: List<Long>) {
         val icvm = ICVM(inputLine)
-        icvm.runProgram()
-        icvm.setProgramInput(input)
-        icvm.waitProgram()
-        val result = icvm.getProgramOutputLong()
+        val result: List<Long>
+        runBlocking {
+            val job = launch { icvm.runProgram() }
+            icvm.setProgramInput(input)
+            icvm.waitProgram(job)
+            result = icvm.getProgramOutputLong()
+        }
         println(result)
         assertThat(result).isEqualTo(expected)
     }
