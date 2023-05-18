@@ -52,8 +52,6 @@ abstract class AbstractICVMc {
             mutableListOf<Long>().also { list -> value.chars().forEach { c -> list.add(c.toLong()) } },
             channel
         )
-        // TODO: implement this inside the Program class:
-        //  asciiInputProvided = true
     }
 
     suspend fun getOutputValues(outputChannel: IoChannelc = threadTable[0].outputChannel): List<Long> {

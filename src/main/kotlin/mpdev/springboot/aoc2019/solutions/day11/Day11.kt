@@ -28,7 +28,7 @@ class Day11: PuzzleSolver() {
         log.info("solving day $day part 1")
         val icvm = ICVMc(inputData[0])
         controller.initPanels()
-        var elapsed: Long
+        var elapsed: Long = 0L /*
         runBlocking {
             elapsed = measureTimeMillis {
                 val job = launch { icvm.runProgram() }
@@ -36,6 +36,7 @@ class Day11: PuzzleSolver() {
                 icvm.waitProgram(job)
             }
         }
+        */
         result = controller.countPanels()
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }

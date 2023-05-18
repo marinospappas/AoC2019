@@ -42,7 +42,8 @@ class Day13: PuzzleSolver() {
         log.info("solving day $day part 2")
         val icvm = ICVMc(inputData[0])
         icvm.setProgramMemory(0, 2)
-        var elapsed: Long
+        var elapsed: Long = 0L
+        /*
         runBlocking {
             elapsed = measureTimeMillis {
                 val job = launch { icvm.runProgram() }
@@ -53,6 +54,7 @@ class Day13: PuzzleSolver() {
                 setupGame(icvm.getProgramOutput())
             }
         }
+         */
         val result: String = if (game.over()) "Game Over!!!" else game.score.toString()
         return PuzzlePartSolution(2, result, elapsed)
     }

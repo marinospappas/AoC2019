@@ -12,8 +12,6 @@ class InputOutputc {
     private var useStdout = false
     private var useStdin = false
 
-    private var asciiInputProvided = false
-
     private val netIo = NetworkIo()
 
     init {
@@ -26,7 +24,6 @@ class InputOutputc {
         else {
             useStdout = stdout
             useStdin = stdin
-            asciiInputProvided = false
             AbstractICVMc.threadTable[icvmThreadId].inputChannel =
                 if (ioMode != IOMode.PIPE) DirectIoc() else AbstractICVMc.threadTable[icvmThreadId - 1].outputChannel
             AbstractICVMc.threadTable[icvmThreadId].outputChannel = DirectIoc()
@@ -63,8 +60,6 @@ class InputOutputc {
         else {
             result = inputChannel.data.receive()
             log.debug("read from channel returns [$result]")
-            if (asciiInputProvided)
-                print(result.toInt().toChar())
         }
         return result
     }
@@ -79,6 +74,7 @@ class InputOutputc {
         print(value.toInt().toChar())
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun printToChannel(outputChannel: IoChannelc, value: Long) {
         log.debug("printToChannel called")
         if (outputChannel is NetworkChannel)
