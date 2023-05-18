@@ -50,7 +50,7 @@ class Day07Test {
             icvm.setInstanceInput(listOf(3), 2)
             icvm.setInstanceInput(listOf(4), 3)
             icvm.setInstanceInput(listOf(5), 4)
-            // execute the 5 copies of the intCode program in 5 threads
+            // execute the 5 copies of the intCode program in 5 coroutines
             val jobs = Array(5) { launch { icvm.runInstance(it) } }
             // and wait until all complete
             repeat(5) { icvm.waitInstance(it, jobs[it]) }
@@ -72,10 +72,10 @@ class Day07Test {
     @Order(4)
     fun `Threads in a Pipeline with Feedback Loop Pass Output to Next Thread Input`() {
         // IntCode program1: output1 = 10 * input1 + input2, output2 = 10 * input3
-        val icvm = ICVMMultipleInstances("3,0,3,1,1002,0,10,2,1,2,1,2,4,2,3,0,1002,0,10,1,4,1,99")
+        val icvm = ICVMMultipleInstances("3,0,3,1,1002,0,10,2,1,2,1,2,4,2,3,23,1002,23,10,24,4,24,99,0,0")
         // IntCode program2: output = 10 * input1 + input2
         val program2 = "3,0,3,1,1002,0,10,2,1,2,1,2,4,2,99"
-        repeat(2) { _ -> icvm.addInstance(program2, IOMode.PIPE)}
+        repeat(2) { icvm.addInstance(program2, IOMode.PIPE)}
         icvm.addInstance(program2, IOMode.PIPE, loop = true)
         val result: List<Int>
         runBlocking {
@@ -84,7 +84,7 @@ class Day07Test {
             icvm.setInstanceInput(listOf(2), 1)
             icvm.setInstanceInput(listOf(3), 2)
             icvm.setInstanceInput(listOf(4), 3)
-            // execute the 5 copies of the intCode program in 5 threads
+            // execute the 4 copies of the intCode program in 4 coroutines
             val jobs = Array(4) { launch { icvm.runInstance(it) } }
             // and wait until all complete
             repeat(4) { icvm.waitInstance(it, jobs[it]) }

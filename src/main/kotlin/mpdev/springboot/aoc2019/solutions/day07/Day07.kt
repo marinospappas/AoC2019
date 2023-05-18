@@ -58,7 +58,7 @@ class Day07: PuzzleSolver() {
         var result: Int
         // setup the 5 instances of the IntCode program
         val icvm = ICVMMultipleInstances(inputData[0])
-        repeat(NUMBER_OF_AMPS - 2) { _ -> icvm.cloneInstance(PIPE)}
+        repeat(NUMBER_OF_AMPS - 2) { icvm.cloneInstance(PIPE) }
         icvm.cloneInstance(PIPE, loop)
         runBlocking {
             // prepare the inputs
