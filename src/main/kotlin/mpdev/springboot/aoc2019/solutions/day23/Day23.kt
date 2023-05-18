@@ -71,6 +71,7 @@ class Day23: PuzzleSolver() {
                 repeat(NUMBER_OF_NODES) { jobs[it].cancel() }
                 jobNat.cancel()
                 log.info("NAT coroutine completed")
+                log.info("Y values sent ot node 0 {}", NetworkIo.getSentToNode0().toString())
                 repeat(NUMBER_OF_NODES) { icvm.waitInstance(it, jobs[it]) }
             }
         }
@@ -81,9 +82,11 @@ class Day23: PuzzleSolver() {
     suspend fun natCoRoutine() {
         log.info("started NAT coroutine")
         while (true) {
-            delay(100)
-            if (AbstractICVMc.threadTable.none { !it.isIdle })
+            delay(50)
+            if (AbstractICVMc.threadTable.none { !it.isIdle }) {
+                log.info("Nat sending packet to node 0 {}", NetworkIo.getNatPacket())
                 NetworkIo.sendNatPacketTo0()
+            }
         }
     }
 

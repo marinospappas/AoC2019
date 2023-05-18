@@ -18,7 +18,6 @@ class NetworkIo {
         fun getNatPacket() = natPacket
 
         suspend fun sendNatPacketTo0() {
-            log.info("nat sending packet to node 0 {}", natPacket)
             sentToNode0.add(natPacket!!.valueY)
             AbstractICVMc.threadTable[0].inputChannel.data.send(natPacket!!.valueX)
             AbstractICVMc.threadTable[0].inputChannel.data.send(natPacket!!.valueY)
