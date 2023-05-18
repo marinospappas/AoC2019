@@ -1,9 +1,13 @@
 package mpdev.springboot.aoc2019.solutions.day07
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import mpdev.springboot.aoc2019.utils.AocUtils
 import mpdev.springboot.aoc2019.solutions.icvm.ICVMMultipleInstances
+import mpdev.springboot.aoc2019.solutions.icvm.ICVMMultipleInstancesc
 import mpdev.springboot.aoc2019.solutions.icvm.IOMode
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
@@ -53,22 +57,28 @@ class Day07: PuzzleSolver() {
 
     fun calculateTotalThrust(phaseSequence: List<Int>, loop: Boolean = false): Int {
         log.debug("processing sequence {}", phaseSequence)
+        var result: Int
         // setup the 5 instances of the IntCode program
-        val icvm = ICVMMultipleInstances(inputData[0])
+        val icvm = ICVMMultipleInstancesc(inputData[0])
         repeat(NUMBER_OF_AMPS - 2) { _ -> icvm.cloneInstance(IOMode.PIPE)}
         icvm.cloneInstance(IOMode.PIPE, loop)
-        // prepare the inputs
-        phaseSequence.indices.forEach {
-            if (it == 0)
-                icvm.setInstanceInput(listOf(phaseSequence[it], 0), 0)
-            else
-                icvm.setInstanceInput(phaseSequence[it], it)
+        runBlocking {
+            // prepare the inputs
+            phaseSequence.indices.forEach {
+                if (it == 0)
+                    icvm.setInstanceInput(listOf(phaseSequence[it], 0), 0)
+                else
+                    icvm.setInstanceInput(phaseSequence[it], it)
+            }
+            // execute the 5 copies of the intCode program in 5 coroutines
+            repeat(NUMBER_OF_AMPS) {
+                val job = launch { icvm.runInstance(it) }
+                icvm.setInstanceJob(it, job)
+            }
+            // and wait until all complete
+            repeat(NUMBER_OF_AMPS) { icvm.waitInstance(it) }
+            result = icvm.getInstanceOutput(NUMBER_OF_AMPS - 1).last()
         }
-        // execute the 5 copies of the intCode program in 5 threads
-        repeat(NUMBER_OF_AMPS) { icvm.runInstance(it) }
-        // and wait until all complete
-        repeat(NUMBER_OF_AMPS) { icvm.waitInstance(it) }
-        val result = icvm.getInstanceOutput(NUMBER_OF_AMPS-1).last()
         log.debug("result: {}", result)
         return result
     }
