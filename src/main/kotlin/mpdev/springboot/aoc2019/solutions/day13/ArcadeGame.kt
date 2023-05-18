@@ -65,7 +65,8 @@ class ArcadeGame {
             return listOf(1).also { paddleDirection = 1 }
         return listOf(0).also { paddleDirection = 0 }
          */
-        //TODO: complete the algorithm to decide joystick tilt based on ball movement
+        //complete the algorithm to decide joystick tilt based on ball movement
+        // for now solving this by substituting the bottom of the game with a wall end-to-end
     }
 
     private fun ballDirection(): Int = curBallPosition.x - prevBallPosition.x
@@ -73,8 +74,8 @@ class ArcadeGame {
     private fun predictBallXPosition(): Int {
         if (curBallPosition.y < prevBallPosition.y) // ball goes up - return 0 or maxX to indicate direction of movement
             return -1 //if (curBallPosition.x < prevBallPosition.x) 0 else 40
-        // TODO: take ball bouncing into account
         // below is based on the ball going straight towards the bottom (no bouncing)
+        // need to take ball bouncing into account
         return prevBallPosition.x + (curBallPosition.x - prevBallPosition.x) * (paddlePosition.y - prevBallPosition.y - 1)
     }
 

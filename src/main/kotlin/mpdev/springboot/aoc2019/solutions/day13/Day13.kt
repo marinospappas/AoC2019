@@ -43,6 +43,7 @@ class Day13: PuzzleSolver() {
         val icvm = ICVM(inputData[0])
         icvm.setProgramMemory(0, 2)
         var elapsed: Long = 0L
+        //TODO: fix part2
         /*
         runBlocking {
             elapsed = measureTimeMillis {

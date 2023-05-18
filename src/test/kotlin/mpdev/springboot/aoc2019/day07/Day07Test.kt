@@ -71,6 +71,7 @@ class Day07Test {
     @Test
     @Order(4)
     fun `Threads in a Pipeline with Feedback Loop Pass Output to Next Thread Input`() {
+        //TODO: fix this test
         // IntCode program1: output1 = 10 * input1 + input2, output2 = 10 * input3
         val icvm = ICVMMultipleInstances("3,0,3,1,1002,0,10,2,1,2,1,2,4,2,3,23,1002,23,10,24,4,24,99,0,0")
         // IntCode program2: output = 10 * input1 + input2
