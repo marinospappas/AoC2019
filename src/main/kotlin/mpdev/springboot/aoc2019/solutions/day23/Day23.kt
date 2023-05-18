@@ -1,11 +1,11 @@
 package mpdev.springboot.aoc2019.solutions.day23
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import mpdev.springboot.aoc2019.solutions.day07.Day07
-import mpdev.springboot.aoc2019.solutions.icvm.ICVMMultipleInstances
 import mpdev.springboot.aoc2019.solutions.icvm.ICVMMultipleInstancesc
 import mpdev.springboot.aoc2019.solutions.icvm.IOMode
 import mpdev.springboot.aoc2019.solutions.icvm.NetworkIo
@@ -41,8 +41,12 @@ class Day23: PuzzleSolver() {
                 val jobs = Array(NUMBER_OF_NODES) {
                     launch { icvm.runInstance(it) }
                 }
-                // and wait until all complete
-                repeat(Day07.NUMBER_OF_AMPS) { icvm.waitInstance(it, jobs[it]) }
+                // and wait until 255 address is detected
+                while(NetworkIo.getBroadcastQueue().isEmpty())
+                    delay(2)
+                // stop all coroutines
+                repeat(NUMBER_OF_NODES) { jobs[it].cancel() }
+                repeat(NUMBER_OF_NODES) { icvm.waitInstance(it, jobs[it]) }
             }
         }
         result = NetworkIo.getBroadcastQueue().first().valueY.toInt()

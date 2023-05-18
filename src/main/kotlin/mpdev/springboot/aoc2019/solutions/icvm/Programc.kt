@@ -1,6 +1,5 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-import kotlinx.coroutines.channels.Channel
 import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.solutions.icvm.ProgramState.*
 import org.slf4j.Logger
@@ -28,8 +27,7 @@ class Programc(prog: String) {
         while (true) {
             try {
                 log.debug("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
-                val instruction: Instruction
-                synchronized(this) { instruction = Instruction(ip, memory) }
+                val instruction = Instruction(ip, memory)
                 log.debug("program {} - instruction {}", Thread.currentThread().name, instruction.opCode)
                 when (val retCode = instruction.execute()) {
                     InstructionReturnCode.EXIT -> {
@@ -41,19 +39,20 @@ class Programc(prog: String) {
                         memory.relativeBase += retCode.additionalData
                         ip += instruction.ipIncrement
                     }
-
                     InstructionReturnCode.READ -> {
                         programState = WAIT
-                        setMemory(retCode.additionalData, io.readInput(inputChannel))
+                        log.info("IntCode instance {} waiting for input", threadName)
+                        val input = io.readInput(inputChannel)
+                        setMemory(retCode.additionalData, input)
                         programState = RUNNING
+                        log.info("IntCode instance {} received input {}", threadName, input)
                         ip += instruction.ipIncrement
                     }
-
                     InstructionReturnCode.PRINT -> {
+                        log.info("IntCode instance {} sends to output {}", threadName, retCode.additionalData)
                         io.printOutput(retCode.additionalData, outputChannel)
                         ip += instruction.ipIncrement
                     }
-
                     else -> ip += instruction.ipIncrement
                 }
             }

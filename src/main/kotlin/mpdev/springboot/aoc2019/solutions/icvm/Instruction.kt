@@ -13,13 +13,11 @@ data class Instruction(val ip: Long, var memory: Memory) {
 
     init {
         try {
-            synchronized(this) {
-                opCode = OpCode.fromValue(memory[ip].toInt())
-                ipIncrement = opCode.getIpIncrement()
-                params = Array(opCode.numberOfParams) { 0L }
-                for (i in 0 until opCode.numberOfParams)
-                    params[i] = setInstructionParameter(ip + i, opCode.getParamMode(i), opCode.paramRwMode[i], ip)
-            }
+            opCode = OpCode.fromValue(memory[ip].toInt())
+            ipIncrement = opCode.getIpIncrement()
+            params = Array(opCode.numberOfParams) { 0L }
+            for (i in 0 until opCode.numberOfParams)
+                params[i] = setInstructionParameter(ip + i, opCode.getParamMode(i), opCode.paramRwMode[i], ip)
         } catch (e: Exception) {
             throw AocException(e.message ?: "unknown exception")
         }
@@ -44,25 +42,23 @@ data class Instruction(val ip: Long, var memory: Memory) {
     fun execute(): InstructionReturnCode {
         if (opCode == EXIT)
             return InstructionReturnCode.EXIT
-        synchronized(this) {
-            try {
-                when (val result = opCode.execute(params)) {
-                    is Long -> {
-                        store(params.last(), result); return InstructionReturnCode.OK
-                    }
-
-                    is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = result.newIp }
-                    is Relative -> return InstructionReturnCode.RELATIVE.also { res ->
-                        res.additionalData = result.incrBase
-                    }
-
-                    is Read -> return InstructionReturnCode.READ.also { res -> res.additionalData = params.last() }
-                    is Print -> return InstructionReturnCode.PRINT.also { res -> res.additionalData = params.last() }
-                    else ->  return InstructionReturnCode.OK
+        try {
+            when (val result = opCode.execute(params)) {
+                is Long -> {
+                    store(params.last(), result); return InstructionReturnCode.OK
                 }
-            } catch (e: AocException) {
-                return InstructionReturnCode.EXIT
+
+                is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = result.newIp }
+                is Relative -> return InstructionReturnCode.RELATIVE.also { res ->
+                    res.additionalData = result.incrBase
+                }
+
+                is Read -> return InstructionReturnCode.READ.also { res -> res.additionalData = params.last() }
+                is Print -> return InstructionReturnCode.PRINT.also { res -> res.additionalData = params.last() }
+                else -> return InstructionReturnCode.OK
             }
+        } catch (e: AocException) {
+            return InstructionReturnCode.EXIT
         }
     }
 

@@ -1,5 +1,7 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -26,13 +28,18 @@ class NetworkIo {
         log.debug("initialised network io channels for icvm thread {}", icvmThreadId)
     }
 
+    var count = 0
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun readFromChannel(networkChannel: NetworkChannel): Long {
-        var result: Long
-        //Thread.sleep(10)
+        if (count++ < 10)
         if (networkChannel.data.isEmpty) {
+            delay(100)
+            if (count < 10)
+                log.info("read from net channel no data - returning -1")
             return -1
         }
-        result = networkChannel.data.receive()
+        var result: Long = networkChannel.data.receive()
         return result
     }
 

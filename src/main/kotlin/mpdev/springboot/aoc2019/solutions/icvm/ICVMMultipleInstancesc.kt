@@ -17,9 +17,11 @@ class ICVMMultipleInstancesc(private val intCodeProgramString: String,
         threadTable.add(newInstance)
         threadTable.last().threadName = "$threadNamePrefix-${threadTable.lastIndex}"
         threadTable.last().io.setIoChannels(threadTable.lastIndex, ioMode = ioMode, loop = loop)
+        log.info("IntCode instance [{}] configured", threadTable.lastIndex)
     }
 
     suspend fun runInstance(instanceId: Int) {
+        log.info("IntCode instance [{}] starting", instanceId)
         runIntCodeProgram(threadTable[instanceId])
     }
 
@@ -38,6 +40,6 @@ class ICVMMultipleInstancesc(private val intCodeProgramString: String,
 
     suspend fun waitInstance(instanceId: Int, job: Job) {
         waitIntCodeProgram(job)
-        log.info("IntCode Instance {} completed", instanceId)
+        log.info("IntCode Instance [{}] completed", instanceId)
     }
 }

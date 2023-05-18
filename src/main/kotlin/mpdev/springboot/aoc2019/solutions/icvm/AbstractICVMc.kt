@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 abstract class AbstractICVMc {
 
     companion object {
-        const val DEF_PROG_INSTANCE_PREFIX = "intcode-thread"
+        const val DEF_PROG_INSTANCE_PREFIX = "intcode"
         // the ICVM "process table"
         val threadTable = mutableListOf<Programc>()
     }
@@ -20,7 +20,6 @@ abstract class AbstractICVMc {
     /// protected / internal functions
     protected suspend fun runIntCodeProgram(program: Programc) {
         program.run()
-        log.info("IntCode Program Co-routine started") // {}", program.job.isActive)
     }
 
     protected fun intCodeProgramIsRunning(program: Programc) = program.programState != COMPLETED

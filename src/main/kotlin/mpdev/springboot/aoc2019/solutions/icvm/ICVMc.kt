@@ -17,9 +17,11 @@ open class ICVMc(intCodeProgramString: String,
         mainThread = threadTable[0]
         mainThread.threadName = "$threadNamePrefix-0"
         mainThread.io.setIoChannels(ioMode = ioMode, stdin = useStdin, stdout = useStdout)
+        log.info("IntCode instance [0] configured")
     }
 
     suspend fun runProgram() {
+        log.info("IntCode instance [0] starting")
         runIntCodeProgram(mainThread)
     }
 
@@ -39,13 +41,13 @@ open class ICVMc(intCodeProgramString: String,
 
     suspend fun waitProgram(job: Job) {
         waitIntCodeProgram(job)
+        log.info("IntCode instance [0] completed")
     }
 
     // these functions have not been implemented in ICVM MultiInstance
 
     fun setProgramMemory(address: Int, data: Int) {
         mainThread.setMemory(address, data)
-        log.info("IntCode Program completed")
     }
 
     fun getProgramMemory(address: Int) = getProgramMemoryLong(address).toInt()
