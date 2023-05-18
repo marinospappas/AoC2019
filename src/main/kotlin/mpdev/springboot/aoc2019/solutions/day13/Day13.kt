@@ -1,8 +1,10 @@
 package mpdev.springboot.aoc2019.solutions.day13
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import mpdev.springboot.aoc2019.solutions.icvm.ICVM
+import mpdev.springboot.aoc2019.solutions.icvm.ICVMc
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
@@ -23,29 +25,35 @@ class Day13: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day $day part 1")
-        val icvm = ICVM(inputData[0])
-        val elapsed = measureTimeMillis {
-            icvm.runProgram()
-            icvm.waitProgram()
-            setupGame(icvm.getProgramOutput())
-            result = game.getNumberOfBlocks()
+        val icvm = ICVMc(inputData[0])
+        var elapsed: Long
+        runBlocking {
+            elapsed = measureTimeMillis {
+                val job = launch { icvm.runProgram() }
+                icvm.waitProgram(job)
+                setupGame(icvm.getProgramOutput())
+            }
         }
+        result = game.getNumberOfBlocks()
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
-        var result: String
-        val icvm = ICVM(inputData[0])
+        val icvm = ICVMc(inputData[0])
         icvm.setProgramMemory(0, 2)
-        val elapsed = measureTimeMillis {
-            icvm.runProgram()
-            setupGame(icvm.getProgramOutput())
-            game.printBoard()
-            playGame(icvm)
-            icvm.waitProgram()
-            result = if (game.over()) "Game Over!!!" else game.score.toString()
+        var elapsed: Long
+        runBlocking {
+            elapsed = measureTimeMillis {
+                val job = launch { icvm.runProgram() }
+                setupGame(icvm.getProgramOutput())
+                game.printBoard()
+                playGame(icvm)
+                icvm.waitProgram(job)
+                setupGame(icvm.getProgramOutput())
+            }
         }
+        val result: String = if (game.over()) "Game Over!!!" else game.score.toString()
         return PuzzlePartSolution(2, result, elapsed)
     }
 
@@ -54,7 +62,7 @@ class Day13: PuzzleSolver() {
         game.receiveInput(data.toList())
     }
 
-    fun playGame(icvm: ICVM) {
+    suspend fun playGame(icvm: ICVMc) {
         while (true) {
             val joystick = game.getJoystick()
             //println("joystick movement $joystick")

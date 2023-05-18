@@ -1,8 +1,10 @@
 package mpdev.springboot.aoc2019.solutions.day11
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
-import mpdev.springboot.aoc2019.solutions.icvm.ICVM
+import mpdev.springboot.aoc2019.solutions.icvm.ICVMc
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
@@ -24,32 +26,38 @@ class Day11: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day $day part 1")
-        val icvm = ICVM(inputData[0])
+        val icvm = ICVMc(inputData[0])
         controller.initPanels()
-        val elapsed = measureTimeMillis {
-            icvm.runProgram()
-            guideRobot(icvm)
-            icvm.waitProgram()
-            result = controller.countPanels()
+        var elapsed: Long
+        runBlocking {
+            elapsed = measureTimeMillis {
+                val job = launch { icvm.runProgram() }
+                guideRobot(icvm)
+                icvm.waitProgram(job)
+            }
         }
+        result = controller.countPanels()
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
-        val icvm = ICVM(inputData[0])
+        val icvm = ICVMc(inputData[0])
         controller.initPanels(2)
-        val elapsed = measureTimeMillis {
-            icvm.runProgram()
-            guideRobot(icvm)
-            icvm.waitProgram()
-            controller.printGrid()
-            result = controller.countPanels()
+        var elapsed: Long
+        runBlocking {
+            elapsed = measureTimeMillis {
+                val job = launch { icvm.runProgram() }
+                guideRobot(icvm)
+                icvm.waitProgram(job)
+            }
         }
+        controller.printGrid()
+        result = controller.countPanels()
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
 
-    fun guideRobot(icvm: ICVM) {
+    suspend fun guideRobot(icvm: ICVMc) {
         while (true) {
             val input = controller.getInputForRobot()
             icvm.setProgramInput(input)

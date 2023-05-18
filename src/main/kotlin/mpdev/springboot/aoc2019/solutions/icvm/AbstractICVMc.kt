@@ -1,7 +1,6 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import mpdev.springboot.aoc2019.solutions.icvm.ProgramState.*
 import org.slf4j.Logger
@@ -57,7 +56,7 @@ abstract class AbstractICVMc {
         //  asciiInputProvided = true
     }
 
-    suspend fun getOutputValues(outputChannel: IoChannelc = threadTable[0].outputChannel, clearChannel: Boolean = true): List<Long> {
+    suspend fun getOutputValues(outputChannel: IoChannelc = threadTable[0].outputChannel): List<Long> {
         val outputValues = mutableListOf<Long>()
         outputValues.add(outputChannel.data.receive())
         do {
@@ -69,9 +68,8 @@ abstract class AbstractICVMc {
         return outputValues
     }
 
-    //TODO fix below
-    //fun getOutputValuesAscii(outputChannel: IoChannel = threadTable[0].outputChannel, clearChannel: Boolean = true): String {
-    //    val outputValues = getOutputValues(outputChannel, clearChannel)
-    //    return StringBuilder().also { s -> outputValues.forEach { l -> s.append(l.toInt().toChar()) } }.toString()
-    //}
+    suspend fun getOutputValuesAscii(outputChannel: IoChannelc = threadTable[0].outputChannel): String {
+        val outputValues = getOutputValues(outputChannel)
+        return StringBuilder().also { s -> outputValues.forEach { l -> s.append(l.toInt().toChar()) } }.toString()
+    }
 }

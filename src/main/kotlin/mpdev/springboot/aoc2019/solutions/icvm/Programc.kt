@@ -42,17 +42,17 @@ class Programc(prog: String) {
                     }
                     InstructionReturnCode.READ -> {
                         programState = WAIT
-                        log.info("IntCode instance {} waiting for input", threadName)
+                        log.debug("IntCode instance {} waiting for input", threadName)
                         val input = io.readInput(inputChannel)
                         setMemory(retCode.additionalData, input)
                         programState = RUNNING
-                        log.info("IntCode instance {} received input {}", threadName, input)
+                        log.debug("IntCode instance {} received input {}", threadName, input)
                         ip += instruction.ipIncrement
                         // network mode - set idle state
                         isIdle = outputChannel is NetworkChannel && input == -1L
                     }
                     InstructionReturnCode.PRINT -> {
-                        log.info("IntCode instance {} sends to output {}", threadName, retCode.additionalData)
+                        log.debug("IntCode instance {} sends to output {}", threadName, retCode.additionalData)
                         io.printOutput(retCode.additionalData, outputChannel)
                         ip += instruction.ipIncrement
                     }
