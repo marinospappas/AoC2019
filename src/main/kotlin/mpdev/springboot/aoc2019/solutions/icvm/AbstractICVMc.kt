@@ -1,7 +1,9 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import mpdev.springboot.aoc2019.solutions.icvm.ProgramState.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -17,16 +19,14 @@ abstract class AbstractICVMc {
 
     /// protected / internal functions
     protected suspend fun runIntCodeProgram(program: Programc) {
-        delay(10)
         program.run()
         log.info("IntCode Program Co-routine started") // {}", program.job.isActive)
     }
 
-    protected fun intCodeProgramIsRunning(program: Programc) = program.job.isActive
+    protected fun intCodeProgramIsRunning(program: Programc) = program.programState != COMPLETED
 
-    protected suspend fun waitIntCodeProgram(program: Programc) {
-        program.job.join()
-        log.info("IntCode Program Thread completed")
+    protected suspend fun waitIntCodeProgram(job: Job) {
+        job.join()
     }
 
     protected suspend fun setIntCodeProgramInputLong(data: List<Long>, program: Programc) {
@@ -37,7 +37,7 @@ abstract class AbstractICVMc {
     protected suspend fun getIntCodeProgramOutputLong(program: Programc): List<Long> {
         log.debug("getIntCodeProgramOutputLong called")
         delay(1)      // required in case the program job is still waiting for input
-        while (program.job.isActive) {     // job active = still producing output
+        while (program.programState == RUNNING) {     // job active = still producing output
             delay(1)
         }
         val output = getOutputValues(program.outputChannel)
@@ -45,11 +45,11 @@ abstract class AbstractICVMc {
         return output
     }
 
-    suspend fun setInputValues(values: List<Long>, inputChannel: Channel<Long> = threadTable[0].inputChannel) {
-        values.forEach { v -> inputChannel.send(v) }
+    suspend fun setInputValues(values: List<Long>, inputChannel: IoChannelc = threadTable[0].inputChannel) {
+        values.forEach { v -> inputChannel.data.send(v) }
     }
 
-    suspend fun setInputValuesAscii(value: String, channel: Channel<Long> = threadTable[0].inputChannel) {
+    suspend fun setInputValuesAscii(value: String, channel: IoChannelc = threadTable[0].inputChannel) {
         setInputValues(
             mutableListOf<Long>().also { list -> value.chars().forEach { c -> list.add(c.toLong()) } },
             channel
@@ -58,11 +58,11 @@ abstract class AbstractICVMc {
         //  asciiInputProvided = true
     }
 
-    suspend fun getOutputValues(outputChannel: Channel<Long> = threadTable[0].outputChannel, clearChannel: Boolean = true): List<Long> {
+    suspend fun getOutputValues(outputChannel: IoChannelc = threadTable[0].outputChannel, clearChannel: Boolean = true): List<Long> {
         val outputValues = mutableListOf<Long>()
-        outputValues.add(outputChannel.receive())
+        outputValues.add(outputChannel.data.receive())
         do {
-            val nextItem = outputChannel.tryReceive().getOrNull()
+            val nextItem = outputChannel.data.tryReceive().getOrNull()
             if (nextItem != null)
                 outputValues.add(nextItem)
         }

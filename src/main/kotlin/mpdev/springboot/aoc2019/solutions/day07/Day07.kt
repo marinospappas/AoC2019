@@ -1,5 +1,6 @@
 package mpdev.springboot.aoc2019.solutions.day07
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -71,12 +72,11 @@ class Day07: PuzzleSolver() {
                     icvm.setInstanceInput(phaseSequence[it], it)
             }
             // execute the 5 copies of the intCode program in 5 coroutines
-            repeat(NUMBER_OF_AMPS) {
-                val job = launch { icvm.runInstance(it) }
-                icvm.setInstanceJob(it, job)
+            val jobs = Array(NUMBER_OF_AMPS) {
+                launch { icvm.runInstance(it) }
             }
             // and wait until all complete
-            repeat(NUMBER_OF_AMPS) { icvm.waitInstance(it) }
+            repeat(NUMBER_OF_AMPS) { icvm.waitInstance(it, jobs[it]) }
             result = icvm.getInstanceOutput(NUMBER_OF_AMPS - 1).last()
         }
         log.debug("result: {}", result)

@@ -21,24 +21,22 @@ class NetworkIo {
     }
 
     fun setIoChannels(icvmThreadId: Int) {
-        AbstractICVM.threadTable[icvmThreadId].inputChannel = NetworkChannel()
-        AbstractICVM.threadTable[icvmThreadId].outputChannel = NetworkChannel()
+        AbstractICVMc.threadTable[icvmThreadId].inputChannel = NetworkChannel()
+        AbstractICVMc.threadTable[icvmThreadId].outputChannel = NetworkChannel()
         log.debug("initialised network io channels for icvm thread {}", icvmThreadId)
     }
 
-    fun readFromChannel(networkChannel: NetworkChannel): Long {
+    suspend fun readFromChannel(networkChannel: NetworkChannel): Long {
         var result: Long
-        synchronized(networkChannel) {      // network read is non-blocking
-            //Thread.sleep(10)
-            if (networkChannel.data.isEmpty()) {
-                return -1
-            }
-            result = networkChannel.data.removeAt(0)
+        //Thread.sleep(10)
+        if (networkChannel.data.isEmpty) {
+            return -1
         }
+        result = networkChannel.data.receive()
         return result
     }
 
-    fun writeToChannel(outputValue: Long, outputChannel: NetworkChannel) {
+    suspend fun writeToChannel(outputValue: Long, outputChannel: NetworkChannel) {
         if (outputChannel.nicData.isEmpty()) {
             outputChannel.nicData.add(Packet(address = outputValue.toInt()))
             return
@@ -55,21 +53,19 @@ class NetworkIo {
         }
     }
 
-    private fun sendPacketToDestination(packet: Packet) {
+    private suspend fun sendPacketToDestination(packet: Packet) {
         log.info("network write: {}", packet)
         if (packet.address == BROADCAST_ADDRESS)
             broadcastQueue.add(packet)
         else {
-            val inputChannel = AbstractICVM.threadTable[packet.address].inputChannel
-            synchronized(inputChannel) {
-                inputChannel.data.addAll(listOf(packet.valueX, packet.valueY))
-                inputChannel.notify()
-            }
+            val inputChannel = AbstractICVMc.threadTable[packet.address].inputChannel
+            inputChannel.data.send(packet.valueX)
+            inputChannel.data.send(packet.valueY)
         }
     }
 }
 
-class NetworkChannel(val nicData: MutableList<Packet> = mutableListOf()): IoChannel()
+class NetworkChannel(val nicData: MutableList<Packet> = mutableListOf()): IoChannelc()
 
 data class Packet(val address: Int, var valueX: Long = Long.MIN_VALUE, var valueY: Long = Long.MIN_VALUE) {
     fun isComplete() =

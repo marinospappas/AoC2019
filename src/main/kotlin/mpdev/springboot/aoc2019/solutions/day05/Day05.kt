@@ -33,7 +33,6 @@ class Day05: PuzzleSolver() {
         runBlocking {
             elapsed = measureTimeMillis {
                 val job = launch { icvm.runProgram() }
-                icvm.setJob(job)
                 launch { icvm.setProgramInput(1) }
                 //icvm.waitProgram()
                 result = icvm.getProgramOutput().last()
@@ -49,7 +48,6 @@ class Day05: PuzzleSolver() {
         runBlocking {
             elapsed = measureTimeMillis {
                 val job = launch { icvm.runProgram() }
-                icvm.setJob(job)
                 icvm.setProgramInput(5)
                 //icvm.waitProgram()
                 result = icvm.getProgramOutput().last()

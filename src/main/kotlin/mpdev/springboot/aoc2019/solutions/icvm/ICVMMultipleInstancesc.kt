@@ -1,6 +1,7 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
 import kotlinx.coroutines.Job
+import mpdev.springboot.aoc2019.solutions.icvm.ProgramState.*
 
 class ICVMMultipleInstancesc(private val intCodeProgramString: String,
                              threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX,
@@ -22,10 +23,6 @@ class ICVMMultipleInstancesc(private val intCodeProgramString: String,
         runIntCodeProgram(threadTable[instanceId])
     }
 
-    fun setInstanceJob(instanceId: Int, job: Job) {
-        threadTable[instanceId].job = job
-    }
-
     suspend fun setInstanceInput(data: Int, instanceId: Int) {
         setIntCodeProgramInputLong(listOf(data.toLong()), threadTable[instanceId])
     }
@@ -37,10 +34,10 @@ class ICVMMultipleInstancesc(private val intCodeProgramString: String,
     suspend fun getInstanceOutput(instanceId: Int) =
         getIntCodeProgramOutputLong(threadTable[instanceId]).map { it.toInt() }
 
-    fun instanceIsRunning(instanceId: Int) = threadTable[instanceId].job.isActive
+    fun instanceIsRunning(instanceId: Int) = threadTable[instanceId].programState != COMPLETED
 
-    suspend fun waitInstance(instanceId: Int) {
-        threadTable[instanceId].job.join()
-        log.info("IntCode Instance Thread {} completed", instanceId)
+    suspend fun waitInstance(instanceId: Int, job: Job) {
+        waitIntCodeProgram(job)
+        log.info("IntCode Instance {} completed", instanceId)
     }
 }

@@ -54,9 +54,9 @@ class InputOutput {
 
     private fun readFromChannel(inputChannel: IoChannel): Long {
         val result: Long
-        if (inputChannel is NetworkChannel)
-            result = netIo.readFromChannel(inputChannel)
-        else {
+        //if (inputChannel is NetworkChannel)
+        //    result = netIo.readFromChannel(inputChannel)
+        //else {
             synchronized(inputChannel) {
                 while (inputChannel.data.isEmpty())
                     inputChannel.wait()
@@ -65,7 +65,7 @@ class InputOutput {
             log.debug("read from channel returns [$result]")
             if (asciiInputProvided)
                 print(result.toInt().toChar())
-        }
+        //}
         return result
     }
 
@@ -80,9 +80,9 @@ class InputOutput {
     }
 
     private fun printToChannel(outputChannel: IoChannel, value: Long) {
-        if (outputChannel is NetworkChannel)
-            netIo.writeToChannel(value, outputChannel)
-        else
+        //if (outputChannel is NetworkChannel)
+        //    netIo.writeToChannel(value, outputChannel)
+        //else
             synchronized(outputChannel) {
                 outputChannel.data.add(value)
                 outputChannel.notify()

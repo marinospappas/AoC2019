@@ -1,8 +1,8 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import mpdev.springboot.aoc2019.utils.AocException
+import mpdev.springboot.aoc2019.solutions.icvm.ProgramState.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -13,16 +13,17 @@ class Programc(prog: String) {
     private var memory = Memory(prog)
 
     lateinit var threadName: String
-    lateinit var inputChannel: Channel<Long>
-    lateinit var outputChannel: Channel<Long>
+    lateinit var inputChannel: IoChannelc
+    lateinit var outputChannel: IoChannelc
     var io = InputOutputc()
-    lateinit var job: Job
+    var programState: ProgramState = READY
 
     fun setLimitedMemory() {
         memory.unlimitedMemory = false
     }
 
     suspend fun run() {
+        programState = RUNNING
         var ip = 0L
         while (true) {
             try {
@@ -31,7 +32,10 @@ class Programc(prog: String) {
                 synchronized(this) { instruction = Instruction(ip, memory) }
                 log.debug("program {} - instruction {}", Thread.currentThread().name, instruction.opCode)
                 when (val retCode = instruction.execute()) {
-                    InstructionReturnCode.EXIT -> return
+                    InstructionReturnCode.EXIT -> {
+                        programState = COMPLETED
+                        return
+                    }
                     InstructionReturnCode.JUMP -> ip = retCode.additionalData
                     InstructionReturnCode.RELATIVE -> {
                         memory.relativeBase += retCode.additionalData
@@ -39,7 +43,9 @@ class Programc(prog: String) {
                     }
 
                     InstructionReturnCode.READ -> {
+                        programState = WAIT
                         setMemory(retCode.additionalData, io.readInput(inputChannel))
+                        programState = RUNNING
                         ip += instruction.ipIncrement
                     }
 
@@ -53,6 +59,7 @@ class Programc(prog: String) {
             }
             catch (e: AocException) {
                 log.error("exception ${e.message} thrown, ip = $ip memory = ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}")
+                programState = COMPLETED
                 return
             }
         }
@@ -88,4 +95,8 @@ class Memory_(prog: String) {
             throw AocException("memory address out of range: $adr for mem size ${mem.keys.size}")
         mem[adr] = value
     }
+}
+
+enum class ProgramState {
+    READY, RUNNING, WAIT, COMPLETED
 }

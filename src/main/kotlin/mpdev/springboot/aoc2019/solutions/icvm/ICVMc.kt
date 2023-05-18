@@ -23,10 +23,6 @@ open class ICVMc(intCodeProgramString: String,
         runIntCodeProgram(mainThread)
     }
 
-    fun setJob(job: Job) {
-        mainThread.job = job
-    }
-
     suspend fun setProgramInput(data: Int) {
         setIntCodeProgramInputLong(listOf(data.toLong()), mainThread)
     }
@@ -41,14 +37,15 @@ open class ICVMc(intCodeProgramString: String,
 
     fun programIsRunning() = intCodeProgramIsRunning(mainThread)
 
-    suspend fun waitProgram() {
-        waitIntCodeProgram(mainThread)
+    suspend fun waitProgram(job: Job) {
+        waitIntCodeProgram(job)
     }
 
     // these functions have not been implemented in ICVM MultiInstance
 
     fun setProgramMemory(address: Int, data: Int) {
         mainThread.setMemory(address, data)
+        log.info("IntCode Program completed")
     }
 
     fun getProgramMemory(address: Int) = getProgramMemoryLong(address).toInt()
