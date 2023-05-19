@@ -87,9 +87,9 @@ class Day07Test {
             icvm.setInstanceInput(listOf(4), 3)
             // execute the 4 copies of the intCode program in 4 coroutines
             val jobs = Array(4) { launch { icvm.runInstance(it) } }
+            result = icvm.getInstanceOutput(0)
             // and wait until all complete
             repeat(4) { icvm.waitInstance(it, jobs[it]) }
-            result = icvm.getInstanceOutput(0)
         }
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isEqualTo(1050)

@@ -30,6 +30,7 @@ class Program(prog: String) {
                 log.debug("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
                 val instruction = Instruction(ip, memory)
                 log.debug("program {} - instruction {}", Thread.currentThread().name, instruction.opCode)
+
                 when (val retCode = instruction.execute()) {
                     InstructionReturnCode.EXIT -> {
                         programState = COMPLETED
@@ -42,11 +43,14 @@ class Program(prog: String) {
                     }
                     InstructionReturnCode.READ -> {
                         programState = WAIT
-                        log.debug("IntCode instance {} waiting for input", threadName)
+                        log.debug("IntCode instance {} waiting for input will be stored in address {}", threadName, retCode.additionalData)
+                        val memAddress = retCode.additionalData     // the memory address must be saved here as this coroutine
+                                                                    // will be suspended below and the value in retCode may change
                         val input = io.readInput(inputChannel)
-                        setMemory(retCode.additionalData, input)
+                        setMemory(memAddress, input)
                         programState = RUNNING
-                        log.debug("IntCode instance {} received input {}", threadName, input)
+                        log.debug("IntCode instance {} received input {} to be stored in address {}",
+                            threadName, input, retCode.additionalData)
                         ip += instruction.ipIncrement
                         // network mode - set idle state
                         isIdle = outputChannel is NetworkChannel && input == -1L
@@ -71,6 +75,7 @@ class Program(prog: String) {
     fun getMemory(address: Int): Long = getMemory(address.toLong())
 
     fun setMemory(address: Long, value: Long) {
+        log.debug("setting memory {} to {}", address, value)
         memory[address] = value
     }
     fun setMemory(address: Int, value: Int) {
@@ -79,6 +84,8 @@ class Program(prog: String) {
 }
 
 class Memory(prog: String) {
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
+
     var mem: MutableMap<Long,Long> = mutableMapOf()
     var relativeBase: Long = 0L
     var unlimitedMemory = true
@@ -93,6 +100,8 @@ class Memory(prog: String) {
         return mem[adr] ?: 0L
     }
     operator fun set(adr: Long, value: Long) {
+        if (adr == 23L)
+            log.info("setting address {} to {}", adr, value)
         if (!unlimitedMemory && adr >= mem.keys.size)
             throw AocException("memory address out of range: $adr for mem size ${mem.keys.size}")
         mem[adr] = value
