@@ -6,6 +6,7 @@ import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import mpdev.springboot.aoc2019.solutions.icvm.ICVM
 import org.springframework.stereotype.Component
+import java.awt.Point
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -26,43 +27,40 @@ class Day19: PuzzleSolver() {
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day $day part 1")
         beam = TractorBeam()
-        var elapsed: Long
-        runBlocking {
-            elapsed = measureTimeMillis {
-                var count = 0
-                beam.areaPoints().forEach { point ->
-                    val icvm = ICVM(inputData[0])
-                    val job = launch { icvm.runProgram() }
-                    icvm.setProgramInput(listOf(point.x, point.y))
-                    val droneFeedback = icvm.getProgramOutput().first()
-                    job.cancel()
-                    icvm.waitProgram(job)
-                    if (droneFeedback == 1) {
-                        beam.addBeamPoint(point)
-                        ++count
-                    }
-                    if (count % 10 == 0)
-                        log.info("found so far {} points in the beam", count)
+        val elapsed = measureTimeMillis {
+            var count = 0
+            beam.areaPoints().forEach { point ->
+                if (isPointInBeam(point)) {
+                    beam.addBeamPoint(point)
+                    ++count
                 }
+                if (count % 10 == 0)
+                    log.info("found so far {} points in the beam", count)
             }
         }
+        beam.printBeam()
         result = beam.numberOfPointsInBeam()
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
-        val icvm = ICVM(inputData[0])
-        icvm.setProgramMemory(0, 2)
-        var elapsed: Long
-        runBlocking {
-            elapsed = measureTimeMillis {
-                //val job = launch { icvm.runProgram() }
+        val elapsed = measureTimeMillis {
 
-                //icvm.waitProgram(job)
-            }
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
 
+    private fun isPointInBeam(point: Point): Boolean {
+        val icvm = ICVM(inputData[0])
+        var droneFeedback = 0
+        runBlocking {
+            val job = launch { icvm.runProgram() }
+            icvm.setProgramInput(listOf(point.x, point.y))
+            droneFeedback = icvm.getProgramOutput().first()
+            job.cancel()
+            icvm.waitProgram(job)
+        }
+        return droneFeedback == 1
+    }
 }

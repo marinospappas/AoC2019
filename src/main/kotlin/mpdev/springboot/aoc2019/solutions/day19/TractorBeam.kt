@@ -26,4 +26,28 @@ class TractorBeam {
     fun addBeamPoint(p: Point) {
         beamPoints.add(p)
     }
+
+    private fun board2Grid(board: List<Point>): Array<CharArray> {
+        val grid: Array<CharArray> = Array(MAX_X) { CharArray(MAX_X) { '.' } }
+        board.forEach { point -> grid[point.y][point.x] = '#' }
+        return grid
+    }
+
+    fun printBeam() {
+        val grid = board2Grid(beamPoints)
+        print("   ")
+        for (i in grid.first().indices)
+            print(if (i%10 == 0) i/10 else " ")
+        println()
+        print("   ")
+        for (i in grid.first().indices)
+            print(i%10)
+        println()
+        for (i in grid.indices) {
+            print("${String.format("%2d",i)} ")
+            for (j in grid.first().indices)
+                print(grid[i][j])
+            println()
+        }
+    }
 }
