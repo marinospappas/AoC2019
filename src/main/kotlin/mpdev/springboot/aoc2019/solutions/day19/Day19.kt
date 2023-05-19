@@ -46,7 +46,17 @@ class Day19: PuzzleSolver() {
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
         val elapsed = measureTimeMillis {
-
+            var x = 0
+            var y = 0
+            while (true) {
+                while (!isPointInBeam(Point(x, y+99)))
+                    x++
+                if (isPointInBeam( Point(x+99, y))) {
+                    result = 10000 * x + y
+                    break
+                }
+                y++
+            }
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
