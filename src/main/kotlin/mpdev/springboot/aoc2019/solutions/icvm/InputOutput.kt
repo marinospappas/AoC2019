@@ -38,12 +38,13 @@ class InputOutput {
     //////// read input
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun readFromStdin(inputChannel: IoChannelc): Long {
-        //val icvmThreadId =  Thread.currentThread().name.substringAfterLast('-', "0").toInt()
-        //val inputChannel = AbstractICVMc.threadTable[icvmThreadId].inputChannel
+        val QUIT_CMD = "quit"
         val channel = inputChannel.data
         if (channel.isEmpty) {
             val inputString = "${readln()}\n"
             println(inputString.trim('\n'))
+            if (inputString.trim('\n') == QUIT_CMD)
+                AbstractICVM.threadTable[0].quitProgram = true      // quit only works for main instance
             mutableListOf<Long>().also { list ->
                 inputString.chars().forEach { c -> list.add(c.toLong()) }
             }.forEach { channel.send(it) }

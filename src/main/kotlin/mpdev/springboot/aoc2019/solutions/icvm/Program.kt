@@ -17,6 +17,7 @@ class Program(prog: String) {
     var io = InputOutput()
     var programState: ProgramState = READY
     var isIdle = false      // used in network mode only
+    var quitProgram = false     // set by command "quit" when useStdio is enabled
 
     fun setLimitedMemory() {
         memory.unlimitedMemory = false
@@ -26,6 +27,10 @@ class Program(prog: String) {
         programState = RUNNING
         var ip = 0L
         while (true) {
+            if (quitProgram) {
+                log.info("QuitProgram command received")
+                return
+            }
             try {
                 log.debug("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
                 val instruction = Instruction(ip, memory)
