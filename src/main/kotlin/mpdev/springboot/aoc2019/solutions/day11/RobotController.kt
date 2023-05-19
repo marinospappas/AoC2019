@@ -2,9 +2,13 @@ package mpdev.springboot.aoc2019.solutions.day11
 
 import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.utils.plus
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.awt.Point
 
 class RobotController {
+
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     private val BLACK = 0
     private val WHITE = 1
@@ -32,6 +36,8 @@ class RobotController {
         panels[robotPosition] = outputValues[0]
         updateDirection(outputValues[1])
         moveRobot()
+        log.debug(">> received robot output {}", outputValues.toString())
+        log.debug(">> num of panels: {}, robot position {}, robot direction {}, panels {}", panels.count(), robotPosition, directionOfMovement, panels.toString())
     }
 
     fun countPanels() = panels.count()

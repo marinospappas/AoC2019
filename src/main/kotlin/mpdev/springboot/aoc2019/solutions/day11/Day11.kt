@@ -28,17 +28,15 @@ class Day11: PuzzleSolver() {
         log.info("solving day $day part 1")
         val icvm = ICVM(inputData[0])
         controller.initPanels()
-        var elapsed: Long = 0L
-        //TODO: fix part1
-        /*
+        var elapsed: Long
         runBlocking {
             elapsed = measureTimeMillis {
                 val job = launch { icvm.runProgram() }
+                log.info("Please be patient, this is a lot of work...")
                 guideRobot(icvm)
                 icvm.waitProgram(job)
             }
         }
-        */
         result = controller.countPanels()
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
@@ -69,6 +67,8 @@ class Day11: PuzzleSolver() {
                 controller.receiveRobotOutput(output)
             if (!icvm.programIsRunning())
                 break
+            if (controller.countPanels() % 300 == 0)
+                log.info("So far painted {} panels", controller.countPanels())
         }
     }
 }

@@ -42,20 +42,17 @@ class Day13: PuzzleSolver() {
         log.info("solving day $day part 2")
         val icvm = ICVM(inputData[0])
         icvm.setProgramMemory(0, 2)
-        var elapsed: Long = 0L
-        //TODO: fix part2
-        /*
+        var elapsed: Long
         runBlocking {
             elapsed = measureTimeMillis {
                 val job = launch { icvm.runProgram() }
                 setupGame(icvm.getProgramOutput())
                 game.printBoard()
+                log.info("Please be patient, {} blocks to deal with... this will take time", game.getNumberOfBlocks())
                 playGame(icvm)
                 icvm.waitProgram(job)
-                setupGame(icvm.getProgramOutput())
             }
         }
-         */
         val result: String = if (game.over()) "Game Over!!!" else game.score.toString()
         return PuzzlePartSolution(2, result, elapsed)
     }
@@ -66,16 +63,19 @@ class Day13: PuzzleSolver() {
     }
 
     suspend fun playGame(icvm: ICVM) {
+        var prevScore = 0L
         while (true) {
             val joystick = game.getJoystick()
-            //println("joystick movement $joystick")
+            log.debug("joystick movement {}", joystick)
             icvm.setProgramInput(joystick)
             val output = icvm.getProgramOutput()
             if (output.isNotEmpty())
                 game.receiveInput(output)
             if (!icvm.programIsRunning())
                 break
-            //game.printBoard()
+            if (game.getNumberOfBlocks() % 50 == 0 && game.score > prevScore)
+                log.info("Current score: {}, blocks remaining: {}", game.score, game.getNumberOfBlocks())
+            prevScore = game.score
         }
         game.printBoard()
     }
