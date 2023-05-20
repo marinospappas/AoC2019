@@ -10,7 +10,7 @@ class RepairDroid(private val icvm: ICVM) {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
     private val visited = mutableSetOf<Pair<Int, Int>>()
     val spaces = mutableSetOf<Pair<Int, Int>>()
-    var oxygen: Pair<Int, Int>? = null
+    lateinit var oxygen: Pair<Int, Int>
     private var frontier = mutableSetOf(0 to 0)
 
     private var x = 0

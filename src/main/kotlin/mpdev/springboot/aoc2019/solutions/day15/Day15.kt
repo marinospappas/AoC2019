@@ -39,7 +39,7 @@ class Day15: PuzzleSolver() {
                 droid.explore()
                 job.cancel()
                 icvm.waitProgram(job)
-                result = droid.path(0 to 0, droid.oxygen!!, droid.spaces).size
+                result = droid.path(0 to 0, droid.oxygen, droid.spaces).size
             }
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
@@ -49,7 +49,7 @@ class Day15: PuzzleSolver() {
         log.info("solving day $day part 2")
         // needs part 1 completed first
         val elapsed = measureTimeMillis {
-            val oxygen = droid.oxygen!!
+            val oxygen = droid.oxygen
             result = droid.spaces.maxOfOrNull { droid.path(oxygen, it, droid.spaces).size }!!
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
