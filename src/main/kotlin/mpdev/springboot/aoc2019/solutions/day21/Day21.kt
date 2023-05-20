@@ -1,4 +1,4 @@
-package mpdev.springboot.aoc2019.solutions.day17
+package mpdev.springboot.aoc2019.solutions.day21
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -9,24 +9,25 @@ import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
 @Component
-class Day17: PuzzleSolver() {
+class Day21: PuzzleSolver() {
 
     final override fun setDay() {
-        day = 17         ////// update this when a puzzle solver for a new day is implemented
+        day = 21         ////// update this when a puzzle solver for a new day is implemented
     }
 
     init {
         setDay()
     }
 
-    var result = 0
+    var result = 0L
 
-    private val inputStringsPart2 = arrayOf(
-        "A,B,B,A,B,C,A,C,B,C\n",
-        "L,4,L,6,L,8,L,12\n",
-        "L,8,R,12,L,12\n",
-        "R,12,L,6,L,6,L,8\n",
-        "n\n"
+    private val inputStringsPart1 = arrayOf(
+        "OR A T\n",
+        "AND B T\n",
+        "AND C T\n",
+        "NOT T J\n",
+        "AND D J\n",
+        "WALK\n"
     )
 
     override fun initSolver() {}
@@ -34,14 +35,14 @@ class Day17: PuzzleSolver() {
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day $day part 1")
         val icvm = ICVM(inputData[0])
+        icvm.setAsciiCapable()
         var elapsed: Long
         runBlocking {
             elapsed = measureTimeMillis {
                 val job = launch { icvm.runProgram() }
+                inputStringsPart1.forEach { s -> icvm.setInputValuesAscii(s) }
                 icvm.waitProgram(job)
-                val output = icvm.getOutputValuesAscii().trim('\n')
-                val asciiProcessor = AsciiProcessor(output)
-                result = asciiProcessor.process()
+                result = icvm.getOutputValues().last()
             }
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
@@ -52,14 +53,17 @@ class Day17: PuzzleSolver() {
         result = 0
         val icvm = ICVM(inputData[0])
         icvm.setProgramMemory(0, 2)
-        icvm.setAsciiCapable()
         var elapsed: Long
         runBlocking {
             elapsed = measureTimeMillis {
+            /*
                 inputStringsPart2.forEach { s -> icvm.setInputValuesAscii(s) }
                 val job = launch { icvm.runProgram() }
                 icvm.waitProgram(job)
-                result = icvm.getOutputValues().last().toInt()
+                val output = icvm.getOutputValues()
+                result = output.last().toInt()
+                output.forEach { print(it.toInt().toChar()) }
+                */
             }
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)

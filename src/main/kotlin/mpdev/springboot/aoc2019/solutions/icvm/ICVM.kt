@@ -46,6 +46,10 @@ open class ICVM(intCodeProgramString: String,
 
     // these functions have not been implemented in ICVM MultiInstance
 
+    fun setAsciiCapable() {
+        setAsciiCapable(mainThread)
+    }
+
     fun setProgramMemory(address: Int, data: Int) {
         mainThread.setMemory(address, data)
     }

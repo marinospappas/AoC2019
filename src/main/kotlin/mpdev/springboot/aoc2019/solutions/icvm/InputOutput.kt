@@ -60,6 +60,8 @@ class InputOutput {
             result = netIo.readFromChannel(inputChannel)
         else {
             result = inputChannel.data.receive()
+            if (inputChannel.asciiCapable)
+                print(result.toInt().toChar())
             log.debug("read from channel returns [$result]")
         }
         return result
@@ -87,14 +89,14 @@ class InputOutput {
 
     suspend fun printOutput(value: Long, ioChannel: IoChannelc) {
         log.debug("printOutput called")
-        if (useStdout)
+        if (useStdout || ioChannel.asciiCapable && value < 255)
             printToStdout(value)
         else
             printToChannel(ioChannel, value)
     }
 }
 
-open class IoChannelc(val data: Channel<Long> = Channel(Channel.UNLIMITED))
+open class IoChannelc(val data: Channel<Long> = Channel(Channel.UNLIMITED), var asciiCapable: Boolean = false)
 
 class DirectIoc: IoChannelc()
 

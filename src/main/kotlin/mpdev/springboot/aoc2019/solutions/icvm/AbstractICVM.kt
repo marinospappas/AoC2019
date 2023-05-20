@@ -27,6 +27,11 @@ abstract class AbstractICVM {
         job.join()
     }
 
+    protected fun setAsciiCapable(program: Program) {
+        program.inputChannel.asciiCapable = true
+        program.outputChannel.asciiCapable = true
+    }
+
     protected suspend fun setIntCodeProgramInputLong(data: List<Long>, program: Program) {
         log.debug("set program input to {}", data)
         setInputValues(data, program.inputChannel)
