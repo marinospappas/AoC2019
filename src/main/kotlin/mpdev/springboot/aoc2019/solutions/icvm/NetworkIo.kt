@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory
 
 class NetworkIo {
 
-
     companion object {
 
         private val BROADCAST_ADDRESS = 0xFF
@@ -73,7 +72,7 @@ class NetworkIo {
     }
 
     private suspend fun sendPacketToDestination(packet: Packet) {
-        log.info("network write: {}", packet)
+        log.debug("network write: {}", packet)
         if (packet.address == BROADCAST_ADDRESS)
             natPacket = Packet(BROADCAST_ADDRESS, packet.valueX, packet.valueY)
         else {
