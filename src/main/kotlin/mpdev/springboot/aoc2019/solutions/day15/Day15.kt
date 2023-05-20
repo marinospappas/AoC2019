@@ -47,6 +47,7 @@ class Day15: PuzzleSolver() {
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
+        // needs part 1 completed first
         val elapsed = measureTimeMillis {
             val oxygen = droid.oxygen!!
             result = droid.spaces.maxOfOrNull { droid.path(oxygen, it, droid.spaces).size }!!
