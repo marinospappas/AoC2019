@@ -12,8 +12,8 @@ class Program(prog: String) {
     private var memory = Memory(prog)
 
     lateinit var threadName: String
-    lateinit var inputChannel: IoChannelc
-    lateinit var outputChannel: IoChannelc
+    lateinit var inputChannel: IoChannel
+    lateinit var outputChannel: IoChannel
     var io = InputOutput()
     var programState: ProgramState = READY
     var isIdle = false      // used in network mode only

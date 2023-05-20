@@ -84,7 +84,7 @@ class NetworkIo {
     }
 }
 
-class NetworkChannel(val nicData: MutableList<Packet> = mutableListOf()): IoChannelc()
+class NetworkChannel(val nicData: MutableList<Packet> = mutableListOf()): IoChannel()
 
 data class Packet(val address: Int, var valueX: Long = Long.MIN_VALUE, var valueY: Long = Long.MIN_VALUE) {
     fun isComplete() =

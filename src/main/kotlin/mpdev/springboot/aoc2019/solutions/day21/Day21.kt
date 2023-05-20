@@ -30,6 +30,19 @@ class Day21: PuzzleSolver() {
         "WALK\n"
     )
 
+    private val inputStringsPart2 = arrayOf(
+        "OR A T\n",
+        "AND B T\n",
+        "AND C T\n",
+        "NOT T J\n",
+        "AND D J\n",
+        "NOT J T\n",
+        "OR E T\n",
+        "OR H T\n",
+        "AND T J\n",
+        "RUN\n"
+    )
+
     override fun initSolver() {}
 
     override fun solvePart1(): PuzzlePartSolution {
@@ -50,23 +63,18 @@ class Day21: PuzzleSolver() {
 
     override fun solvePart2(): PuzzlePartSolution {
         log.info("solving day $day part 2")
-        result = 0
         val icvm = ICVM(inputData[0])
-        icvm.setProgramMemory(0, 2)
+        icvm.setAsciiCapable()
         var elapsed: Long
         runBlocking {
             elapsed = measureTimeMillis {
-            /*
-                inputStringsPart2.forEach { s -> icvm.setInputValuesAscii(s) }
                 val job = launch { icvm.runProgram() }
+                inputStringsPart2.forEach { s -> icvm.setInputValuesAscii(s) }
                 icvm.waitProgram(job)
-                val output = icvm.getOutputValues()
-                result = output.last().toInt()
-                output.forEach { print(it.toInt().toChar()) }
-                */
+                result = icvm.getOutputValues().last()
             }
         }
-        return PuzzlePartSolution(2, result.toString(), elapsed)
+        return PuzzlePartSolution(1, result.toString(), elapsed)
     }
 
 }

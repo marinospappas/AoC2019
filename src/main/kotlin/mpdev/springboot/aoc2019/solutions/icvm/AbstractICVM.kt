@@ -32,6 +32,10 @@ abstract class AbstractICVM {
         program.outputChannel.asciiCapable = true
     }
 
+    protected fun useStdin(program: Program) {
+        program.inputChannel.useStdin = true
+    }
+
     protected suspend fun setIntCodeProgramInputLong(data: List<Long>, program: Program) {
         log.debug("set program input to {}", data)
         setInputValues(data, program.inputChannel)
@@ -48,18 +52,18 @@ abstract class AbstractICVM {
         return output
     }
 
-    suspend fun setInputValues(values: List<Long>, inputChannel: IoChannelc = threadTable[0].inputChannel) {
+    suspend fun setInputValues(values: List<Long>, inputChannel: IoChannel = threadTable[0].inputChannel) {
         values.forEach { v -> inputChannel.data.send(v) }
     }
 
-    suspend fun setInputValuesAscii(value: String, channel: IoChannelc = threadTable[0].inputChannel) {
+    suspend fun setInputValuesAscii(value: String, channel: IoChannel = threadTable[0].inputChannel) {
         setInputValues(
             mutableListOf<Long>().also { list -> value.chars().forEach { c -> list.add(c.toLong()) } },
             channel
         )
     }
 
-    suspend fun getOutputValues(outputChannel: IoChannelc = threadTable[0].outputChannel): List<Long> {
+    suspend fun getOutputValues(outputChannel: IoChannel = threadTable[0].outputChannel): List<Long> {
         val outputValues = mutableListOf<Long>()
         outputValues.add(outputChannel.data.receive())
         do {
@@ -71,7 +75,7 @@ abstract class AbstractICVM {
         return outputValues
     }
 
-    suspend fun getOutputValuesAscii(outputChannel: IoChannelc = threadTable[0].outputChannel): String {
+    suspend fun getOutputValuesAscii(outputChannel: IoChannel = threadTable[0].outputChannel): String {
         val outputValues = getOutputValues(outputChannel)
         return StringBuilder().also { s -> outputValues.forEach { l -> s.append(l.toInt().toChar()) } }.toString()
     }

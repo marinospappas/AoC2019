@@ -25,10 +25,13 @@ class Day25: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         log.info("solving day 17 part 1")
-        val icvm = ICVM(inputData[0], useStdin = true, useStdout = true)
+        val icvm = ICVM(inputData[0])
+        icvm.setAsciiCapable()
+        icvm.useStdin()
         var elapsed: Long
         runBlocking {
             elapsed = measureTimeMillis {
+                log.info(">>> Type \"quit\" to quit the game <<<")
                 val job = launch { icvm.runProgram() }
                 icvm.waitProgram(job)
                 result = "Day 25 Completed!!"

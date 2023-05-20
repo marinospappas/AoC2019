@@ -9,24 +9,19 @@ class InputOutput {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    private var useStdout = false
-    private var useStdin = false
-
     private val netIo = NetworkIo()
 
     init {
         netIo.initialiseNetworkIo()
     }
 
-    fun setIoChannels(icvmThreadId: Int = 0, ioMode: IOMode = IOMode.DIRECT, loop: Boolean = false, stdout: Boolean = false, stdin: Boolean = false) {
+    fun setIoChannels(icvmThreadId: Int = 0, ioMode: IOMode = IOMode.DIRECT, loop: Boolean = false) {
         if (ioMode == IOMode.NETWORKED)
             netIo.setIoChannels(icvmThreadId)
         else {
-            useStdout = stdout
-            useStdin = stdin
             AbstractICVM.threadTable[icvmThreadId].inputChannel =
-                if (ioMode != IOMode.PIPE) DirectIoc() else AbstractICVM.threadTable[icvmThreadId - 1].outputChannel
-            AbstractICVM.threadTable[icvmThreadId].outputChannel = DirectIoc()
+                if (ioMode != IOMode.PIPE) DirectIo() else AbstractICVM.threadTable[icvmThreadId - 1].outputChannel
+            AbstractICVM.threadTable[icvmThreadId].outputChannel = DirectIo()
             log.debug("initialised io channels for icvm instance {}", icvmThreadId)
             if (loop) {
                 AbstractICVM.threadTable[0].inputChannel = AbstractICVM.threadTable.last().outputChannel
@@ -37,7 +32,7 @@ class InputOutput {
 
     //////// read input
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun readFromStdin(inputChannel: IoChannelc): Long {
+    private suspend fun readFromStdin(inputChannel: IoChannel): Long {
         val QUIT_CMD = "quit"
         val channel = inputChannel.data
         if (channel.isEmpty) {
@@ -54,7 +49,7 @@ class InputOutput {
         return result
     }
 
-    private suspend fun readFromChannel(inputChannel: IoChannelc): Long {
+    private suspend fun readFromChannel(inputChannel: IoChannel): Long {
         val result: Long
         if (inputChannel is NetworkChannel)
             result = netIo.readFromChannel(inputChannel)
@@ -67,7 +62,7 @@ class InputOutput {
         return result
     }
 
-    suspend fun readInput(ioChannel: IoChannelc): Long = if (useStdin)
+    suspend fun readInput(ioChannel: IoChannel): Long = if (ioChannel.useStdin)
         readFromStdin(ioChannel)
     else
         readFromChannel(ioChannel)
@@ -78,7 +73,7 @@ class InputOutput {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun printToChannel(outputChannel: IoChannelc, value: Long) {
+    private suspend fun printToChannel(outputChannel: IoChannel, value: Long) {
         log.debug("printToChannel called")
         if (outputChannel is NetworkChannel)
             netIo.writeToChannel(value, outputChannel)
@@ -87,18 +82,20 @@ class InputOutput {
         log.debug("printToChannel completed - channel empty: {}", outputChannel.data.isEmpty)
     }
 
-    suspend fun printOutput(value: Long, ioChannel: IoChannelc) {
+    suspend fun printOutput(value: Long, ioChannel: IoChannel) {
         log.debug("printOutput called")
-        if (useStdout || ioChannel.asciiCapable && value < 255)
+        if (ioChannel.asciiCapable && value < 255)
             printToStdout(value)
         else
             printToChannel(ioChannel, value)
     }
 }
 
-open class IoChannelc(val data: Channel<Long> = Channel(Channel.UNLIMITED), var asciiCapable: Boolean = false)
+open class IoChannel(val data: Channel<Long> = Channel(Channel.UNLIMITED),
+                     var asciiCapable: Boolean = false,
+                     var useStdin: Boolean = false)
 
-class DirectIoc: IoChannelc()
+class DirectIo: IoChannel()
 
 
 enum class IOMode {
