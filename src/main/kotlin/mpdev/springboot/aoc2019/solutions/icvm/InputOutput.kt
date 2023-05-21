@@ -15,16 +15,16 @@ class InputOutput {
         netIo.initialiseNetworkIo()
     }
 
-    fun setIoChannels(icvmThreadId: Int = 0, ioMode: IOMode = IOMode.DIRECT, loop: Boolean = false) {
+    fun setIoChannels(icvmInstanceId: Int = 0, ioMode: IOMode = IOMode.DIRECT, loop: Boolean = false) {
         if (ioMode == IOMode.NETWORKED)
-            netIo.setIoChannels(icvmThreadId)
+            netIo.setIoChannels(icvmInstanceId)
         else {
-            AbstractICVM.threadTable[icvmThreadId].inputChannel =
-                if (ioMode != IOMode.PIPE) DirectIo() else AbstractICVM.threadTable[icvmThreadId - 1].outputChannel
-            AbstractICVM.threadTable[icvmThreadId].outputChannel = DirectIo()
-            log.debug("initialised io channels for icvm instance {}", icvmThreadId)
+            AbstractICVM.instanceTable[icvmInstanceId].inputChannel =
+                if (ioMode != IOMode.PIPE) DirectIo() else AbstractICVM.instanceTable[icvmInstanceId - 1].outputChannel
+            AbstractICVM.instanceTable[icvmInstanceId].outputChannel = DirectIo()
+            log.debug("initialised io channels for icvm instance {}", icvmInstanceId)
             if (loop) {
-                AbstractICVM.threadTable[0].inputChannel = AbstractICVM.threadTable.last().outputChannel
+                AbstractICVM.instanceTable[0].inputChannel = AbstractICVM.instanceTable.last().outputChannel
                 log.debug("loop i/o activated")
             }
         }
@@ -39,7 +39,7 @@ class InputOutput {
             val inputString = "${readln()}\n"
             println(inputString.trim('\n'))
             if (inputString.trim('\n') == QUIT_CMD)
-                AbstractICVM.threadTable[0].quitProgram = true      // quit only works for main instance
+                AbstractICVM.instanceTable[0].quitProgram = true      // quit only works for main instance
             mutableListOf<Long>().also { list ->
                 inputString.chars().forEach { c -> list.add(c.toLong()) }
             }.forEach { channel.send(it) }

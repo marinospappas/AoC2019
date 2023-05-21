@@ -18,8 +18,8 @@ class NetworkIo {
 
         suspend fun sendNatPacketTo0() {
             sentToNode0.add(natPacket!!.valueY)
-            AbstractICVM.threadTable[0].inputChannel.data.send(natPacket!!.valueX)
-            AbstractICVM.threadTable[0].inputChannel.data.send(natPacket!!.valueY)
+            AbstractICVM.instanceTable[0].inputChannel.data.send(natPacket!!.valueX)
+            AbstractICVM.instanceTable[0].inputChannel.data.send(natPacket!!.valueY)
         }
 
         fun sentSameValueTo0TwiceInARow() =
@@ -35,10 +35,10 @@ class NetworkIo {
         sentToNode0 = mutableListOf()
     }
 
-    fun setIoChannels(icvmThreadId: Int) {
-        AbstractICVM.threadTable[icvmThreadId].inputChannel = NetworkChannel()
-        AbstractICVM.threadTable[icvmThreadId].outputChannel = NetworkChannel()
-        log.debug("initialised network io channels for icvm thread {}", icvmThreadId)
+    fun setIoChannels(icvmInstanceId: Int) {
+        AbstractICVM.instanceTable[icvmInstanceId].inputChannel = NetworkChannel()
+        AbstractICVM.instanceTable[icvmInstanceId].outputChannel = NetworkChannel()
+        log.debug("initialised network io channels for icvm instance {}", icvmInstanceId)
     }
 
     private val firstTimeDelay = 20L       // initial delay is higher to allow time for the other coroutines to launch
@@ -76,7 +76,7 @@ class NetworkIo {
         if (packet.address == BROADCAST_ADDRESS)
             natPacket = Packet(BROADCAST_ADDRESS, packet.valueX, packet.valueY)
         else {
-            val inputChannel = AbstractICVM.threadTable[packet.address].inputChannel
+            val inputChannel = AbstractICVM.instanceTable[packet.address].inputChannel
             inputChannel.data.send(packet.valueX)
             inputChannel.data.send(packet.valueY)
         }

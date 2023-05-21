@@ -11,7 +11,7 @@ class Program(prog: String) {
 
     private var memory = Memory(prog)
 
-    lateinit var threadName: String
+    lateinit var instanceName: String
     lateinit var inputChannel: IoChannel
     lateinit var outputChannel: IoChannel
     var io = InputOutput()
@@ -32,9 +32,9 @@ class Program(prog: String) {
                 return
             }
             try {
-                log.debug("program ${Thread.currentThread().name} running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
+                log.debug("program $instanceName running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
                 val instruction = Instruction(ip, memory)
-                log.debug("program {} - instruction {}", Thread.currentThread().name, instruction.opCode)
+                log.debug("program {} - instruction {}", instanceName, instruction.opCode)
 
                 when (val retCode = instruction.execute()) {
                     InstructionReturnCode.EXIT -> {
@@ -48,20 +48,20 @@ class Program(prog: String) {
                     }
                     InstructionReturnCode.READ -> {
                         programState = WAIT
-                        log.debug("IntCode instance {} waiting for input will be stored in address {}", threadName, retCode.additionalData)
+                        log.debug("IntCode instance {} waiting for input will be stored in address {}", instanceName, retCode.additionalData)
                         val memAddress = retCode.additionalData     // the memory address must be saved here as this coroutine
                                                                     // will be suspended below and the value in retCode may change
                         val input = io.readInput(inputChannel)
                         setMemory(memAddress, input)
                         programState = RUNNING
                         log.debug("IntCode instance {} received input {} to be stored in address {}",
-                            threadName, input, retCode.additionalData)
+                            instanceName, input, retCode.additionalData)
                         ip += instruction.ipIncrement
                         // network mode - set idle state
                         isIdle = outputChannel is NetworkChannel && input == -1L
                     }
                     InstructionReturnCode.PRINT -> {
-                        log.debug("IntCode instance {} sends to output {}", threadName, retCode.additionalData)
+                        log.debug("IntCode instance {} sends to output {}", instanceName, retCode.additionalData)
                         io.printOutput(retCode.additionalData, outputChannel)
                         ip += instruction.ipIncrement
                     }

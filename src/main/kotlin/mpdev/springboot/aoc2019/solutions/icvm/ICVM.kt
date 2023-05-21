@@ -3,18 +3,18 @@ package mpdev.springboot.aoc2019.solutions.icvm
 import kotlinx.coroutines.Job
 
 open class ICVM(intCodeProgramString: String,
-                threadNamePrefix: String = DEF_PROG_INSTANCE_PREFIX,
+                instanceNamePrefix: String = DEF_PROG_INSTANCE_PREFIX,
                 ioMode: IOMode = IOMode.DIRECT): AbstractICVM() {
 
     private var mainInstance: Program
 
     init {
-        // clears the thread table and creates the first instance of the IntCOde program
-        if (threadTable.isNotEmpty())
-            threadTable.clear()
-        threadTable.add(Program(intCodeProgramString))
-        mainInstance = threadTable[0]
-        mainInstance.threadName = "$threadNamePrefix-0"
+        // clears the instance table and creates the first instance of the IntCode program
+        if (instanceTable.isNotEmpty())
+            instanceTable.clear()
+        instanceTable.add(Program(intCodeProgramString))
+        mainInstance = instanceTable[0]
+        mainInstance.instanceName = "$instanceNamePrefix-0"
         mainInstance.io.setIoChannels(ioMode = ioMode)
         log.info("IntCode instance [0] configured")
     }

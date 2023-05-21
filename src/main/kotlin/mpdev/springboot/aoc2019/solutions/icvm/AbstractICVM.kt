@@ -11,7 +11,7 @@ abstract class AbstractICVM {
     companion object {
         const val DEF_PROG_INSTANCE_PREFIX = "intcode"
         // the ICVM "process table"
-        val threadTable = mutableListOf<Program>()
+        val instanceTable = mutableListOf<Program>()
     }
 
     protected val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -52,18 +52,18 @@ abstract class AbstractICVM {
         return output
     }
 
-    suspend fun setInputValues(values: List<Long>, inputChannel: IoChannel = threadTable[0].inputChannel) {
+    suspend fun setInputValues(values: List<Long>, inputChannel: IoChannel = instanceTable[0].inputChannel) {
         values.forEach { v -> inputChannel.data.send(v) }
     }
 
-    suspend fun setInputValuesAscii(value: String, channel: IoChannel = threadTable[0].inputChannel) {
+    suspend fun setInputValuesAscii(value: String, channel: IoChannel = instanceTable[0].inputChannel) {
         setInputValues(
             mutableListOf<Long>().also { list -> value.chars().forEach { c -> list.add(c.toLong()) } },
             channel
         )
     }
 
-    suspend fun getOutputValues(outputChannel: IoChannel = threadTable[0].outputChannel): List<Long> {
+    suspend fun getOutputValues(outputChannel: IoChannel = instanceTable[0].outputChannel): List<Long> {
         val outputValues = mutableListOf<Long>()
         outputValues.add(outputChannel.data.receive())
         do {
@@ -75,7 +75,7 @@ abstract class AbstractICVM {
         return outputValues
     }
 
-    suspend fun getOutputValuesAscii(outputChannel: IoChannel = threadTable[0].outputChannel): String {
+    suspend fun getOutputValuesAscii(outputChannel: IoChannel = instanceTable[0].outputChannel): String {
         val outputValues = getOutputValues(outputChannel)
         return StringBuilder().also { s -> outputValues.forEach { l -> s.append(l.toInt().toChar()) } }.toString()
     }
