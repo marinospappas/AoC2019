@@ -87,7 +87,7 @@ class Day23: PuzzleSolver() {
         while (true) {
             delay(delayMsec)
             delayMsec = standardDelay
-            if (AbstractICVM.threadTable.none { !it.isIdle }) {
+            if (AbstractICVM.instanceTable.none { !it.isIdle }) {
                 log.info("Nat sending packet to node 0 {}", NetworkIo.getNatPacket())
                 NetworkIo.sendNatPacketTo0()
                 delayMsec = idleDelay       // after idle is detected, increase delay to allow time for node 0 to resume
