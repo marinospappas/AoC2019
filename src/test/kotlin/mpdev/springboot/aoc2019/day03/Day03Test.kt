@@ -1,18 +1,13 @@
 package mpdev.springboot.aoc2019.day03
 
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import mpdev.springboot.aoc2019.input.InputDataReader
 import mpdev.springboot.aoc2019.solutions.day03.Day03
-import mpdev.springboot.aoc2019.solutions.day03.Wire
-import mpdev.springboot.aoc2019.solutions.icvm.ICVM
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import org.junit.jupiter.params.provider.MethodSource
 
 class Day03Test {
 

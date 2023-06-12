@@ -40,10 +40,12 @@ class Day03: PuzzleSolver() {
     override fun solvePart2(): PuzzlePartSolution {
         result = 0
         val elapsed = measureTimeMillis {
-            val intersections = wire1.pointsList intersect wire2.pointsList - Point(0,0)
-            val distances = mutableListOf<Pair<Int,Int>>()
-            intersections.forEach { distances.add(Pair(wire1.pointsList.indexOf(it), wire2.pointsList.indexOf(it))) }
-            result = distances.minOf { it.first + it.second }
+            val dist1 = wire1.calculateDistanceToPoints()
+            val dist2 = wire2.calculateDistanceToPoints()
+            val intersections = dist1.keys intersect dist2.keys - Point(0,0)
+            val distances = mutableListOf<Int>()
+            intersections.forEach { distances.add(dist1[it]!! + dist2[it]!!) }
+            result = distances.min()
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
