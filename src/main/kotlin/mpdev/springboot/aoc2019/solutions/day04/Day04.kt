@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
 @Component
-@Order(4)
 class Day04: PuzzleSolver() {
 
     final override fun setDay() {
