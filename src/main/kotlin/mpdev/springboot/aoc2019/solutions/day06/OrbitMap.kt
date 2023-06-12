@@ -23,4 +23,8 @@ class OrbitMap {
         }
         return orbits
     }
+
+    fun getStart() = map["YOU"]!!
+
+    fun getEnd() = map["SAN"]!!
 }
