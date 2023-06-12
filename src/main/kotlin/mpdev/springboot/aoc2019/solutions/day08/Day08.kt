@@ -36,9 +36,9 @@ class Day08: PuzzleSolver() {
     override fun solvePart2(): PuzzlePartSolution {
         result = 0
         val elapsed = measureTimeMillis {
-
+            image.decode().print()
         }
-        return PuzzlePartSolution(2, result.toString(), elapsed)
+        return PuzzlePartSolution(2, "Result in Logfile", elapsed)
     }
 
 }

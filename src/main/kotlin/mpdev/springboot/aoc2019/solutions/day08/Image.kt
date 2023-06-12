@@ -1,16 +1,12 @@
 package mpdev.springboot.aoc2019.solutions.day08
 
-import mpdev.springboot.aoc2019.solutions.day08.Image.Companion.HEIGHT
-import mpdev.springboot.aoc2019.solutions.day08.Image.Companion.WIDTH
-import mpdev.springboot.aoc2019.utils.AocException
-
 class Image(input: String) {
 
     val layers = mutableListOf<Layer>()
 
     companion object {
-        const val WIDTH = 25
-        const val HEIGHT = 6
+        var WIDTH = 25
+        var HEIGHT = 6
     }
 
     init {
@@ -22,23 +18,11 @@ class Image(input: String) {
         }
     }
 
-}
-
-class Layer(inputLayer: String) {
-
-    val pixels = Array(HEIGHT) { charArrayOf() }
-
-    init {
-        if (inputLayer.length != WIDTH * HEIGHT)
-            throw AocException("bad input layer $inputLayer")
-        (0 until HEIGHT).forEach {
-            pixels[it] = inputLayer.substring(it * WIDTH, (it+1)* WIDTH).toCharArray()
-        }
+    fun decode(): Layer {
+        var image = layers.last()
+        (layers.lastIndex-1 downTo 0).forEach {
+            image = image.overlay(layers[it]) }
+        return image
     }
 
-    fun countDigit(digit: Int): Int {
-        var count = 0
-        pixels.forEach { count += it.count { c -> c.digitToInt() == digit } }
-        return count
-    }
 }
