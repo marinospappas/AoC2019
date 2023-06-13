@@ -89,7 +89,6 @@ class Program(prog: String) {
 }
 
 class Memory(prog: String) {
-    private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     var mem: MutableMap<Long,Long> = mutableMapOf()
     var relativeBase: Long = 0L
@@ -105,8 +104,6 @@ class Memory(prog: String) {
         return mem[adr] ?: 0L
     }
     operator fun set(adr: Long, value: Long) {
-        if (adr == 23L)
-            log.info("setting address {} to {}", adr, value)
         if (!unlimitedMemory && adr >= mem.keys.size)
             throw AocException("memory address out of range: $adr for mem size ${mem.keys.size}")
         mem[adr] = value

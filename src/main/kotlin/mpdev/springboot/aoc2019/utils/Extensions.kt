@@ -7,6 +7,9 @@ import kotlin.math.abs
 operator fun Point.plus(other: Point) =
     Point(this.x + other.x, this.y + other.y)
 
+operator fun Point.minus(other: Point) =
+    Point(this.x - other.x, this.y - other.y)
+
 fun Point.manhattan(other: Point): Int =
     abs(this.x - other.x) + abs(this.y - other.y)
 

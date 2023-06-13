@@ -73,7 +73,7 @@ class RobotController {
         val grid = panels2Grid(panels)
         for (i in grid.lastIndex downTo 0) {
             for (j in grid.first().indices)
-                print(grid[i][j])
+                print("${grid[i][j]}${grid[i][j]}")
             println()
         }
         println()
