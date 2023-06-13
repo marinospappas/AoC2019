@@ -1,0 +1,4 @@
+Io <x=-1, y=0, z=2>
+Europa <x=2, y=-10, z=-7>
+Ganymedes <x=4, y=-8, z=8>
+Callisto <x=3, y=5, z=-1>
