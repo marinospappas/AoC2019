@@ -31,10 +31,8 @@ data class Angle(var quarter: Quarter = Quarter.N, var tanPhi: Double = 0.0): Co
         if (quarter != other.quarter)
             return quarter.compareTo(other.quarter)
         else
-            return compareTan(other)
+            return tanPhi.compareTo(other.tanPhi)
     }
-
-    private fun compareTan(other: Angle) = tanPhi.compareTo(other.tanPhi)
 }
 
 enum class Quarter {
