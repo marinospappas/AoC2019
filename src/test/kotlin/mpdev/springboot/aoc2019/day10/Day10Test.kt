@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import java.awt.Point
 
 class Day10Test {
 
@@ -126,8 +127,41 @@ class Day10Test {
 
     @Test
     @Order(5)
+    fun `Vaporises Asteroids in Correct Order`() {
+        puzzleSolver.inputData = listOf(
+            ".#....#####...#..",
+            "##...##.#####..##",
+            "##...#...#.#####.",
+            "..#.....#...###..",
+            "..#.#.....#....##"
+        )
+        puzzleSolver.initSolver()
+        puzzleSolver.asteroids.forEach { a -> puzzleSolver.calculateVisibleAsteroids(a) }
+        val station = puzzleSolver.asteroids.maxByOrNull { it.visibleCount }!!
+        val asteroidMap = puzzleSolver.createAngularMap(station)
+        val expected = listOf(
+            Point(8,1), Point(9,0), Point(9,1), Point(10,0), Point(9,2), Point(11,1),
+            Point(12,1), Point(11,2), Point(15,1),
+            Point(12,2), Point(13,2), Point(14,2), Point(15,2), Point(12,3), Point(16,4),
+            Point(15,4), Point(10,4), Point(4,4),
+            Point(2,4), Point(2,3), Point(0,2), Point(1,2), Point(0,1), Point(1,1),
+            Point(5,2), Point(1,0), Point(5,1),
+            Point(6,1), Point(6,0), Point(7,0), Point(8,0), Point(10,1), Point(14,0),
+            Point(16,1), Point(13,3), Point(14,3)
+        )
+        val keysList = asteroidMap.keys.toList()
+        keysList.indices.forEach {
+            assertThat(asteroidMap[keysList[it]]?.first()!! .absPos).isEqualTo(expected[it])
+        }
+    }
+
+    @Test
+    @Order(6)
     fun `Solves Part 2`() {
+        puzzleSolver.inputData = input5
+        puzzleSolver.initSolver()
+        puzzleSolver.solvePart1()
         puzzleSolver.solvePart2()
-        assertThat(puzzleSolver.result).isEqualTo(4)
+        assertThat(puzzleSolver.result).isEqualTo(802)
     }
 }
