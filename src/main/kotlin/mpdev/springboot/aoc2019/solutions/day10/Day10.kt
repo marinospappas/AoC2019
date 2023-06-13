@@ -34,7 +34,6 @@ class Day10: PuzzleSolver() {
         result = 0
         val elapsed = measureTimeMillis {
             asteroids.forEach { a -> calculateVisibleAsteroids(a) }
-            asteroids.forEach { println(it) }
             result = asteroids.maxOf { a -> a.visibleCount }
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
@@ -49,8 +48,6 @@ class Day10: PuzzleSolver() {
 
     fun calculateVisibleAsteroids(fromAsteroid: Asteroid) {
         asteroids.forEach { a -> a.calcRelPos(fromAsteroid.absPos); a.calcRelAngle() }
-        //println((asteroids - fromAsteroid).map { it.angle })
-        //println( HashSet((asteroids - fromAsteroid).map { it.angle }))
         fromAsteroid.visibleCount = HashSet((asteroids - fromAsteroid).map { it.angle }).size
     }
 }
