@@ -95,6 +95,14 @@ class Day12Test {
     @Test
     @Order(6)
     fun `Solves Part 2`() {
+        puzzleSolver.inputData = listOf(
+            "Io <x=-8, y=-10, z=0>",
+            "Europa <x=5, y=5, z=10>",
+            "Ganymedes <x=2, y=-7, z=3>",
+            "Callisto <x=9, y=-8, z=-3>"
+        )
+        puzzleSolver.initSolver()
         puzzleSolver.solvePart2()
+        assertThat(puzzleSolver.result).isEqualTo(4_686_774_924)
     }
 }

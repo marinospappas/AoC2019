@@ -4,6 +4,7 @@ import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import mpdev.springboot.aoc2019.utils.AocException
 import org.springframework.stereotype.Component
+import org.apache.commons.math3.util.ArithmeticUtils.lcm
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -19,7 +20,7 @@ class Day12: PuzzleSolver() {
 
     var STEPS = 1000
     lateinit var moons: MutableList<Moon>
-    var result = 0
+    var result = 0L
 
     override fun initSolver() {
         moons = mutableListOf()
@@ -35,20 +36,17 @@ class Day12: PuzzleSolver() {
     }
 
     override fun solvePart1(): PuzzlePartSolution {
-        result = 0
         val elapsed = measureTimeMillis {
-            repeat(STEPS) {
-                applyGravity()
-                moons.forEach { moon -> moon.applyVelocity() }
-            }
-            result = moons.sumOf { it.calculateEnergy() }
+            repeat(STEPS) { applyMovement() }
+            result = moons.sumOf { it.calculateEnergy() }.toLong()
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
 
     override fun solvePart2(): PuzzlePartSolution {
-        result = 0
+        moons.forEach { moon -> moon.init() }
         val elapsed = measureTimeMillis {
+            result = findCycle()
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
@@ -57,5 +55,24 @@ class Day12: PuzzleSolver() {
         val newVelocities = mutableListOf<Point3D>()
         moons.forEach { moon -> newVelocities.add(moon.applyGravity(moons)) }
         moons.indices.forEach { moons[it].velocity = newVelocities[it] }
+    }
+
+    fun applyMovement() {
+        applyGravity()
+        moons.forEach { moon -> moon.applyVelocity() }
+    }
+
+    fun findCycle(): Long {
+        val cycles = IntArray(3) {0}        // calculate the cycle for x, y, z independent of each other
+        var t = 0
+        do {
+            t += 1
+            applyMovement()
+            cycles.indices.forEach { i ->       // i is 0 for x, 1 for y, 2 for z
+                if (cycles[i] == 0 && moons.all { moon -> moon.xyzMatchesInitialState(i) })
+                   cycles[i] = t
+            }
+        } while (cycles.any { it == 0 })
+        return lcm(cycles[2].toLong(), lcm(cycles[1].toLong(), cycles[0].toLong()))
     }
 }
