@@ -43,10 +43,18 @@ class Day16Test {
     @Order(3)
     fun `Calculates Pattern for Index`() {
         val fft = Fft(inputLines[0])
-        assertThat(fft.calculatePatternForIndex(0).toList()).isEqualTo(listOf(1,0,-1,0,1,0,-1,0))
-        assertThat(fft.calculatePatternForIndex(1).toList()).isEqualTo(listOf(0,1,1,0,0,-1,-1,0))
-        assertThat(fft.calculatePatternForIndex(2).toList()).isEqualTo(listOf(0,0,1,1,1,0,0,0))
-        assertThat(fft.calculatePatternForIndex(3).toList()).isEqualTo(listOf(0,0,0,1,1,1,1,0))
+        //index 0: (1,0,-1,0,1,0,-1,0)
+        assertThat(fft.calculatePatternForIndex(0).first).isEqualTo(setOf(0,4))
+        assertThat(fft.calculatePatternForIndex(0).second).isEqualTo(setOf(2,6))
+        //index 1: (0,1,1,0,0,-1,-1,0)
+        assertThat(fft.calculatePatternForIndex(1).first).isEqualTo(setOf(1,2))
+        assertThat(fft.calculatePatternForIndex(1).second).isEqualTo(setOf(5,6))
+        //index 2: (0,0,1,1,1,0,0,0)
+        assertThat(fft.calculatePatternForIndex(2).first).isEqualTo(setOf(2,3,4))
+        assertThat(fft.calculatePatternForIndex(2).second).isEqualTo(setOf<Int>())
+        //index 3: (0,0,0,1,1,1,1,0)
+        assertThat(fft.calculatePatternForIndex(3).first).isEqualTo(setOf(3,4,5,6))
+        assertThat(fft.calculatePatternForIndex(3).second).isEqualTo(setOf<Int>())
     }
 
     @ParameterizedTest
@@ -59,6 +67,7 @@ class Day16Test {
     @Order(4)
     fun `Transforms Signal`(numberOfPhases: Int, expected: String) {
         val fft = Fft(inputLines[0])
+        fft.initPatterns()
         repeat(numberOfPhases) { fft.transform() }
         assertThat(fft.signal.toList().joinToString("")).isEqualTo(expected)
     }
@@ -79,10 +88,13 @@ class Day16Test {
 
     @ParameterizedTest
     @CsvSource(
+        "03036732577212944063491565474664, 84462026",
+        "02935109699940807407585447034323, 78725270",
+        "03081770884921959731165446850517, 53553731",
     )
     @Order(6)
-    fun `Solves Part 2`(index: Int, expected: Long) {
-        puzzleSolver.initSolver()
+    fun `Solves Part 2`(input: String, expected: Long) {
+        puzzleSolver.inputData = listOf(input)
         puzzleSolver.solvePart2()
         assertThat(puzzleSolver.result).isEqualTo(expected)
     }

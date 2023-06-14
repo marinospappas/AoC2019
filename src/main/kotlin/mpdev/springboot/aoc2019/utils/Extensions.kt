@@ -28,3 +28,5 @@ fun String.splitRepeatedChars(): List<String> {
     }
     return s.split(delimiter)
 }
+
+fun Int.lastDigit() = this % 10
