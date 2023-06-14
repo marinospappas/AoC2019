@@ -8,8 +8,12 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class Day14Test {
+
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     private val day = 14                                     ///////// Update this for a new dayN test
     private val puzzleSolver = Day14()                        ///////// Update this for a new dayN test

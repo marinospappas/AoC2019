@@ -65,7 +65,7 @@ class Day14: PuzzleSolver() {
 
     override fun solvePart2(): PuzzlePartSolution {
         val elapsed = measureTimeMillis {
-            result = tryBinaryProduction(0L, MAX_ORE)
+            result = tryProductionBinarySearch(0L, MAX_ORE)
         }
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
@@ -101,7 +101,7 @@ class Day14: PuzzleSolver() {
         leftovers[name] = (leftovers[name] ?: 0) + thisLeftover
     }
 
-    fun tryBinaryProduction(from: Long, to: Long): Long {
+    fun tryProductionBinarySearch(from: Long, to: Long): Long {
         var start = from
         var end = to
         var count = 0
