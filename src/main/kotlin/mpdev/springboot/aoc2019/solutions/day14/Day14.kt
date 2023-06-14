@@ -104,16 +104,19 @@ class Day14: PuzzleSolver() {
     fun tryBinaryProduction(from: Long, to: Long): Long {
         var start = from
         var end = to
+        var count = 0
         while (start <= end) {
+            ++count
             val mid = (start + end) / 2
             leftovers = mutableMapOf()
             val oreNeeded = reactionChain(Chemical(mid, "FUEL"))
             when (oreNeeded.compareTo(MAX_ORE)) {
-                0 -> return mid
+                0 -> { log.info("part 2: number of iterations = $count"); return mid }
                 1 -> end = mid - 1
                 -1 -> start = mid + 1
             }
         }
+        log.info("part 2: number of iterations = $count")
         return start - 1
     }
 }
