@@ -1,9 +1,8 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
-import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.solutions.icvm.ParamReadWrite.*
 
-enum class OpCode(val value: Int,
+enum class OpCode(val intValue: Int,
                   val numberOfParams: Int,
                   val paramRwMode: Array<ParamReadWrite>,
                   val execute: (Array<Long>) -> Any) {
@@ -21,19 +20,8 @@ enum class OpCode(val value: Int,
 
     companion object {
         fun fromValue(value: Int): OpCode {
-            val opCode = when (value % 100) {
-                1 -> ADD
-                2 -> MULT
-                3 -> IN
-                4 -> OUT
-                5 -> JIT
-                6 -> JIF
-                7 -> LT
-                8 -> EQ
-                9 -> REL
-                99 -> EXIT
-                else -> throw AocException("Invalid OpCode [${value}]")
-            }
+            val intOpcode = value % 100
+            val opCode = OpCode.values().first { it.intValue == intOpcode }
             var paramModes = value / 100
             opCode.paramMode = Array(opCode.numberOfParams) {
                 val thisMode = ParamMode.fromIntValue(paramModes % 10)
