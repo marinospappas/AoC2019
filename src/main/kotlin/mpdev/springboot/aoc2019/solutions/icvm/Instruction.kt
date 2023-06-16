@@ -47,12 +47,10 @@ data class Instruction(val ip: Long, var memory: Memory) {
                 is Long -> {
                     store(params.last(), result); return InstructionReturnCode.OK
                 }
-
                 is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = result.newIp }
                 is Relative -> return InstructionReturnCode.RELATIVE.also { res ->
                     res.additionalData = result.incrBase
                 }
-
                 is Read -> return InstructionReturnCode.READ.also { res -> res.additionalData = params.last() }
                 is Print -> return InstructionReturnCode.PRINT.also { res -> res.additionalData = params.last() }
                 else -> return InstructionReturnCode.OK
