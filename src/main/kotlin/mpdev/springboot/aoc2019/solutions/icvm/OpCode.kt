@@ -43,12 +43,11 @@ enum class ParamMode(val intValue: Int) {
     POSITION(0), IMMEDIATE(1), RELATIVE(2), NONE(Int.MAX_VALUE);
 
     companion object {
-        fun fromIntValue(intValue: Int): ParamMode = synchronized(this) {
-            return if (values().any { it.intValue == intValue })
+        fun fromIntValue(intValue: Int): ParamMode =
+            if (values().any { it.intValue == intValue })
                 values().first { it.intValue == intValue }
             else
                 NONE
-        }
     }
 }
 
