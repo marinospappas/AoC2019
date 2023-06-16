@@ -7,7 +7,7 @@ enum class OpCode(val intValue: Int,
                   val paramRwMode: Array<ParamReadWrite>,
                   val execute: (Array<Long>) -> Any) {
 
-    ADD(1,   3, arrayOf(R,R,W), { a -> a[0] + a[1] } ),
+    ADD(1,   3, arrayOf(R,R,W), { a -> a[0] + a[1] }),
     MULT(2,  3, arrayOf(R,R,W), { a -> a[0] * a[1] }),
     IN(3,    1, arrayOf(W),     { a -> Read(a[0]) }),
     OUT(4,   1, arrayOf(R),     { a -> Print(a[0]) }),
