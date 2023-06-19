@@ -29,8 +29,8 @@ class Day24: PuzzleSolver() {
         map.initPanels2D(inputData)
         val elapsed = measureTimeMillis {
             map.findRepeatedState()
-            map.printGrid2D()
         }
+        map.printGrid2D()
         result = map.getBioDiversity()
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
@@ -41,6 +41,7 @@ class Day24: PuzzleSolver() {
         val elapsed = measureTimeMillis {
             repeat(NUM_OF_CYCLES) { map.run1cycle3D() }
         }
+        map.printGrid3D()
         result = map.countBugs3D()
         return PuzzlePartSolution(2, result.toString(), elapsed)
     }
