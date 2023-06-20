@@ -15,7 +15,7 @@ open class ICVM(intCodeProgramString: String,
         instanceTable.add(Program(intCodeProgramString))
         mainInstance = instanceTable[0]
         mainInstance.instanceName = "$instanceNamePrefix-0"
-        mainInstance.io.setIoChannels(ioMode = ioMode)
+        InputOutput.setIoChannels(ioMode = ioMode)
         log.info("IntCode instance [0] configured")
     }
 

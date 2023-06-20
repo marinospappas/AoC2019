@@ -14,7 +14,6 @@ class Program(prog: String) {
     lateinit var instanceName: String
     lateinit var inputChannel: IoChannel
     lateinit var outputChannel: IoChannel
-    var io = InputOutput()
     var programState: ProgramState = READY
     var isIdle = false      // used in network mode only
     var quitProgram = false     // set by command "quit" when useStdio is enabled
@@ -51,7 +50,7 @@ class Program(prog: String) {
                         log.debug("IntCode instance {} waiting for input will be stored in address {}", instanceName, retCode.additionalData)
                         val memAddress = retCode.additionalData     // the memory address must be saved here as this coroutine
                                                                     // will be suspended below and the value in retCode may change
-                        val input = io.readInput(inputChannel)
+                        val input = inputChannel.readInput()
                         setMemory(memAddress, input)
                         programState = RUNNING
                         log.debug("IntCode instance {} received input {} to be stored in address {}",
@@ -62,7 +61,7 @@ class Program(prog: String) {
                     }
                     InstructionReturnCode.PRINT -> {
                         log.debug("IntCode instance {} sends to output {}", instanceName, retCode.additionalData)
-                        io.printOutput(retCode.additionalData, outputChannel)
+                        outputChannel.printOutput(retCode.additionalData)
                         ip += instruction.ipIncrement
                     }
                     else -> ip += instruction.ipIncrement

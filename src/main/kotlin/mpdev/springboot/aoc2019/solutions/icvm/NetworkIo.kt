@@ -9,12 +9,20 @@ class NetworkIo {
 
     companion object {
 
+        private val log: Logger = LoggerFactory.getLogger(this::class.java)
+
         private val BROADCAST_ADDRESS = 0xFF
 
         private var natPacket: Packet? = null
 
         private var sentToNode0 = mutableListOf<Long>()
         fun getNatPacket() = natPacket
+
+        fun setIoChannels(icvmInstanceId: Int) {
+            AbstractICVM.instanceTable[icvmInstanceId].inputChannel = NetworkChannel()
+            AbstractICVM.instanceTable[icvmInstanceId].outputChannel = NetworkChannel()
+            log.debug("initialised network io channels for icvm instance {}", icvmInstanceId)
+        }
 
         suspend fun sendNatPacketTo0() {
             sentToNode0.add(natPacket!!.valueY)
@@ -23,62 +31,56 @@ class NetworkIo {
         }
 
         fun sentSameValueTo0TwiceInARow() =
-            sentToNode0.size >=2 && sentToNode0.last() == sentToNode0[sentToNode0.lastIndex-1]
+            sentToNode0.size >= 2 && sentToNode0.last() == sentToNode0[sentToNode0.lastIndex - 1]
 
         fun getSentToNode0() = sentToNode0
-    }
 
-    private val log: Logger = LoggerFactory.getLogger(this::class.java)
-
-    fun initialiseNetworkIo() {
-        natPacket = null
-        sentToNode0 = mutableListOf()
-    }
-
-    fun setIoChannels(icvmInstanceId: Int) {
-        AbstractICVM.instanceTable[icvmInstanceId].inputChannel = NetworkChannel()
-        AbstractICVM.instanceTable[icvmInstanceId].outputChannel = NetworkChannel()
-        log.debug("initialised network io channels for icvm instance {}", icvmInstanceId)
-    }
-
-    private val firstTimeDelay = 20L       // initial delay is higher to allow time for the other coroutines to launch
-    private val normalDelay = 2L
-    private  var delayMsec = firstTimeDelay
-    @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun readFromChannel(networkChannel: NetworkChannel): Long {
-        if (networkChannel.data.isEmpty) {
-            delay(delayMsec)
-            delayMsec = normalDelay     // subsequent delays can be shorter as everything is now up and running
-            return -1
+        fun initialiseNetworkIo() {
+            natPacket = null
+            sentToNode0 = mutableListOf()
         }
-        return networkChannel.data.receive()
-    }
 
-    suspend fun writeToChannel(outputValue: Long, outputChannel: NetworkChannel) {
-        if (outputChannel.nicData.isEmpty()) {
-            outputChannel.nicData.add(Packet(address = outputValue.toInt()))
-            return
+        private val firstTimeDelay =
+            20L       // initial delay is higher to allow time for the other coroutines to launch
+        private val normalDelay = 2L
+        private var delayMsec = firstTimeDelay
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        suspend fun readFromChannel(networkChannel: NetworkChannel): Long {
+            if (networkChannel.data.isEmpty) {
+                delay(delayMsec)
+                delayMsec = normalDelay     // subsequent delays can be shorter as everything is now up and running
+                return -1
+            }
+            return networkChannel.data.receive()
         }
-        val lastPacket = outputChannel.nicData.last()
-        if (lastPacket.valueX == Long.MIN_VALUE)
-            lastPacket.valueX = outputValue
-        else if (lastPacket.valueY == Long.MIN_VALUE)
-            lastPacket.valueY = outputValue
 
-        if (lastPacket.isComplete()) {
-            sendPacketToDestination(lastPacket)
-            outputChannel.nicData.removeAt(outputChannel.nicData.lastIndex)
+        suspend fun writeToChannel(outputValue: Long, outputChannel: NetworkChannel) {
+            if (outputChannel.nicData.isEmpty()) {
+                outputChannel.nicData.add(Packet(address = outputValue.toInt()))
+                return
+            }
+            val lastPacket = outputChannel.nicData.last()
+            if (lastPacket.valueX == Long.MIN_VALUE)
+                lastPacket.valueX = outputValue
+            else if (lastPacket.valueY == Long.MIN_VALUE)
+                lastPacket.valueY = outputValue
+
+            if (lastPacket.isComplete()) {
+                sendPacketToDestination(lastPacket)
+                outputChannel.nicData.removeAt(outputChannel.nicData.lastIndex)
+            }
         }
-    }
 
-    private suspend fun sendPacketToDestination(packet: Packet) {
-        log.debug("network write: {}", packet)
-        if (packet.address == BROADCAST_ADDRESS)
-            natPacket = Packet(BROADCAST_ADDRESS, packet.valueX, packet.valueY)
-        else {
-            val inputChannel = AbstractICVM.instanceTable[packet.address].inputChannel
-            inputChannel.data.send(packet.valueX)
-            inputChannel.data.send(packet.valueY)
+        private suspend fun sendPacketToDestination(packet: Packet) {
+            log.debug("network write: {}", packet)
+            if (packet.address == BROADCAST_ADDRESS)
+                natPacket = Packet(BROADCAST_ADDRESS, packet.valueX, packet.valueY)
+            else {
+                val inputChannel = AbstractICVM.instanceTable[packet.address].inputChannel
+                inputChannel.data.send(packet.valueX)
+                inputChannel.data.send(packet.valueY)
+            }
         }
     }
 }

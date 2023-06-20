@@ -16,7 +16,7 @@ class ICVMMultipleInstances(private val intCodeProgramString: String,
         val newInstance = Program(intCodeProgramString)
         instanceTable.add(newInstance)
         instanceTable.last().instanceName = "$instanceNamePrefix-${instanceTable.lastIndex}"
-        instanceTable.last().io.setIoChannels(instanceTable.lastIndex, ioMode = ioMode, loop = loop)
+        InputOutput.setIoChannels(instanceTable.lastIndex, ioMode = ioMode, loop = loop)
         log.info("IntCode instance [{}] configured", instanceTable.lastIndex)
     }
 
