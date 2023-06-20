@@ -11,7 +11,7 @@ class NetworkIo {
 
         private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-        private val BROADCAST_ADDRESS = 0xFF
+        private const val BROADCAST_ADDRESS = 0xFF
 
         private var natPacket: Packet? = null
 

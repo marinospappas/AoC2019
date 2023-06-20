@@ -44,7 +44,7 @@ class InputOutput {
                 }.forEach { channel.send(it) }
             }
             val result = channel.receive()
-            log.debug("read direct returns [$result]")
+            log.debug("read from stdin returns [$result]")
             return result
         }
 
@@ -96,7 +96,6 @@ open class IoChannel(val data: Channel<Long> = Channel(Channel.UNLIMITED),
 }
 
 class DirectIo: IoChannel()
-
 
 enum class IOMode {
     PIPE,
