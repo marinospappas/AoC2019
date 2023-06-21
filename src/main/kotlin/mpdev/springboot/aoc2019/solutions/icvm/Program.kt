@@ -16,6 +16,7 @@ class Program(prog: String) {
     lateinit var inputChannel: IoChannel
     lateinit var outputChannel: IoChannel
     var programState: ProgramState = READY
+
     var isIdle = false      // used in network mode only
     var quitProgram = false     // set by command "quit" when useStdio is enabled
 
