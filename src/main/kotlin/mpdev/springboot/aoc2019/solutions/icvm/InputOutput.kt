@@ -78,7 +78,7 @@ class InputOutput {
     }
 }
 
-open class IoChannel(val data: Channel<Long> = Channel(Channel.UNLIMITED),
+abstract class IoChannel(val data: Channel<Long> = Channel(Channel.UNLIMITED),
                      var asciiCapable: Boolean = false,
                      var useStdin: Boolean = false) {
     suspend fun readInput(): Long = if (this.useStdin)
