@@ -10,6 +10,7 @@ class Program(prog: String) {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     private var memory = Memory(prog)
+    private var ip = 0L
 
     lateinit var instanceName: String
     lateinit var inputChannel: IoChannel
@@ -24,7 +25,7 @@ class Program(prog: String) {
 
     suspend fun run() {
         programState = RUNNING
-        var ip = 0L
+        ip = 0L
         while (true) {
             if (quitProgram) {
                 log.info("QuitProgram command received")
@@ -89,7 +90,7 @@ class Program(prog: String) {
 
 class Memory(prog: String) {
 
-    var mem: MutableMap<Long,Long> = mutableMapOf()
+    private var mem: MutableMap<Long,Long> = mutableMapOf()
     var relativeBase: Long = 0L
     var unlimitedMemory = true
 
