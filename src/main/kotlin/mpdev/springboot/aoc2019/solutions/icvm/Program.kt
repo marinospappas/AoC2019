@@ -66,7 +66,7 @@ class Program(prog: String) {
                         log.debug("IntCode instance {} sends to output {}", instanceName, retCode.additionalData)
                         outputChannel.printOutput(retCode.additionalData)
                     }
-                    else -> {}
+                    InstructionReturnCode.OK -> {}
                 }
             }
             catch (e: AocException) {
