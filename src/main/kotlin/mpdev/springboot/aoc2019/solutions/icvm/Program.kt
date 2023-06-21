@@ -43,7 +43,9 @@ class Program(prog: String) {
                         programState = COMPLETED
                         return
                     }
-                    InstructionReturnCode.JUMP -> ip = retCode.additionalData
+                    InstructionReturnCode.JUMP -> {
+                        ip = retCode.additionalData
+                    }
                     InstructionReturnCode.RELATIVE -> {
                         memory.relativeBase += retCode.additionalData
                     }
