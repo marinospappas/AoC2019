@@ -34,6 +34,8 @@ class Program(prog: String) {
             try {
                 log.debug("program $instanceName running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
                 val instruction = Instruction(ip, memory)
+                // increase IP ready for the next instruction
+                ip += instruction.ipIncrement
                 log.debug("program {} - instruction {}", instanceName, instruction.opCode)
 
                 when (val retCode = instruction.execute()) {
@@ -44,7 +46,6 @@ class Program(prog: String) {
                     InstructionReturnCode.JUMP -> ip = retCode.additionalData
                     InstructionReturnCode.RELATIVE -> {
                         memory.relativeBase += retCode.additionalData
-                        ip += instruction.ipIncrement
                     }
                     InstructionReturnCode.READ -> {
                         programState = WAIT
@@ -56,16 +57,14 @@ class Program(prog: String) {
                         programState = RUNNING
                         log.debug("IntCode instance {} received input {} to be stored in address {}",
                             instanceName, input, retCode.additionalData)
-                        ip += instruction.ipIncrement
                         // network mode - set idle state
                         isIdle = outputChannel is NetworkChannel && input == -1L
                     }
                     InstructionReturnCode.PRINT -> {
                         log.debug("IntCode instance {} sends to output {}", instanceName, retCode.additionalData)
                         outputChannel.printOutput(retCode.additionalData)
-                        ip += instruction.ipIncrement
                     }
-                    else -> ip += instruction.ipIncrement
+                    else -> {}
                 }
             }
             catch (e: AocException) {
