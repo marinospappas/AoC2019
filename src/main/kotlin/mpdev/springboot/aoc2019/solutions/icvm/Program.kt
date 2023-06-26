@@ -58,8 +58,7 @@ class Program(prog: String) {
                         val input = inputChannel.readInput()
                         setMemory(memAddress, input)
                         programState = RUNNING
-                        log.debug("IntCode instance {} received input {} to be stored in address {}",
-                            instanceName, input, retCode.additionalData)
+                        log.debug("IntCode instance {} received input {} to be stored in address {}", instanceName, input, retCode.additionalData)
                         // network mode - set idle state
                         isIdle = outputChannel is NetworkChannel && input == -1L
                     }
@@ -98,7 +97,7 @@ class Memory(prog: String) {
 
     init {
         val progArray = prog.replace(" ", "").split(",")
-        progArray.indices.forEach { i -> mem[i.toLong()] = progArray[i].toLong() }
+        progArray.filter { it.isNotEmpty() }.indices.forEach { i -> mem[i.toLong()] = progArray[i].toLong() }
     }
     operator fun get(adr: Long): Long {
         if (!unlimitedMemory && adr >= mem.keys.size)
