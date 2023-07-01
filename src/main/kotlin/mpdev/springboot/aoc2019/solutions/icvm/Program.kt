@@ -35,6 +35,9 @@ class Program(prog: String) {
             try {
                 log.debug("program $instanceName running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
                 val instruction = Instruction(ip, memory)
+
+                printDebug()
+
                 // increase IP ready for the next instruction
                 ip += instruction.ipIncrement
                 log.debug("program {} - instruction {}", instanceName, instruction.opCode)
@@ -75,6 +78,13 @@ class Program(prog: String) {
                 return
             }
         }
+    }
+
+    fun printDebug() {
+        println("ip = $ip, next instruction:  ${memory[ip]}, ${memory[ip+1]}, ${memory[ip+2]}, ${memory[ip+3]}")
+        println("      registers: A = ${memory[9998]}, B = ${memory[9997]}, SP = ${memory[10000]}, BP = ${memory[9999]}")
+        println("      stack: ${memory[10000]}, ${memory[10001]}, ${memory[10002]}, ${memory[10003]}, ${memory[10004]}, ${memory[10005]}, ${memory[10006]}, ${memory[10007]}")
+        println("      heap: ${memory[100000]}, ${memory[100001]}, ${memory[100002]}, ${memory[100003]}, ${memory[100004]}, ${memory[100005]}, ${memory[100006]}, ${memory[100007]}")
     }
 
     fun getMemory(address: Long): Long = memory[address]

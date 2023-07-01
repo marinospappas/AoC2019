@@ -31,7 +31,7 @@ class Day99: PuzzleSolver() {
         runBlocking {
             elapsed = measureTimeMillis {
                 val job = launch { icvm.runProgram() }
-                icvm.setProgramInput(6)
+                icvm.setProgramInput(listOf(6,1))
                 icvm.waitProgram(job)
                 result.addAll(icvm.getProgramOutputLong())
             }
