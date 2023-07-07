@@ -19,7 +19,7 @@ class Day20: PuzzleSolver() {
     }
 
     lateinit var maze: Maze
-    var DEPTH_LIMIT = 100
+    var DEPTH_LIMIT = 50
     var result = 0
 
     override fun initSolver() {
