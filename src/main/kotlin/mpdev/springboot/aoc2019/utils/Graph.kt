@@ -53,12 +53,17 @@ class GraphNode<T>(var nodeId: T, var getConnections: (id: T) -> List<GraphNode<
 
     override fun getId() = nodeId
 
-    override fun getConnectedNodes(): List<GraphNode<T>> = getConnections(nodeId) ?: neighbours
+    override fun setId(id: T) {
+        nodeId = id
+    }
+
+    override fun getConnectedNodes() = getConnections(nodeId) ?: neighbours
 
 }
 
 interface Vertex<T> {
     fun getId(): T
+    fun setId(id: T)
     fun getConnectedNodes(): List<Vertex<T>>
 }
 

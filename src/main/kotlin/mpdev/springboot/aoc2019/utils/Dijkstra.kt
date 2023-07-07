@@ -6,7 +6,8 @@ import java.util.*
  * Dijkstra implementation
  * T is the type of the Node ID in the Graph
  */
-class Dijkstra<T>(private var costMap: Map<Pair<T,T>,Int>? = null) {
+class Dijkstra<T>(private var costMap: Map<Pair<T,T>,Int>? = null,
+                  private var updateNodeId: (T) -> T? = { null } ) {
 
     class PathNode<T>(
         val node: Vertex<T>?,
@@ -54,6 +55,9 @@ class Dijkstra<T>(private var costMap: Map<Pair<T,T>,Int>? = null) {
             // else for each connected node
             currentNode.node.getConnectedNodes().forEach { connectedNode ->
                 ++iterations
+                val updatedId = updateNodeId(connectedNode.getId())
+                if (updatedId != null)      // execute function to update the ID everytime we get to a new node (if given)
+                    connectedNode.setId(updatedId)
                 val nextPathNode = PathNode(connectedNode, getCost(currentNode.node.getId(),connectedNode.getId()))
                 if (visitedNodes.contains(nextPathNode))
                     return@forEach

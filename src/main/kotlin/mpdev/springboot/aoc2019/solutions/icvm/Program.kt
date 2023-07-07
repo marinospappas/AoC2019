@@ -35,9 +35,7 @@ class Program(prog: String) {
             try {
                 log.debug("program $instanceName running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
                 val instruction = Instruction(ip, memory)
-
-                printDebug()
-
+                //printDebug()
                 // increase IP ready for the next instruction
                 ip += instruction.ipIncrement
                 log.debug("program {} - instruction {}", instanceName, instruction.opCode)
