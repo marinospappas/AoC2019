@@ -94,24 +94,23 @@ class Vault(val input: List<String>) {
                 val newPos = firstItem.first
                 distance = firstItem.second+1
                 setOf(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)).forEach { pos ->
+                    val thisData = data[newPos + pos]
+                    if (thisData == null || thisData.vaultItem == VaultItem.WALL)
+                        return@forEach
                     if (!discovered.contains(newPos+pos)) {
-                        discovered.add(newPos+pos)
-
-                        val thisData = data[newPos + pos]
-                        if (thisData != null) {
-                            if (thisData.vaultItem == VaultItem.EMPTY ||
-                                thisData.vaultItem == VaultItem.START ||
-                                (thisData.vaultItem == VaultItem.KEY && keys.containsKey(thisData.value)) ||
-                                (thisData.vaultItem == VaultItem.GATE && keys.containsKey(thisData.value.lowercaseChar()))
-                            )
-                                queue.add(Pair(newPos + pos, distance))
-                            else {
-                                if (thisData.vaultItem == VaultItem.KEY && !keys.containsKey(thisData.value)) {
-                                    val neighbourId = GraphKey(newPos + pos, id.keys.addKey(thisData.value))
-                                    if (!neighbours.contains(neighbourId)) {
-                                        neighbours.add(neighbourId)
-                                        graph.updateCost(id, neighbourId, distance)
-                                    }
+                        discovered.add(newPos + pos)
+                        if (thisData.vaultItem == VaultItem.EMPTY ||
+                            thisData.vaultItem == VaultItem.START ||
+                            (thisData.vaultItem == VaultItem.KEY && keys.containsKey(thisData.value)) ||
+                            (thisData.vaultItem == VaultItem.GATE && keys.containsKey(thisData.value.lowercaseChar()))
+                        )
+                            queue.add(Pair(newPos + pos, distance))
+                        else {
+                            if (thisData.vaultItem == VaultItem.KEY && !keys.containsKey(thisData.value)) {
+                                val neighbourId = GraphKey(newPos + pos, id.keys.addKey(thisData.value))
+                                if (!neighbours.contains(neighbourId)) {
+                                    neighbours.add(neighbourId)
+                                    graph.updateCost(id, neighbourId, distance)
                                 }
                             }
                         }
