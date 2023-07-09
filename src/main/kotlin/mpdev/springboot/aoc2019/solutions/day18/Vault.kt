@@ -5,7 +5,6 @@ import java.awt.Point
 import mpdev.springboot.aoc2019.utils.Graph
 import mpdev.springboot.aoc2019.utils.GraphNode
 import mpdev.springboot.aoc2019.utils.plus
-import java.util.*
 import kotlin.collections.ArrayDeque
 import kotlin.system.measureTimeMillis
 
@@ -54,6 +53,7 @@ class Vault(val input: List<String>) {
         countGetNeighbours = 0
         totalElapsed = 0L
         cacheHits = 0
+        keysGraphCache = mutableMapOf()
     }
 
     fun getStart(): GraphNode<GraphKey> = GraphNode(GraphKey(start, 0)) { p -> getNeighbours(p)}
@@ -64,6 +64,8 @@ class Vault(val input: List<String>) {
     var cacheHits = 0
 
     val neighboursCache: MutableMap<GraphKey, List<GraphNode<GraphKey>>> = mutableMapOf()
+
+    lateinit var keysGraphCache: MutableMap<Char,KeysGraphNode>
 
     fun getNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
         val cached = neighboursCache[id]
@@ -79,39 +81,50 @@ class Vault(val input: List<String>) {
     }
 
     private fun findNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
-        val neighbours = mutableSetOf<GraphKey>()
         ++countGetNeighbours
+        var neighbours: List<GraphNode<GraphKey>>
         totalElapsed += measureTimeMillis {
-            val queue = ArrayDeque<Pair<Point, Int>>()     // position, distance
-            val discovered: MutableSet<Point> = mutableSetOf()
-            // find neighbouring keys using BFS algorithm
-            val position = id.position
-            val keys = id.keys
-            var distance: Int
-            queue.add(Pair(position, 0))
-            while (queue.isNotEmpty()) {
-                val firstItem = queue.removeFirst()
-                val newPos = firstItem.first
-                distance = firstItem.second+1
-                setOf(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)).forEach { pos ->
-                    val thisData = data[newPos + pos]
-                    if (thisData == null || thisData.vaultItem == VaultItem.WALL)
-                        return@forEach
-                    if (!discovered.contains(newPos+pos)) {
-                        discovered.add(newPos + pos)
-                        if (thisData.vaultItem == VaultItem.EMPTY ||
-                            thisData.vaultItem == VaultItem.START ||
-                            (thisData.vaultItem == VaultItem.KEY && keys.containsKey(thisData.value)) ||
-                            (thisData.vaultItem == VaultItem.GATE && keys.containsKey(thisData.value.lowercaseChar()))
-                        )
-                            queue.add(Pair(newPos + pos, distance))
-                        else {
-                            if (thisData.vaultItem == VaultItem.KEY && !keys.containsKey(thisData.value)) {
-                                val neighbourId = GraphKey(newPos + pos, id.keys.addKey(thisData.value))
-                                if (!neighbours.contains(neighbourId)) {
-                                    neighbours.add(neighbourId)
-                                    graph.updateCost(id, neighbourId, distance)
-                                }
+            // check for cached entry in the keys Graph
+            val thisKeyGraph = keysGraphCache[data[id.position]?.value]
+            neighbours = if (thisKeyGraph != null)
+                getNeighboursFromCache(thisKeyGraph, id.keys)
+            else
+                calculateNeighbours(id)
+        }
+        return neighbours
+    }
+
+    private fun calculateNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
+        val neighbours = mutableSetOf<GraphKey>()
+        val queue = ArrayDeque<Pair<Point, Int>>()     // position, distance
+        val discovered: MutableSet<Point> = mutableSetOf()
+        // find neighbouring keys using BFS algorithm
+        val position = id.position
+        val keys = id.keys
+        var distance: Int
+        queue.add(Pair(position, 0))
+        while (queue.isNotEmpty()) {
+            val firstItem = queue.removeFirst()
+            val newPos = firstItem.first
+            distance = firstItem.second + 1
+            setOf(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)).forEach { pos ->
+                val thisData = data[newPos + pos]
+                if (thisData == null || thisData.vaultItem == VaultItem.WALL)
+                    return@forEach
+                if (!discovered.contains(newPos + pos)) {
+                    discovered.add(newPos + pos)
+                    if (thisData.vaultItem == VaultItem.EMPTY ||
+                        thisData.vaultItem == VaultItem.START ||
+                        (thisData.vaultItem == VaultItem.KEY && keys.containsKey(thisData.value)) ||
+                        (thisData.vaultItem == VaultItem.GATE && keys.containsKey(thisData.value.lowercaseChar()))
+                    )
+                        queue.add(Pair(newPos + pos, distance))
+                    else {
+                        if (thisData.vaultItem == VaultItem.KEY && !keys.containsKey(thisData.value)) {
+                            val neighbourId = GraphKey(newPos + pos, id.keys.addKey(thisData.value))
+                            if (!neighbours.contains(neighbourId)) {
+                                neighbours.add(neighbourId)
+                                graph.updateCost(id, neighbourId, distance)
                             }
                         }
                     }
@@ -119,7 +132,12 @@ class Vault(val input: List<String>) {
             }
         }
         //println("*** getNeighbours of $id : ${neighbours.size} ${neighbours.map { it.getId() }}")
-        return neighbours.map { GraphNode(it){ p -> getNeighbours(p) }  }
+        return neighbours.map { GraphNode(it) { p -> getNeighbours(p) } }
+    }
+
+    private fun getNeighboursFromCache(keyGraph: KeysGraphNode, keys: Int): List<GraphNode<GraphKey>> {
+        val neighbours = mutableSetOf<GraphKey>()
+        return neighbours.map { GraphNode(it) { p -> getNeighbours(p) } }
     }
 
     private fun vault2Grid(maze: Map<Point, VaultPoint>): Array<CharArray> {
@@ -160,6 +178,8 @@ class Vault(val input: List<String>) {
             return "[(x=${position.x},y=${position.y}) keys= $keysList]"
         }
     }
+
+    data class KeysGraphNode(val neighbourKeys: Set<Pair<GraphKey,Int>>, val keyConstraint: Map<Char,List<Char>>, val gateConstraint: Map<Char,List<Char>>)
 }
 
 fun Int.addKey(k: Char) = this or(1 shl k - 'a')
