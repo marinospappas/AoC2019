@@ -65,7 +65,7 @@ class Vault(val input: List<String>) {
 
     val neighboursCache: MutableMap<GraphKey, List<GraphNode<GraphKey>>> = mutableMapOf()
 
-    lateinit var keysGraphCache: MutableMap<Char,KeysGraphNode>
+    lateinit var keysGraphCache: MutableMap<Char,List<KeysGraphNode>>
 
     fun getNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
         val cached = neighboursCache[id]
@@ -85,59 +85,56 @@ class Vault(val input: List<String>) {
         var neighbours: List<GraphNode<GraphKey>>
         totalElapsed += measureTimeMillis {
             // check for cached entry in the keys Graph
-            val thisKeyGraph = keysGraphCache[data[id.position]?.value]
-            neighbours = if (thisKeyGraph != null)
-                getNeighboursFromCache(thisKeyGraph, id.keys)
-            else
-                calculateNeighbours(id)
+            val key = data[id.position]?.value
+            if ( keysGraphCache[key] == null)
+                calculateAndCacheNeighbours(id)
+            neighbours = getNeighboursFromCache(keysGraphCache[key]!!, id.keys)
         }
         return neighbours
     }
 
-    private fun calculateNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
-        val neighbours = mutableSetOf<GraphKey>()
-        val queue = ArrayDeque<Pair<Point, Int>>()     // position, distance
+    private fun calculateAndCacheNeighbours(id: GraphKey) {
+        val neighboursToCache = mutableListOf<KeysGraphNode>()
+        val queue = ArrayDeque<Pair<Point, KeysGraphNode>>()     // position, destination key details (id, distance, constraints)
         val discovered: MutableSet<Point> = mutableSetOf()
         // find neighbouring keys using BFS algorithm
         val position = id.position
         val keys = id.keys
         var distance: Int
-        queue.add(Pair(position, 0))
+        queue.add(Pair(position, KeysGraphNode()))
         while (queue.isNotEmpty()) {
-            val firstItem = queue.removeFirst()
-            val newPos = firstItem.first
-            distance = firstItem.second + 1
+            val node = queue.removeFirst()
+            val newPos = node.first
+            distance = node.second.distance + 1
+            val gateConstraint = node.second.gateConstraint
+            val keyConstraint = node.second.keyConstraint
             setOf(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)).forEach { pos ->
                 val thisData = data[newPos + pos]
                 if (thisData == null || thisData.vaultItem == VaultItem.WALL)
                     return@forEach
                 if (!discovered.contains(newPos + pos)) {
                     discovered.add(newPos + pos)
-                    if (thisData.vaultItem == VaultItem.EMPTY ||
-                        thisData.vaultItem == VaultItem.START ||
-                        (thisData.vaultItem == VaultItem.KEY && keys.containsKey(thisData.value)) ||
-                        (thisData.vaultItem == VaultItem.GATE && keys.containsKey(thisData.value.lowercaseChar()))
-                    )
-                        queue.add(Pair(newPos + pos, distance))
-                    else {
-                        if (thisData.vaultItem == VaultItem.KEY && !keys.containsKey(thisData.value)) {
-                            val neighbourId = GraphKey(newPos + pos, id.keys.addKey(thisData.value))
-                            if (!neighbours.contains(neighbourId)) {
-                                neighbours.add(neighbourId)
-                                graph.updateCost(id, neighbourId, distance)
-                            }
-                        }
+                    if (thisData.vaultItem == VaultItem.GATE)   // if gate then add constraint
+                        gateConstraint.add(thisData.value)
+                    if (thisData.vaultItem == VaultItem.KEY) {  // if key then add to cache
+                        neighboursToCache.add(KeysGraphNode(
+                            GraphKey(newPos+pos,0.addKey(thisData.value)), distance, keyConstraint, gateConstraint))
                     }
+                    // but also add constraint to continue further down the maze
+                    keyConstraint.add(thisData.value)
+                    queue.add(Pair(newPos + pos, KeysGraphNode(
+                        GraphKey(newPos+pos,0.addKey(thisData.value)), distance, keyConstraint, gateConstraint
+                    )))
                 }
             }
         }
-        //println("*** getNeighbours of $id : ${neighbours.size} ${neighbours.map { it.getId() }}")
-        return neighbours.map { GraphNode(it) { p -> getNeighbours(p) } }
     }
 
-    private fun getNeighboursFromCache(keyGraph: KeysGraphNode, keys: Int): List<GraphNode<GraphKey>> {
-        val neighbours = mutableSetOf<GraphKey>()
-        return neighbours.map { GraphNode(it) { p -> getNeighbours(p) } }
+    private fun getNeighboursFromCache(keyGraph: List<KeysGraphNode>, keys: Int): List<GraphNode<GraphKey>> {
+        return keyGraph.filter { destKey ->
+            (destKey.keyConstraint.isEmpty() || keys.containsAllKeys(destKey.keyConstraint))
+            && (destKey.gateConstraint.isEmpty() || keys.containsAllKeys(destKey.gateConstraint.map { it.lowercaseChar() }))
+        }.map { GraphNode(it.neighbourId) { p -> getNeighbours(p) } }
     }
 
     private fun vault2Grid(maze: Map<Point, VaultPoint>): Array<CharArray> {
@@ -171,7 +168,7 @@ class Vault(val input: List<String>) {
         println()
     }
 
-    data class GraphKey(var position: Point, var keys: Int) {
+    data class GraphKey(var position: Point = Point(0,0), var keys: Int = 0) {
         override fun toString(): String {
             var keysList = ""
             ('a'..'z').forEach { if (keys.containsKey(it)) keysList += "$it " }
@@ -179,10 +176,16 @@ class Vault(val input: List<String>) {
         }
     }
 
-    data class KeysGraphNode(val neighbourKeys: Set<Pair<GraphKey,Int>>, val keyConstraint: Map<Char,List<Char>>, val gateConstraint: Map<Char,List<Char>>)
+    data class KeysGraphNode(val neighbourId: GraphKey = GraphKey(),
+                             val distance: Int = 0,
+                             val keyConstraint: MutableList<Char> = mutableListOf(),
+                             val gateConstraint: MutableList<Char> = mutableListOf())
 }
 
 fun Int.addKey(k: Char) = this or(1 shl k - 'a')
-
 fun Int.containsKey(k: Char) = this.shr(k - 'a') and 1 == 1
+fun Int.containsAllKeys(keys: List<Char>): Boolean {
+    keys.forEach { if (this.shr(it - 'a') and 1 != 1) return false }
+    return true
+}
 
