@@ -68,7 +68,7 @@ interface Vertex<T> {
 }
 
 class MinCostPath<T> {
-    var path: List<T> = listOf()
+    var path: List<Pair<T,Int>> = listOf()
     var minCost: Int = Int.MAX_VALUE
     var numberOfIterations: Int = 0
 }

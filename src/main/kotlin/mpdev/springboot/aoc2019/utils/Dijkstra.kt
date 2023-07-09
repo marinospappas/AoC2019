@@ -31,14 +31,20 @@ class Dijkstra<T>(private var costMap: Map<Pair<T,T>,Int>? = null) {
 
     /**
      * The Dijkstra algorithm implementation
+     * start: Vertex, end: Vertex
+     */
+    fun runIt(startState: Vertex<T>, endState: Vertex<T>, maxPath: Int = Int.MAX_VALUE) =
+        runIt(startState, { currentNode.node?.getId() == endState.getId() }, maxPath )
+
+    /**
+     * The Dijkstra algorithm implementation
      * start: Vertex, end: function that returns true when we reach the end
      */
     fun runIt(startState: Vertex<T>, isAtEnd: (T) -> Boolean, maxPath: Int = Int.MAX_VALUE): MinCostPath<T> {
         // setup priority queue, visited set and minimum total costs for each node
         val toVisitQueue = PriorityQueue<PathNode<T>>().apply { add(PathNode(startState, 0)) }
         val visitedNodes = mutableSetOf<PathNode<T>>()
-        val dijkstraCost =  mutableMapOf<T, PathNode<T>>(). withDefault { PathNode(null, Int.MAX_VALUE)
-        }
+        val dijkstraCost =  mutableMapOf<T, PathNode<T>>(). withDefault { PathNode(null, Int.MAX_VALUE) }
 
         var iterations = 0
         // while the priority Q has elements, get the top one (least cost as per Comparator)
@@ -77,22 +83,15 @@ class Dijkstra<T>(private var costMap: Map<Pair<T,T>,Int>? = null) {
         throw DijkstraException("no path found from ${startState.getId()} to endState")
     }
 
-    /**
-     * The Dijkstra algorithm implementation
-     * start: Vertex, end: Vertex
-     */
-    fun runIt(startState: Vertex<T>, endState: Vertex<T>, maxPath: Int = Int.MAX_VALUE) =
-        runIt(startState, { currentNode.node?.getId() == endState.getId() }, maxPath )
-
-
-    private fun getMinCostPath(minCostKey: T, startKey: T, dijkstraCost: Map<T, PathNode<T>>): List<T> {
+    private fun getMinCostPath(minCostKey: T, startKey: T, dijkstraCost: Map<T, PathNode<T>>): List<Pair<T,Int>> {
         var key = minCostKey
-        val path = mutableListOf<T>()
+        val path = mutableListOf<Pair<T,Int>>()
         do {
-            path.add(key)
-            key = dijkstraCost.getValue(key).updatedBy ?: startKey
+            val node = dijkstraCost.getValue(key)
+            path.add(Pair(key,node.costFromStart))
+            key = node.updatedBy ?: startKey
         } while (key != startKey)
-        path.add(key)
+        path.add(Pair(key, 0))
         return path.reversed()
     }
 }

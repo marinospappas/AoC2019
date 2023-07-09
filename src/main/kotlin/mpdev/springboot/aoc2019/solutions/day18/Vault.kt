@@ -6,13 +6,10 @@ import mpdev.springboot.aoc2019.utils.Graph
 import mpdev.springboot.aoc2019.utils.GraphNode
 import mpdev.springboot.aoc2019.utils.plus
 import java.util.*
+import kotlin.collections.ArrayDeque
 import kotlin.system.measureTimeMillis
 
 class Vault(val input: List<String>) {
-
-    companion object {
-        val END_POINT = Point(Int.MAX_VALUE, Int.MAX_VALUE)
-    }
 
     var data: MutableMap<Point, VaultPoint> = mutableMapOf()
     var finalKeysList: Int
@@ -54,12 +51,12 @@ class Vault(val input: List<String>) {
         data
             .filter { it.value.vaultItem == VaultItem.KEY }
             .forEach { (k,_) -> graph.addNode(GraphKey(k, 0)) }
+        countGetNeighbours = 0
+        totalElapsed = 0L
+        cacheHits = 0
     }
 
     fun getStart(): GraphNode<GraphKey> = GraphNode(GraphKey(start, 0)) { p -> getNeighbours(p)}
-    fun getEnd(): GraphNode<GraphKey> =
-        GraphNode(GraphKey(END_POINT, finalKeysList)){ p -> getNeighbours(p)}
-
     fun atEnd(id: GraphKey) = id.keys == finalKeysList
 
     var countGetNeighbours = 0
@@ -82,47 +79,48 @@ class Vault(val input: List<String>) {
     }
 
     private fun findNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
-        val neighbours = mutableListOf<GraphNode<GraphKey>>()
+        val neighbours = mutableSetOf<GraphKey>()
         ++countGetNeighbours
         totalElapsed += measureTimeMillis {
-            val stack: Stack<Pair<Point, Int>> = Stack()     // position, distance
+            val queue = ArrayDeque<Pair<Point, Int>>()     // position, distance
             val discovered: MutableSet<Point> = mutableSetOf()
-            // find neighbouring keys using DFS algorithm
+            // find neighbouring keys using BFS algorithm
             val position = id.position
             val keys = id.keys
             var distance: Int
-            stack.push(Pair(position, 0))
-            while (stack.isNotEmpty()) {
-                val topOfStack = stack.pop()
-                val newPos = topOfStack.first
-                distance = topOfStack.second
-                if (!discovered.contains(newPos)) {
-                    discovered.add(newPos)
-                    ++distance
-                    setOf(Point(0, 1), Point(0, -1), Point(1, 0), Point(-1, 0))
-                        .forEach { pos ->
-                            val thisData = data[newPos + pos]
-                            if (thisData != null) {
-                                if (thisData.vaultItem == VaultItem.EMPTY ||
-                                    thisData.vaultItem == VaultItem.START ||
-                                    (thisData.vaultItem == VaultItem.KEY && keys.containsKey(thisData.value)) ||
-                                    (thisData.vaultItem == VaultItem.GATE && keys.containsKey(thisData.value.lowercaseChar()))
-                                )
-                                    stack.push(Pair(newPos + pos, distance))
-                                else {
-                                    if (thisData.vaultItem == VaultItem.KEY && !keys.containsKey(thisData.value)) {
-                                        val neighbourId = GraphKey(newPos + pos, id.keys.addKey(thisData.value))
-                                        neighbours.add(GraphNode(neighbourId) { p -> getNeighbours(p) })
+            queue.add(Pair(position, 0))
+            while (queue.isNotEmpty()) {
+                val firstItem = queue.removeFirst()
+                val newPos = firstItem.first
+                distance = firstItem.second+1
+                setOf(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)).forEach { pos ->
+                    if (!discovered.contains(newPos+pos)) {
+                        discovered.add(newPos+pos)
+
+                        val thisData = data[newPos + pos]
+                        if (thisData != null) {
+                            if (thisData.vaultItem == VaultItem.EMPTY ||
+                                thisData.vaultItem == VaultItem.START ||
+                                (thisData.vaultItem == VaultItem.KEY && keys.containsKey(thisData.value)) ||
+                                (thisData.vaultItem == VaultItem.GATE && keys.containsKey(thisData.value.lowercaseChar()))
+                            )
+                                queue.add(Pair(newPos + pos, distance))
+                            else {
+                                if (thisData.vaultItem == VaultItem.KEY && !keys.containsKey(thisData.value)) {
+                                    val neighbourId = GraphKey(newPos + pos, id.keys.addKey(thisData.value))
+                                    if (!neighbours.contains(neighbourId)) {
+                                        neighbours.add(neighbourId)
                                         graph.updateCost(id, neighbourId, distance)
                                     }
                                 }
                             }
                         }
+                    }
                 }
             }
         }
         //println("*** getNeighbours of $id : ${neighbours.size} ${neighbours.map { it.getId() }}")
-        return neighbours
+        return neighbours.map { GraphNode(it){ p -> getNeighbours(p) }  }
     }
 
     private fun vault2Grid(maze: Map<Point, VaultPoint>): Array<CharArray> {

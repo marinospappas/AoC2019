@@ -49,6 +49,30 @@ class Day18Test {
 
     @Test
     @Order(3)
+    fun `List of Neighbour nodes is calculated using shortest path`() {
+        val vault = Vault(vault90())
+        vault.printVault()
+        vault.createGraph()
+        val startKey = Vault.GraphKey(Point(1, 1), 0)
+        var neighbours = vault.getNeighbours(startKey)
+        println("size: ${neighbours.size}")
+        val firstNeighbourKey = Vault.GraphKey(Point(10, 1),0.addKey('a'))
+        val secondNeighbourKey =  Vault.GraphKey(Point(10, 4),0.addKey('b'))
+        println(neighbours.map { it.nodeId })
+        println("distances: ")
+        println("distance of first: ${vault.graph.costs[Pair(startKey,firstNeighbourKey)]}")
+        println("distance of last : ${vault.graph.costs[Pair(startKey,secondNeighbourKey)]}")
+        assertThat(neighbours.size).isEqualTo(2)
+        assertThat(neighbours.first().nodeId.position).isEqualTo(Point(10,1))
+        assertThat(neighbours.first().nodeId.keys).isEqualTo(0.addKey('a'))
+        assertThat(neighbours.last().nodeId.position).isEqualTo(Point(10,4))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('b'))
+        assertThat(vault.graph.costs[Pair(startKey,firstNeighbourKey)]).isEqualTo(9)
+        assertThat(vault.graph.costs[Pair(startKey,secondNeighbourKey)]).isEqualTo(14)
+    }
+
+    @Test
+    @Order(4)
     fun `Calculates List of Neighbour nodes with Keys - vault1`() {
         val vault = Vault(vault1())
         vault.printVault()
@@ -72,7 +96,7 @@ class Day18Test {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     fun `Calculates List of Neighbour nodes with Keys - vault2`() {
         val vault = Vault(vault2())
         vault.printVault()
@@ -111,7 +135,7 @@ class Day18Test {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     fun `Calculates List of Neighbour nodes with Keys - vault3`() {
         val vault = Vault(vault3())
         vault.printVault()
@@ -126,7 +150,7 @@ class Day18Test {
     }
 
     @Test
-    @Order(5)
+    @Order(7)
     fun `Calculates List of Neighbour nodes with Keys - test input`() {
         val vault = Vault(inputLines)
         vault.printVault()
@@ -142,13 +166,13 @@ class Day18Test {
         println(neighbours.size)
         println(neighbours.map { it.nodeId })
         assertThat(neighbours.size).isEqualTo(4)
-        assertThat(neighbours.last().nodeId.position).isEqualTo(Point(3,4))
-        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a').addKey('d').addKey('g'))
+        assertThat(neighbours.last().nodeId.position).isEqualTo(Point(17,1))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a').addKey('c').addKey('d'))
     }
 
     @ParameterizedTest
     @MethodSource("minPathParameters")
-    @Order(6)
+    @Order(8)
     fun `Calculates Shortest Path`(vaultInput: List<String>, expected: Int) {
         val vault = Vault(vaultInput)
         vault.printVault()
@@ -174,7 +198,7 @@ class Day18Test {
         )
 
     @Test
-    @Order(7)
+    @Order(9)
     fun `Solves Part 1`() {
         val result = puzzleSolver.solvePart1().result.toInt()
         puzzleSolver.vault.printVault()
@@ -226,5 +250,16 @@ class Day18Test {
         "########.########",
         "#l.F..d...h..C.m#",
         "#################"
+    )
+
+    private fun vault90() = listOf(
+        "############",
+        "#@........a#",
+        "#.##########",
+        "#.#........#",
+        "#...######b#",
+        "###.####...#",
+        "#........###",
+        "############"
     )
 }

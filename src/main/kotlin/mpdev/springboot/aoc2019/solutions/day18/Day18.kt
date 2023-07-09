@@ -25,6 +25,7 @@ class Day18: PuzzleSolver() {
     }
 
     override fun solvePart1(): PuzzlePartSolution {
+        vault.printVault()
         vault.createGraph()
         val algo = Dijkstra(vault.graph.costs)
         result = 0
@@ -32,6 +33,8 @@ class Day18: PuzzleSolver() {
             val res = algo.runIt(vault.getStart(), { id -> vault.atEnd(id) })
             result = res.minCost
             log.info("Dijkstra iterations: {}", res.numberOfIterations)
+            log.info("getNeighbours ran {} times for {} msec", vault.countGetNeighbours, vault.totalElapsed)
+            log.info("neighbours cache size: {} cache hits: {}", vault.neighboursCache.size, vault.cacheHits)
             res.path.forEach { log.info("path: {}",it) }
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
