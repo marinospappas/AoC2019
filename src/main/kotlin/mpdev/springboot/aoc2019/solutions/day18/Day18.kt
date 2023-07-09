@@ -4,7 +4,6 @@ import mpdev.springboot.aoc2019.model.PuzzlePartSolution
 import mpdev.springboot.aoc2019.solutions.PuzzleSolver
 import mpdev.springboot.aoc2019.utils.Dijkstra
 import org.springframework.stereotype.Component
-import java.awt.Point
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -27,11 +26,13 @@ class Day18: PuzzleSolver() {
 
     override fun solvePart1(): PuzzlePartSolution {
         vault.createGraph()
-        val algo = Dijkstra<Vault.GraphKey>(updateNodeId = { key -> vault.updateGraphIdWithKey(key) } )
+        val algo = Dijkstra(vault.graph.costs)
         result = 0
         val elapsed = measureTimeMillis {
-            val res = algo.runIt(vault.getStart(), vault.getEnd())
+            val res = algo.runIt(vault.getStart(), { id -> vault.atEnd(id) })
             result = res.minCost
+            log.info("Dijkstra iterations: {}", res.numberOfIterations)
+            res.path.forEach { log.info("path: {}",it) }
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)
     }
