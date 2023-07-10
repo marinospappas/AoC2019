@@ -195,7 +195,8 @@ class Day18Test {
             Arguments.of(vault12(), 86),
             Arguments.of(vault13(), 132),
             Arguments.of(vault14(), 39),
-            Arguments.of(vault15(), 136)
+            Arguments.of(vault15(), 136),
+            Arguments.of(File("src/test/resources/inputdata/input18.txt").readLines(), 81)
         )
 
     @Test
@@ -234,7 +235,7 @@ class Day18Test {
         println(neighbours.map { it.nodeId })
         println("distances: ${vault.graph2.costs}")
         println("cache l2: ${vault.neighbours2Cache}")
-        println("cache l1: ${vault.keysGraph2Cache}")
+        println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(1)
         assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(4, 4)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a'))
@@ -244,10 +245,94 @@ class Day18Test {
         println(neighbours.map { it.nodeId })
         println("distances: ${vault.graph2.costs}")
         println("cache l2: ${vault.neighbours2Cache}")
-        println("cache l1: ${vault.keysGraph2Cache}")
+        println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(1)
         assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(5, 5)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a').addKey('b'))
+    }
+
+    @Test
+    @Order(12)
+    fun `Calculates List of Neighbour nodes with Keys Part 2 - vault2`() {
+        val vault = VaultPart2(vault22())
+        vault.printVault()
+        vault.createGraph2()
+        println()
+        var neighbours = vault.getNeighbours2(VaultPart2.GraphKey2(vault.startList, 0))
+        println("size: ${neighbours.size}")
+        println(neighbours.map { it.nodeId })
+        println("distances: ${vault.graph2.costs}")
+        println("cache l2: ${vault.neighbours2Cache}")
+        println("cache l1: ${vault.keysGraphCache}")
+        assertThat(neighbours.size).isEqualTo(3)
+        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(6, 2),Point(8, 2),Point(6, 4),Point(13, 5)))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('c'))
+
+        neighbours = vault.getNeighbours2(VaultPart2.GraphKey2(mutableListOf(Point(6, 2),Point(8, 2),Point(6, 4),Point(13, 5)), 0.addKey('c')))
+        println("size: ${neighbours.size}")
+        println(neighbours.map { it.nodeId })
+        println("distances: ${vault.graph2.costs}")
+        println("cache l2: ${vault.neighbours2Cache}")
+        println("cache l1: ${vault.keysGraphCache}")
+        assertThat(neighbours.size).isEqualTo(2)
+        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(6, 2),Point(8, 2),Point(1, 5),Point(13, 5)))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('b').addKey('c'))
+    }
+
+    @Test
+    @Order(13)
+    fun `Calculates List of Neighbour nodes with Keys Part 2 - vault3`() {
+        val vault = VaultPart2(vault23())
+        vault.printVault()
+        vault.createGraph2()
+        println()
+        var neighbours = vault.getNeighbours2(VaultPart2.GraphKey2(vault.startList, 0))
+        println("size: ${neighbours.size}")
+        println(neighbours.map { it.nodeId })
+        println("distances: ${vault.graph2.costs}")
+        println("cache l2: ${vault.neighbours2Cache}")
+        println("cache l1: ${vault.keysGraphCache}")
+        assertThat(neighbours.size).isEqualTo(1)
+        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(4, 1),Point(7, 2),Point(5, 4),Point(7, 4)))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a'))
+
+        neighbours = vault.getNeighbours2(VaultPart2.GraphKey2(mutableListOf(Point(4, 1),Point(7, 2),Point(5, 4),Point(7, 4)), 0.addKey('a')))
+        println("size: ${neighbours.size}")
+        println(neighbours.map { it.nodeId })
+        println("distances: ${vault.graph2.costs}")
+        println("cache l2: ${vault.neighbours2Cache}")
+        println("cache l1: ${vault.keysGraphCache}")
+        assertThat(neighbours.size).isEqualTo(1)
+        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(4, 1),Point(7, 2),Point(3, 5),Point(7, 4)))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a').addKey('b'))
+    }
+
+    @Test
+    @Order(14)
+    fun `Calculates List of Neighbour nodes with Keys Part 2 - test input`() {
+        val vault = VaultPart2(File("src/test/resources/inputdata/input18-2.txt").readLines())
+        vault.printVault()
+        vault.createGraph2()
+        println()
+        var neighbours = vault.getNeighbours2(VaultPart2.GraphKey2(vault.startList, 0))
+        println("size: ${neighbours.size}")
+        println(neighbours.map { it.nodeId })
+        println("distances: ${vault.graph2.costs}")
+        println("cache l2: ${vault.neighbours2Cache}")
+        println("cache l1: ${vault.keysGraphCache}")
+        assertThat(neighbours.size).isEqualTo(2)
+        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(5, 2),Point(7, 3),Point(5, 5),Point(7, 5)))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('e'))
+
+        neighbours = vault.getNeighbours2(VaultPart2.GraphKey2(mutableListOf(Point(5, 2),Point(7, 3),Point(5, 5),Point(7, 5)), 0.addKey('e')))
+        println("size: ${neighbours.size}")
+        println(neighbours.map { it.nodeId })
+        println("distances: ${vault.graph2.costs}")
+        println("cache l2: ${vault.neighbours2Cache}")
+        println("cache l1: ${vault.keysGraphCache}")
+        assertThat(neighbours.size).isEqualTo(2)
+        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(5, 2),Point(9, 1),Point(5, 5),Point(7, 5)))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('e').addKey('h'))
     }
 
     @ParameterizedTest
@@ -273,6 +358,7 @@ class Day18Test {
             Arguments.of(vault21(), 8),
             Arguments.of(vault22(), 24),
             Arguments.of(vault23(), 32),
+            Arguments.of(File("src/test/resources/inputdata/input18-2.txt").readLines(), 72),
         )
 
     @Test
@@ -280,7 +366,7 @@ class Day18Test {
     fun `Solves Part 2`() {
         val inputLines = File("src/test/resources/inputdata/input18-2.txt").readLines()
         puzzleSolver.vault2 = VaultPart2(inputLines)
-        val result = puzzleSolver.solvePart1().result.toInt()
+        val result = puzzleSolver.solvePart2().result.toInt()
         puzzleSolver.vault2.printVault()
         assertThat(result).isEqualTo(72)
     }

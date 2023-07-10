@@ -35,7 +35,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
     // 1st level cache - holds all the possible keys and their positions and distances
     // that can be reached if we ignore keys or gates
     // also holds the information about what keys and what gates are in between
-    var keysGraph2Cache: MutableMap<Point,List<KeysGraphNode>> = mutableMapOf()
+    // this is the same keys graph cache variable as in Part 1
 
     /**
      * basic getNeighbours (reachable keys) function for input: GraphKey
@@ -70,7 +70,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
         ++countFindNeighbours
         // 1st level cache (keys Graph) is checked here
         id.positions.forEach { position ->
-            if (keysGraph2Cache[position] == null) {
+            if (keysGraphCache[position] == null) {
                 ++countCalcNeighbours
                 calculateAndCacheNeighbours(position)
             }
