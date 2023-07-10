@@ -17,11 +17,15 @@ fun main() {
         val input = File("src/main/resources/inputdata/input18.txt").readText()
         val result = day18.getMinimumNumberOfMovesToCollectAllKeys(input)
         println(result)
-        val input2 = File("src/test/resources/inputdata/input18-2.txt").readText()
-        //val result2 = day18.getMinimumNumberOfMovesToCollectAllKeys(input2)
-        //println(result2)
     }
     println("$elapsed msec")
+    val elapsed2 = measureTimeMillis {
+        val day18 = Test2Day18()
+        val input2 = File("src/test/resources/inputdata/input18-2.txt").readText()
+        val result2 = day18.getMinimumNumberOfMovesToCollectAllKeys(input2)
+        println(result2)
+    }
+    println("$elapsed2 msec")
 }
 
 private typealias Node = Char
@@ -400,9 +404,7 @@ class Test2Day18 {
     fun getMinimumNumberOfMovesToCollectAllKeys(input: String): Int {
         val map = NodeMap.from(input)
         val result = map.minimumPathToCollectAllKeys() ?: throw IllegalStateException("Could not find minimum path")
-
         println("Processed ${map.pathEvaluationCount} coordinates and ${map.nodeEvaluationCount} nodes")
-
         return result
     }
 }

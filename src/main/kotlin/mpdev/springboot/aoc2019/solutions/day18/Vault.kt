@@ -8,7 +8,7 @@ import mpdev.springboot.aoc2019.utils.plus
 import kotlin.collections.ArrayDeque
 import kotlin.system.measureTimeMillis
 
-class Vault(val input: List<String>) {
+open class Vault(val input: List<String>) {
 
     var data: MutableMap<Point, VaultPoint> = mutableMapOf()
     var finalKeysList: Int
@@ -47,9 +47,7 @@ class Vault(val input: List<String>) {
 
     fun createGraph() {
         graph = Graph { p -> getNeighbours(p) }
-        data
-            .filter { it.value.vaultItem == VaultItem.KEY }
-            .forEach { (k,_) -> graph.addNode(GraphKey(k, 0)) }
+        graph.addNode(GraphKey(start, 0))
         countGetNeighbours = 0
         countFindNeighbours = 0
         countCalcNeighbours = 0
@@ -59,7 +57,7 @@ class Vault(val input: List<String>) {
         neighboursCache.clear()
     }
 
-    fun getStart(): GraphNode<GraphKey> = GraphNode(GraphKey(start, 0)) { p -> getNeighbours(p)}
+    open fun getStart(): GraphNode<GraphKey> = GraphNode(GraphKey(start, 0)) { p -> getNeighbours(p)}
     fun atEnd(id: GraphKey) = id.keys == finalKeysList
 
     var countGetNeighbours = 0
@@ -105,7 +103,7 @@ class Vault(val input: List<String>) {
      * filtering this entry based on keys in possession
      * if not then calculateNeighbours is called
      */
-    private fun findNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
+    protected fun findNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
         ++countFindNeighbours
         // 1st level cache (keys Graph) is checked here
         if (keysGraphCache[id.position] == null) {
@@ -121,7 +119,7 @@ class Vault(val input: List<String>) {
      * any keys or gates found in the way are also saved as constraints
      * updates the level 1 cache
      */
-    private fun calculateAndCacheNeighbours(position: Point) {
+    protected fun calculateAndCacheNeighbours(position: Point) {
         val neighboursToCache = mutableListOf<KeysGraphNode>()
         val queue = ArrayDeque<Pair<Point, KeysGraphNode>>()     // position, destination key details (id, distance, constraints)
         val discovered: MutableSet<Point> = mutableSetOf()
@@ -159,7 +157,12 @@ class Vault(val input: List<String>) {
         keysGraphCache[position] = neighboursToCache
     }
 
-    private fun getNeighboursFromCache(id: GraphKey): List<GraphNode<GraphKey>> {
+    /**
+     * getNeighboursFromCache uses level 1 cache and filters based on keys in possession
+     * to find the reachable neighbour keys from input: GraphKey
+     * also updates costs to each neighbour key
+     */
+    protected fun getNeighboursFromCache(id: GraphKey): List<GraphNode<GraphKey>> {
         val keyGraph = keysGraphCache[id.position] ?: throw AocException("could not locate key cache entry for $id")
         val keysInPossession = id.keys
         val reachableKeys = keyGraph.filter { destKey ->
@@ -167,9 +170,11 @@ class Vault(val input: List<String>) {
                     && (destKey.gateConstraint.isEmpty() || keysInPossession.containsAllKeys(destKey.gateConstraint.map { it.lowercaseChar() }))
                     && (!keysInPossession.containsKey(destKey.neighbourKey))
         }
-        // update costs
+        // add new graph nodes and costs
         reachableKeys.forEach {
-            graph.updateCost(id, GraphKey(it.neighbourPos, keysInPossession.addKey(it.neighbourKey)), it.distance)
+            val nodeId = GraphKey(it.neighbourPos, keysInPossession.addKey(it.neighbourKey))
+            graph.addNode(nodeId)
+            graph.updateCost(id, nodeId, it.distance)
         }
         // and return reachable keys
         return reachableKeys.map { GraphNode(GraphKey(it.neighbourPos, keysInPossession.addKey(it.neighbourKey))) { p -> getNeighbours(p) } }
@@ -207,11 +212,7 @@ class Vault(val input: List<String>) {
     }
 
     data class GraphKey(var position: Point = Point(0,0), var keys: Int = 0) {
-        override fun toString(): String {
-            var keysList = ""
-            ('a'..'z').forEach { if (keys.containsKey(it)) keysList += "$it " }
-            return "[(x=${position.x},y=${position.y}) keys= $keysList]"
-        }
+        override fun toString() = "[(x=${position.x},y=${position.y}) keys= ${keys.keysList()}]"
     }
 
     data class KeysGraphNode(val neighbourPos: Point = Point(0,0),
@@ -226,5 +227,10 @@ fun Int.containsKey(k: Char) = this.shr(k - 'a') and 1 == 1
 fun Int.containsAllKeys(keys: List<Char>): Boolean {
     keys.forEach { if (this.shr(it - 'a') and 1 != 1) return false }
     return true
+}
+fun Int.keysList(): String {
+    var keysList = ""
+    ('a'..'z').forEach { if (this.containsKey(it)) keysList += "$it " }
+    return keysList
 }
 

@@ -1,9 +1,7 @@
 package mpdev.springboot.aoc2019.day18
 
 import mpdev.springboot.aoc2019.input.InputDataReader
-import mpdev.springboot.aoc2019.solutions.day18.Day18
-import mpdev.springboot.aoc2019.solutions.day18.Vault
-import mpdev.springboot.aoc2019.solutions.day18.addKey
+import mpdev.springboot.aoc2019.solutions.day18.*
 import mpdev.springboot.aoc2019.utils.Dijkstra
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -14,6 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.awt.Point
+import java.io.File
 import java.util.stream.Stream
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -50,7 +49,7 @@ class Day18Test {
     @Test
     @Order(3)
     fun `List of Neighbour nodes is calculated using shortest path`() {
-        val vault = Vault(vault90())
+        val vault = Vault(vault19())
         vault.printVault()
         vault.createGraph()
         val startKey = Vault.GraphKey(Point(1, 1), 0)
@@ -74,7 +73,7 @@ class Day18Test {
     @Test
     @Order(4)
     fun `Calculates List of Neighbour nodes with Keys - vault1`() {
-        val vault = Vault(vault1())
+        val vault = Vault(vault11())
         vault.printVault()
         vault.createGraph()
         println()
@@ -100,7 +99,7 @@ class Day18Test {
     @Test
     @Order(5)
     fun `Calculates List of Neighbour nodes with Keys - vault2`() {
-        val vault = Vault(vault2())
+        val vault = Vault(vault12())
         vault.printVault()
         vault.createGraph()
         var neighbours = vault.getNeighbours(Vault.GraphKey(Point(15, 1),0))
@@ -139,7 +138,7 @@ class Day18Test {
     @Test
     @Order(6)
     fun `Calculates List of Neighbour nodes with Keys - vault3`() {
-        val vault = Vault(vault3())
+        val vault = Vault(vault13())
         vault.printVault()
         vault.createGraph()
         val neighbours = vault.getNeighbours(Vault.GraphKey(Point(18, 3), 0.addKey('a').addKey('b').addKey('c').addKey('d').addKey('e')))
@@ -192,11 +191,11 @@ class Day18Test {
 
     private fun minPathParameters() =
         Stream.of(
-            Arguments.of(vault1(), 8),
-            Arguments.of(vault2(), 86),
-            Arguments.of(vault3(), 132),
-            Arguments.of(vault4(), 39),
-            Arguments.of(vault5(), 136)
+            Arguments.of(vault11(), 8),
+            Arguments.of(vault12(), 86),
+            Arguments.of(vault13(), 132),
+            Arguments.of(vault14(), 39),
+            Arguments.of(vault15(), 136)
         )
 
     @Test
@@ -207,13 +206,92 @@ class Day18Test {
         assertThat(result).isEqualTo(81)
     }
 
-    private fun vault1() = listOf(
+    @Test
+    @Order(10)
+    fun `Reads Input and sets Graph up for Part 2`() {
+        val inputLines = File("src/test/resources/inputdata/input18-2.txt").readLines()
+        val vault = VaultPart2(inputLines)
+        vault.createGraph2()
+        vault.printVault()
+        println(vault.finalKeysList.keysList())
+        println(vault.graph2.get(VaultPart2.GraphKey2(vault.startList,0)).nodeId)
+        assertThat(vault.maxX).isEqualTo(13)
+        assertThat(vault.maxY).isEqualTo(9)
+        assertThat(vault.data.size).isEqualTo(117)
+        assertThat(vault.startList).isEqualTo(listOf(Point(5,3), Point(7,3), Point(5,5), Point(7,5)))
+        assertThat(vault.finalKeysList).isEqualTo(32767)
+    }
+
+    @Test
+    @Order(11)
+    fun `Calculates List of Neighbour nodes with Keys Part 2 - vault1`() {
+        val vault = VaultPart2(vault21())
+        vault.printVault()
+        vault.createGraph2()
+        println()
+        var neighbours = vault.getNeighbours2(VaultPart2.GraphKey2(vault.startList, 0))
+        println("size: ${neighbours.size}")
+        println(neighbours.map { it.nodeId })
+        println("distances: ${vault.graph2.costs}")
+        println("cache l2: ${vault.neighbours2Cache}")
+        println("cache l1: ${vault.keysGraph2Cache}")
+        assertThat(neighbours.size).isEqualTo(1)
+        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(4, 4)))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a'))
+
+        neighbours = vault.getNeighbours2(VaultPart2.GraphKey2(mutableListOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(4, 4)), 0.addKey('a')))
+        println("size: ${neighbours.size}")
+        println(neighbours.map { it.nodeId })
+        println("distances: ${vault.graph2.costs}")
+        println("cache l2: ${vault.neighbours2Cache}")
+        println("cache l1: ${vault.keysGraph2Cache}")
+        assertThat(neighbours.size).isEqualTo(1)
+        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(5, 5)))
+        assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a').addKey('b'))
+    }
+
+    @ParameterizedTest
+    @MethodSource("minPathParametersPart2")
+    @Order(18)
+    fun `Calculates Shortest Path Part 2`(vaultInput: List<String>, expected: Int) {
+        val vault = VaultPart2(vaultInput)
+        vault.printVault()
+        vault.createGraph2()
+        val algo = Dijkstra(vault.graph2.costs)
+        val res = algo.runIt(vault.getStart2(), { id -> vault.atEnd2(id) } )
+        println("shortest path: ${res.minCost}")
+        res.path.forEach { println(it) }
+        println("Dijkstra iterations: ${res.numberOfIterations}")
+        println("getNeighbours ran ${vault.countGetNeighbours} times for ${vault.totalElapsed} msec")
+        println("neighbours cache: ${vault.neighboursCache.size}")
+        println("cache hits: ${vault.cacheHits}")
+        assertThat(res.minCost).isEqualTo(expected)
+    }
+
+    private fun minPathParametersPart2() =
+        Stream.of(
+            Arguments.of(vault21(), 8),
+            Arguments.of(vault22(), 24),
+            Arguments.of(vault23(), 32),
+        )
+
+    @Test
+    @Order(9)
+    fun `Solves Part 2`() {
+        val inputLines = File("src/test/resources/inputdata/input18-2.txt").readLines()
+        puzzleSolver.vault2 = VaultPart2(inputLines)
+        val result = puzzleSolver.solvePart1().result.toInt()
+        puzzleSolver.vault2.printVault()
+        assertThat(result).isEqualTo(72)
+    }
+
+    private fun vault11() = listOf(
         "#########",
         "#b.A.@.a#",
         "#########"
     )
 
-    private fun vault2() = listOf(
+    private fun vault12() = listOf(
         "########################",
         "#f.D.E.e.C.b.A.@.a.B.c.#",
         "######################.#",
@@ -221,7 +299,7 @@ class Day18Test {
         "########################"
     )
 
-    private fun vault3() = listOf(
+    private fun vault13() = listOf(
         "########################",
         "#...............b.C.D.f#",
         "#.######################",
@@ -229,7 +307,7 @@ class Day18Test {
         "########################"
     )
 
-    private fun vault4() = listOf(
+    private fun vault14() = listOf(
         "#################",
         "#..G..c...e..H..#",
         "########.########",
@@ -241,7 +319,7 @@ class Day18Test {
         "#################"
     )
 
-    private fun vault5() = listOf(
+    private fun vault15() = listOf(
         "#################",
         "#i.G..c...e..H.p#",
         "########.########",
@@ -253,7 +331,7 @@ class Day18Test {
         "#################"
     )
 
-    private fun vault90() = listOf(
+    private fun vault19() = listOf(
         "############",
         "#@........a#",
         "#.##########",
@@ -262,5 +340,35 @@ class Day18Test {
         "###.####...#",
         "#........###",
         "############"
+    )
+
+    private fun vault21() = listOf(
+        "#######",
+        "#a.#Cd#",
+        "##@#@##",
+        "#######",
+        "##@#@##",
+        "#cB#Ab#",
+        "#######"
+    )
+
+    private fun vault22() = listOf(
+        "###############",
+        "#d.ABC.#.....a#",
+        "######@#@######",
+        "###############",
+        "######@#@######",
+        "#b.....#.....c#",
+        "###############"
+    )
+
+    private fun vault23() = listOf(
+        "#############",
+        "#DcBa.#.GhKl#",
+        "#.###@#@#I###",
+        "#e#d#####j#k#",
+        "###C#@#@###J#",
+        "#fEbA.#.FgHi#",
+        "#############"
     )
 }
