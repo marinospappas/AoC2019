@@ -54,7 +54,7 @@ class Day18Test {
         vault.printVault()
         vault.createGraph()
         val startKey = Vault.GraphKey(Point(1, 1), 0)
-        var neighbours = vault.getNeighbours(startKey)
+        val neighbours = vault.getNeighbours(startKey)
         println("size: ${neighbours.size}")
         val firstNeighbourKey = Vault.GraphKey(Point(10, 1),0.addKey('a'))
         val secondNeighbourKey =  Vault.GraphKey(Point(10, 4),0.addKey('b'))
@@ -77,11 +77,13 @@ class Day18Test {
         val vault = Vault(vault1())
         vault.printVault()
         vault.createGraph()
+        println()
         var neighbours = vault.getNeighbours(Vault.GraphKey(Point(5, 1), 0))
         println("size: ${neighbours.size}")
         println(neighbours.map { it.nodeId })
         println("distances: ${vault.graph.costs}")
         println("distance of last: ${vault.graph.costs[Pair(Vault.GraphKey(Point(5, 1),0),Vault.GraphKey(Point(7, 1), 0.addKey('a')))]}")
+        println("cache: ${vault.neighboursCache}")
         assertThat(neighbours.size).isEqualTo(1)
         assertThat(neighbours.last().nodeId.position).isEqualTo(Point(7,1))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a'))
@@ -140,7 +142,7 @@ class Day18Test {
         val vault = Vault(vault3())
         vault.printVault()
         vault.createGraph()
-        var neighbours = vault.getNeighbours(Vault.GraphKey(Point(18, 3), 0.addKey('a').addKey('b').addKey('c').addKey('d').addKey('e')))
+        val neighbours = vault.getNeighbours(Vault.GraphKey(Point(18, 3), 0.addKey('a').addKey('b').addKey('c').addKey('d').addKey('e')))
         println(neighbours.size)
         println(neighbours.map { it.nodeId })
         println("distances: ${vault.graph.costs}")
@@ -204,7 +206,6 @@ class Day18Test {
         puzzleSolver.vault.printVault()
         assertThat(result).isEqualTo(81)
     }
-
 
     private fun vault1() = listOf(
         "#########",

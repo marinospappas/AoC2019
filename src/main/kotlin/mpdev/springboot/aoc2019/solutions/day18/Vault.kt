@@ -51,46 +51,56 @@ class Vault(val input: List<String>) {
             .filter { it.value.vaultItem == VaultItem.KEY }
             .forEach { (k,_) -> graph.addNode(GraphKey(k, 0)) }
         countGetNeighbours = 0
+        countFindNeighbours = 0
+        countCalcNeighbours = 0
         totalElapsed = 0L
         cacheHits = 0
-        keysGraphCache = mutableMapOf()
+        keysGraphCache.clear()
+        neighboursCache.clear()
     }
 
     fun getStart(): GraphNode<GraphKey> = GraphNode(GraphKey(start, 0)) { p -> getNeighbours(p)}
     fun atEnd(id: GraphKey) = id.keys == finalKeysList
 
     var countGetNeighbours = 0
+    var countFindNeighbours = 0
+    var countCalcNeighbours = 0
     var totalElapsed = 0L
     var cacheHits = 0
 
-    val neighboursCache: MutableMap<GraphKey, List<GraphNode<GraphKey>>> = mutableMapOf()
+    // 2nd level cache - holds all the reachable keys from the position of a certain key
+    var neighboursCache: MutableMap<GraphKey, List<GraphNode<GraphKey>>> = mutableMapOf()
 
-    lateinit var keysGraphCache: MutableMap<Char,List<KeysGraphNode>>
+    // 1st level cache - holds all the possible keys and their positions and distances
+    // that can be reached if we ignore keys or gates
+    // also holds the information about what keys and what gates are in between
+    var keysGraphCache: MutableMap<Point,List<KeysGraphNode>> = mutableMapOf()
 
     fun getNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
-        val cached = neighboursCache[id]
-        return if (cached != null) {
-            ++cacheHits
-            cached
+        ++countGetNeighbours
+        val neighbourList: List<GraphNode<GraphKey>>
+        totalElapsed += measureTimeMillis {
+            // 2nd level cache is checked here
+            val cached = neighboursCache[id]
+            neighbourList = if (cached != null)
+                cached
+            else {
+                val neighbours = findNeighbours(id)
+                neighboursCache[id] = neighbours
+                neighbours
+            }
         }
-        else {
-            val neighbours = findNeighbours(id)
-            neighboursCache[id] = neighbours
-            neighbours
-        }
+        return neighbourList
     }
 
     private fun findNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
-        ++countGetNeighbours
-        var neighbours: List<GraphNode<GraphKey>>
-        totalElapsed += measureTimeMillis {
-            // check for cached entry in the keys Graph
-            val key = data[id.position]?.value
-            if ( keysGraphCache[key] == null)
-                calculateAndCacheNeighbours(id)
-            neighbours = getNeighboursFromCache(keysGraphCache[key]!!, id.keys)
+        ++countFindNeighbours
+        // 1st level cache (keys Graph) is checked here
+        if (keysGraphCache[id.position] == null) {
+            ++countCalcNeighbours
+            calculateAndCacheNeighbours(id)
         }
-        return neighbours
+        return getNeighboursFromCache(id)
     }
 
     private fun calculateAndCacheNeighbours(id: GraphKey) {
@@ -99,42 +109,53 @@ class Vault(val input: List<String>) {
         val discovered: MutableSet<Point> = mutableSetOf()
         // find neighbouring keys using BFS algorithm
         val position = id.position
-        val keys = id.keys
         var distance: Int
         queue.add(Pair(position, KeysGraphNode()))
+        discovered.add(position)
         while (queue.isNotEmpty()) {
             val node = queue.removeFirst()
-            val newPos = node.first
             distance = node.second.distance + 1
-            val gateConstraint = node.second.gateConstraint
-            val keyConstraint = node.second.keyConstraint
             setOf(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)).forEach { pos ->
-                val thisData = data[newPos + pos]
+                val newPos = node.first + pos
+                val thisData = data[newPos]
+                val gateConstraint = node.second.gateConstraint.toMutableList()
+                val keyConstraint = node.second.keyConstraint.toMutableList()
                 if (thisData == null || thisData.vaultItem == VaultItem.WALL)
                     return@forEach
-                if (!discovered.contains(newPos + pos)) {
-                    discovered.add(newPos + pos)
+                if (!discovered.contains(newPos)) {
+                    discovered.add(newPos)
                     if (thisData.vaultItem == VaultItem.GATE)   // if gate then add constraint
                         gateConstraint.add(thisData.value)
                     if (thisData.vaultItem == VaultItem.KEY) {  // if key then add to cache
-                        neighboursToCache.add(KeysGraphNode(
-                            GraphKey(newPos+pos,0.addKey(thisData.value)), distance, keyConstraint, gateConstraint))
+                        neighboursToCache.add(
+                            KeysGraphNode(newPos, thisData.value, distance, keyConstraint.toList(), gateConstraint.toList())
+                        )
+                        // but also add constraint to continue further down the maze
+                        keyConstraint.add(thisData.value)
                     }
-                    // but also add constraint to continue further down the maze
-                    keyConstraint.add(thisData.value)
-                    queue.add(Pair(newPos + pos, KeysGraphNode(
-                        GraphKey(newPos+pos,0.addKey(thisData.value)), distance, keyConstraint, gateConstraint
-                    )))
+                    queue.add(
+                        Pair(newPos, KeysGraphNode(newPos, '0', distance, keyConstraint, gateConstraint))
+                    )
                 }
             }
         }
+        keysGraphCache[id.position] = neighboursToCache
     }
 
-    private fun getNeighboursFromCache(keyGraph: List<KeysGraphNode>, keys: Int): List<GraphNode<GraphKey>> {
-        return keyGraph.filter { destKey ->
-            (destKey.keyConstraint.isEmpty() || keys.containsAllKeys(destKey.keyConstraint))
-            && (destKey.gateConstraint.isEmpty() || keys.containsAllKeys(destKey.gateConstraint.map { it.lowercaseChar() }))
-        }.map { GraphNode(it.neighbourId) { p -> getNeighbours(p) } }
+    private fun getNeighboursFromCache(id: GraphKey): List<GraphNode<GraphKey>> {
+        val keyGraph = keysGraphCache[id.position] ?: throw AocException("could not locate key cache entry for $id")
+        val keysInPossession = id.keys
+        val reachableKeys = keyGraph.filter { destKey ->
+            (destKey.keyConstraint.isEmpty() || keysInPossession.containsAllKeys(destKey.keyConstraint))
+                    && (destKey.gateConstraint.isEmpty() || keysInPossession.containsAllKeys(destKey.gateConstraint.map { it.lowercaseChar() }))
+                    && (!keysInPossession.containsKey(destKey.neighbourKey))
+        }
+        // update costs
+        reachableKeys.forEach {
+            graph.updateCost(id, GraphKey(it.neighbourPos, keysInPossession.addKey(it.neighbourKey)), it.distance)
+        }
+        // and return reachable keys
+        return reachableKeys.map { GraphNode(GraphKey(it.neighbourPos, keysInPossession.addKey(it.neighbourKey))) { p -> getNeighbours(p) } }
     }
 
     private fun vault2Grid(maze: Map<Point, VaultPoint>): Array<CharArray> {
@@ -176,10 +197,11 @@ class Vault(val input: List<String>) {
         }
     }
 
-    data class KeysGraphNode(val neighbourId: GraphKey = GraphKey(),
+    data class KeysGraphNode(val neighbourPos: Point = Point(0,0),
+                             val neighbourKey: Char = '0',
                              val distance: Int = 0,
-                             val keyConstraint: MutableList<Char> = mutableListOf(),
-                             val gateConstraint: MutableList<Char> = mutableListOf())
+                             val keyConstraint: List<Char> = listOf(),
+                             val gateConstraint: List<Char> = listOf())
 }
 
 fun Int.addKey(k: Char) = this or(1 shl k - 'a')

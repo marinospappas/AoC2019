@@ -34,7 +34,8 @@ class Day18: PuzzleSolver() {
             result = res.minCost
             log.info("Dijkstra iterations: {}", res.numberOfIterations)
             log.info("getNeighbours ran {} times for {} msec", vault.countGetNeighbours, vault.totalElapsed)
-            log.info("neighbours cache size: {} cache hits: {}", vault.neighboursCache.size, vault.cacheHits)
+            log.info("neighbours (level 2) cache size: {} cache hits: {}", vault.neighboursCache.size, vault.countGetNeighbours-vault.countFindNeighbours)
+            log.info("key graph (level 1) cache size: {} cache hits: {}", vault.keysGraphCache.size, vault.countFindNeighbours-vault.countCalcNeighbours)
             res.path.forEach { log.info("path: {}",it) }
         }
         return PuzzlePartSolution(1, result.toString(), elapsed)

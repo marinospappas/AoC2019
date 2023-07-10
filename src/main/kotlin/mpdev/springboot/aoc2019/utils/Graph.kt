@@ -10,7 +10,7 @@ class Graph<T>(var getConnections: (id: T) -> List<GraphNode<T>>? = { null } ) {
     operator fun get(id: T) = nodes[id] ?: throw IllegalArgumentException()
 
     fun addNode(id: T) {
-        nodes[id] = GraphNode(id, getConnections)
+        nodes[id] = GraphNode(id) { nodeId -> getConnections(nodeId) }
     }
 
     fun connect(first: T, second: T) = connect(this[first], this[second])
@@ -35,7 +35,7 @@ class Graph<T>(var getConnections: (id: T) -> List<GraphNode<T>>? = { null } ) {
 
     private fun getNeighbours(id: T) = nodes[id]?.getConnectedNodes()
 
-    override fun toString(): String {
+    /*override fun toString(): String {
         return StringBuilder().also { s ->
             nodes.keys.forEach { id ->
                 s.append("id: $id, connects to:").also {
@@ -44,10 +44,10 @@ class Graph<T>(var getConnections: (id: T) -> List<GraphNode<T>>? = { null } ) {
                 }.also { s.append("\n") }
             }
         }.toString()
-    }
+    }*/
 }
 
-class GraphNode<T>(var nodeId: T, var getConnections: (id: T) -> List<GraphNode<T>>?): Vertex<T> {
+class GraphNode<T>(var nodeId: T, var getConnections: (id: T) -> List<GraphNode<T>>? = { null }): Vertex<T> {
 
     val neighbours = mutableListOf<GraphNode<T>>()
 
@@ -58,7 +58,6 @@ class GraphNode<T>(var nodeId: T, var getConnections: (id: T) -> List<GraphNode<
     }
 
     override fun getConnectedNodes() = getConnections(nodeId) ?: neighbours
-
 }
 
 interface Vertex<T> {
