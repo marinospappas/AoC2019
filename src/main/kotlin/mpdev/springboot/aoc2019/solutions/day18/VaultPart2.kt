@@ -13,11 +13,11 @@ class VaultPart2(input: List<String>) : Vault(input) {
     lateinit var graph2: Graph<GraphKey2>
     lateinit var startList: MutableList<Point>
 
-    fun getStart2() = GraphNode(GraphKey2(startList, 0)) { p -> getNeighbours2(p)}
+    fun getStart2() = GraphNode(GraphKey2(startList, 0)) { p -> getNeighbours(p)}
     fun atEnd2(id: GraphKey2) = id.keys == finalKeysList
 
     fun createGraph2() {
-        graph2 = Graph { p -> getNeighbours2(p) }
+        graph2 = Graph { p -> getNeighbours(p) }
         startList =  data.entries.filter { it.value.vaultItem == VaultItem.START }.map { it.key }.toMutableList()
         graph2.addNode(GraphKey2(startList, 0))
         countGetNeighbours = 0
@@ -42,7 +42,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
      * uses level 2 cache (list of reachable keys for a graphKey)
      * if requested value is not cached then findNeighbours is called
      */
-    fun getNeighbours2(id: GraphKey2): List<GraphNode<GraphKey2>> {
+    fun getNeighbours(id: GraphKey2): List<GraphNode<GraphKey2>> {
         ++countGetNeighbours
         val neighbourList: List<GraphNode<GraphKey2>>
         totalElapsed += measureTimeMillis {
@@ -51,7 +51,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
             neighbourList = if (cached != null)
                 cached
             else {
-                val neighbours = findNeighbours2(id)
+                val neighbours = findNeighbours(id)
                 neighbours2Cache[id] = neighbours
                 neighbours
             }
@@ -66,7 +66,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
      * filtering this entry based on keys in possession
      * if not then calculateNeighbours is called
      */
-    private fun findNeighbours2(id: GraphKey2): List<GraphNode<GraphKey2>> {
+    private fun findNeighbours(id: GraphKey2): List<GraphNode<GraphKey2>> {
         ++countFindNeighbours
         // 1st level cache (keys Graph) is checked here
         id.positions.forEach { position ->
@@ -75,7 +75,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
                 calculateAndCacheNeighbours(position)
             }
         }
-        return getNeighboursFromCache2(id)
+        return getNeighboursFromCache(id)
     }
 
     /**
@@ -83,7 +83,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
      * to find the reachable neighbour keys from input: GraphKey
      * also updates costs to each neighbour key
      */
-    private fun getNeighboursFromCache2(id: GraphKey2): List<GraphNode<GraphKey2>> {
+    private fun getNeighboursFromCache(id: GraphKey2): List<GraphNode<GraphKey2>> {
         val reachableKeysTotal = mutableMapOf<Int,List<KeysGraphNode>>()
         val keysInPossession = id.keys
         id.positions.indices.forEach { posIndx ->
@@ -109,7 +109,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
             value.map {
                 val newPosList = id.positions.toMutableList()
                 newPosList[index] = it.neighbourPos
-                GraphNode(GraphKey2(newPosList, keysInPossession.addKey(it.neighbourKey))) { p -> getNeighbours2(p) }
+                GraphNode(GraphKey2(newPosList, keysInPossession.addKey(it.neighbourKey))) { p -> getNeighbours(p) }
             }
         }
     }

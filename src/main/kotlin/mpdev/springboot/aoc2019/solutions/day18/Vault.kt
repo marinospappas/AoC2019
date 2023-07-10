@@ -103,7 +103,7 @@ open class Vault(val input: List<String>) {
      * filtering this entry based on keys in possession
      * if not then calculateNeighbours is called
      */
-    protected fun findNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
+    private fun findNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
         ++countFindNeighbours
         // 1st level cache (keys Graph) is checked here
         if (keysGraphCache[id.position] == null) {
