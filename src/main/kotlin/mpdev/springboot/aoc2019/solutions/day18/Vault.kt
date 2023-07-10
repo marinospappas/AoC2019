@@ -76,6 +76,11 @@ class Vault(val input: List<String>) {
     // also holds the information about what keys and what gates are in between
     var keysGraphCache: MutableMap<Point,List<KeysGraphNode>> = mutableMapOf()
 
+    /**
+     * basic getNeighbours (reachable keys) function for input: GraphKey
+     * uses level 2 cache (list of reachable keys for a graphKey)
+     * if requested value is not cached then findNeighbours is called
+     */
     fun getNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
         ++countGetNeighbours
         val neighbourList: List<GraphNode<GraphKey>>
@@ -93,22 +98,34 @@ class Vault(val input: List<String>) {
         return neighbourList
     }
 
+    /**
+     * findNeighbours (reachable keys) for input: GraphKey
+     * uses level 1 cache (list of all possible keys regardless of gates or other keys) from a position
+     * if cache entry exists for this position then the reachable neighbours are calculated by
+     * filtering this entry based on keys in possession
+     * if not then calculateNeighbours is called
+     */
     private fun findNeighbours(id: GraphKey): List<GraphNode<GraphKey>> {
         ++countFindNeighbours
         // 1st level cache (keys Graph) is checked here
         if (keysGraphCache[id.position] == null) {
             ++countCalcNeighbours
-            calculateAndCacheNeighbours(id)
+            calculateAndCacheNeighbours(id.position)
         }
         return getNeighboursFromCache(id)
     }
 
-    private fun calculateAndCacheNeighbours(id: GraphKey) {
+    /**
+     * calculateNeighbours (all possible keys) for input: position
+     * calculates all possible keys that can be reached from a position regardless of other keys or gates in the way
+     * any keys or gates found in the way are also saved as constraints
+     * updates the level 1 cache
+     */
+    private fun calculateAndCacheNeighbours(position: Point) {
         val neighboursToCache = mutableListOf<KeysGraphNode>()
         val queue = ArrayDeque<Pair<Point, KeysGraphNode>>()     // position, destination key details (id, distance, constraints)
         val discovered: MutableSet<Point> = mutableSetOf()
         // find neighbouring keys using BFS algorithm
-        val position = id.position
         var distance: Int
         queue.add(Pair(position, KeysGraphNode()))
         discovered.add(position)
@@ -139,7 +156,7 @@ class Vault(val input: List<String>) {
                 }
             }
         }
-        keysGraphCache[id.position] = neighboursToCache
+        keysGraphCache[position] = neighboursToCache
     }
 
     private fun getNeighboursFromCache(id: GraphKey): List<GraphNode<GraphKey>> {
