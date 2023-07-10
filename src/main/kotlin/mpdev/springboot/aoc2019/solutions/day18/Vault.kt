@@ -162,7 +162,7 @@ open class Vault(val input: List<String>) {
      * to find the reachable neighbour keys from input: GraphKey
      * also updates costs to each neighbour key
      */
-    protected fun getNeighboursFromCache(id: GraphKey): List<GraphNode<GraphKey>> {
+    private fun getNeighboursFromCache(id: GraphKey): List<GraphNode<GraphKey>> {
         val keyGraph = keysGraphCache[id.position] ?: throw AocException("could not locate key cache entry for $id")
         val keysInPossession = id.keys
         val reachableKeys = keyGraph.filter { destKey ->
@@ -211,11 +211,9 @@ open class Vault(val input: List<String>) {
         println()
     }
 
-    data class GraphKey(var position: Point = Point(0,0), override var keys: Int = 0): GraphBasicKey(keys) {
+    data class GraphKey(var position: Point = Point(0,0), var keys: Int = 0) {
         override fun toString() = "[(x=${position.x},y=${position.y}) keys= ${keys.keysList()}]"
     }
-
-    open class GraphBasicKey(open var keys: Int = 0)
 
     data class KeysGraphNode(val neighbourPos: Point = Point(0,0),
                              val neighbourKey: Char = '0',

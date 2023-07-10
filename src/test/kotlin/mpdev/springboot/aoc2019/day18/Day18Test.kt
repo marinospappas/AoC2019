@@ -237,7 +237,7 @@ class Day18Test {
         println("cache l2: ${vault.neighbours2Cache}")
         println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(1)
-        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(4, 4)))
+        assertThat(neighbours.last().nodeId.positionsList).isEqualTo(listOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(4, 4)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a'))
 
         neighbours = vault.getNeighbours(VaultPart2.GraphKey2(mutableListOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(4, 4)), 0.addKey('a')))
@@ -247,7 +247,7 @@ class Day18Test {
         println("cache l2: ${vault.neighbours2Cache}")
         println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(1)
-        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(5, 5)))
+        assertThat(neighbours.last().nodeId.positionsList).isEqualTo(listOf(Point(1, 1),Point(4, 2),Point(2, 4),Point(5, 5)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a').addKey('b'))
     }
 
@@ -265,7 +265,7 @@ class Day18Test {
         println("cache l2: ${vault.neighbours2Cache}")
         println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(3)
-        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(6, 2),Point(8, 2),Point(6, 4),Point(13, 5)))
+        assertThat(neighbours.last().nodeId.positionsList).isEqualTo(listOf(Point(6, 2),Point(8, 2),Point(6, 4),Point(13, 5)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('c'))
 
         neighbours = vault.getNeighbours(VaultPart2.GraphKey2(mutableListOf(Point(6, 2),Point(8, 2),Point(6, 4),Point(13, 5)), 0.addKey('c')))
@@ -275,7 +275,7 @@ class Day18Test {
         println("cache l2: ${vault.neighbours2Cache}")
         println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(2)
-        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(6, 2),Point(8, 2),Point(1, 5),Point(13, 5)))
+        assertThat(neighbours.last().nodeId.positionsList).isEqualTo(listOf(Point(6, 2),Point(8, 2),Point(1, 5),Point(13, 5)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('b').addKey('c'))
     }
 
@@ -293,7 +293,7 @@ class Day18Test {
         println("cache l2: ${vault.neighbours2Cache}")
         println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(1)
-        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(4, 1),Point(7, 2),Point(5, 4),Point(7, 4)))
+        assertThat(neighbours.last().nodeId.positionsList).isEqualTo(listOf(Point(4, 1),Point(7, 2),Point(5, 4),Point(7, 4)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a'))
 
         neighbours = vault.getNeighbours(VaultPart2.GraphKey2(mutableListOf(Point(4, 1),Point(7, 2),Point(5, 4),Point(7, 4)), 0.addKey('a')))
@@ -303,7 +303,7 @@ class Day18Test {
         println("cache l2: ${vault.neighbours2Cache}")
         println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(1)
-        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(4, 1),Point(7, 2),Point(3, 5),Point(7, 4)))
+        assertThat(neighbours.last().nodeId.positionsList).isEqualTo(listOf(Point(4, 1),Point(7, 2),Point(3, 5),Point(7, 4)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('a').addKey('b'))
     }
 
@@ -321,7 +321,7 @@ class Day18Test {
         println("cache l2: ${vault.neighbours2Cache}")
         println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(2)
-        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(5, 2),Point(7, 3),Point(5, 5),Point(7, 5)))
+        assertThat(neighbours.last().nodeId.positionsList).isEqualTo(listOf(Point(5, 2),Point(7, 3),Point(5, 5),Point(7, 5)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('e'))
 
         neighbours = vault.getNeighbours(VaultPart2.GraphKey2(mutableListOf(Point(5, 2),Point(7, 3),Point(5, 5),Point(7, 5)), 0.addKey('e')))
@@ -331,7 +331,7 @@ class Day18Test {
         println("cache l2: ${vault.neighbours2Cache}")
         println("cache l1: ${vault.keysGraphCache}")
         assertThat(neighbours.size).isEqualTo(2)
-        assertThat(neighbours.last().nodeId.positions).isEqualTo(listOf(Point(5, 2),Point(9, 1),Point(5, 5),Point(7, 5)))
+        assertThat(neighbours.last().nodeId.positionsList).isEqualTo(listOf(Point(5, 2),Point(9, 1),Point(5, 5),Point(7, 5)))
         assertThat(neighbours.last().nodeId.keys).isEqualTo(0.addKey('e').addKey('h'))
     }
 

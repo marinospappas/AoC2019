@@ -69,7 +69,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
     private fun findNeighbours(id: GraphKey2): List<GraphNode<GraphKey2>> {
         ++countFindNeighbours
         // 1st level cache (keys Graph) is checked here
-        id.positions.forEach { position ->
+        id.positionsList.forEach { position ->
             if (keysGraphCache[position] == null) {
                 ++countCalcNeighbours
                 calculateAndCacheNeighbours(position)
@@ -86,8 +86,8 @@ class VaultPart2(input: List<String>) : Vault(input) {
     private fun getNeighboursFromCache(id: GraphKey2): List<GraphNode<GraphKey2>> {
         val reachableKeysTotal = mutableMapOf<Int,List<KeysGraphNode>>()
         val keysInPossession = id.keys
-        id.positions.indices.forEach { posIndx ->
-            val keyGraph = keysGraphCache[id.positions[posIndx]] ?: throw AocException("could not locate key cache entry for $id")
+        id.positionsList.indices.forEach { posIndx ->
+            val keyGraph = keysGraphCache[id.positionsList[posIndx]] ?: throw AocException("could not locate key cache entry for $id")
             val reachableKeys = keyGraph.filter { destKey ->
                 (destKey.keyConstraint.isEmpty() || keysInPossession.containsAllKeys(destKey.keyConstraint))
                         && (destKey.gateConstraint.isEmpty() || keysInPossession.containsAllKeys(destKey.gateConstraint.map { it.lowercaseChar() }))
@@ -96,7 +96,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
             reachableKeysTotal[posIndx] = reachableKeys
             // add new graph nodes and costs
             reachableKeys.forEach {
-                val newPosList = id.positions.toMutableList()
+                val newPosList = id.positionsList.toMutableList()
                 newPosList[posIndx] = it.neighbourPos
                 val nodeId = GraphKey2(newPosList, keysInPossession.addKey(it.neighbourKey))
                 graph2.addNode(nodeId)
@@ -107,15 +107,15 @@ class VaultPart2(input: List<String>) : Vault(input) {
             val index = entry.key
             val value = entry.value
             value.map {
-                val newPosList = id.positions.toMutableList()
+                val newPosList = id.positionsList.toMutableList()
                 newPosList[index] = it.neighbourPos
                 GraphNode(GraphKey2(newPosList, keysInPossession.addKey(it.neighbourKey))) { p -> getNeighbours(p) }
             }
         }
     }
 
-    data class GraphKey2(var positions: MutableList<Point> = mutableListOf(), override var keys: Int = 0): GraphBasicKey(keys) {
-        override fun toString() = "[${positions.map { "(x=${it.x},y=${it.y}) " }} keys= ${keys.keysList()}]"
+    data class GraphKey2(var positionsList: MutableList<Point>, var keys: Int = 0) {
+        override fun toString() = "[${positionsList.map { "(x=${it.x},y=${it.y}) " }} keys= ${keys.keysList()}]"
     }
 
 }
