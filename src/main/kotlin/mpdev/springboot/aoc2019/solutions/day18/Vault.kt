@@ -211,9 +211,11 @@ open class Vault(val input: List<String>) {
         println()
     }
 
-    data class GraphKey(var position: Point = Point(0,0), var keys: Int = 0) {
+    data class GraphKey(var position: Point = Point(0,0), override var keys: Int = 0): GraphBasicKey(keys) {
         override fun toString() = "[(x=${position.x},y=${position.y}) keys= ${keys.keysList()}]"
     }
+
+    open class GraphBasicKey(open var keys: Int = 0)
 
     data class KeysGraphNode(val neighbourPos: Point = Point(0,0),
                              val neighbourKey: Char = '0',

@@ -50,7 +50,7 @@ class Day18: PuzzleSolver() {
         val algo = Dijkstra(vault2.graph2.costs)
         result = 0
         val elapsed = measureTimeMillis {
-            val res = algo.runIt(vault2.getStart2(), { id -> vault2.atEnd2(id) })
+            val res = algo.runIt(vault2.getStart2(), { id -> vault2.atEnd(id) })
             result = res.minCost
             log.info("Dijkstra iterations: {}", res.numberOfIterations)
             log.info("getNeighbours ran {} times for {} msec", vault.countGetNeighbours, vault.totalElapsed)

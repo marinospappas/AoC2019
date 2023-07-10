@@ -14,7 +14,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
     lateinit var startList: MutableList<Point>
 
     fun getStart2() = GraphNode(GraphKey2(startList, 0)) { p -> getNeighbours(p)}
-    fun atEnd2(id: GraphKey2) = id.keys == finalKeysList
+    fun atEnd(id: GraphKey2) = id.keys == finalKeysList
 
     fun createGraph2() {
         graph2 = Graph { p -> getNeighbours(p) }
@@ -114,7 +114,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
         }
     }
 
-    data class GraphKey2(var positions: MutableList<Point> = mutableListOf(), var keys: Int = 0) {
+    data class GraphKey2(var positions: MutableList<Point> = mutableListOf(), override var keys: Int = 0): GraphBasicKey(keys) {
         override fun toString() = "[${positions.map { "(x=${it.x},y=${it.y}) " }} keys= ${keys.keysList()}]"
     }
 

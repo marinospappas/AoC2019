@@ -343,7 +343,7 @@ class Day18Test {
         vault.printVault()
         vault.createGraph2()
         val algo = Dijkstra(vault.graph2.costs)
-        val res = algo.runIt(vault.getStart2(), { id -> vault.atEnd2(id) } )
+        val res = algo.runIt(vault.getStart2(), { id -> vault.atEnd(id) } )
         println("shortest path: ${res.minCost}")
         res.path.forEach { println(it) }
         println("Dijkstra iterations: ${res.numberOfIterations}")
