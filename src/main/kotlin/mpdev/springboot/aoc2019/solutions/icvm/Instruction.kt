@@ -1,14 +1,13 @@
 package mpdev.springboot.aoc2019.solutions.icvm
 
 import mpdev.springboot.aoc2019.utils.AocException
-import mpdev.springboot.aoc2019.solutions.icvm.OpCode.*
 import mpdev.springboot.aoc2019.solutions.icvm.ParamReadWrite.*
 import mpdev.springboot.aoc2019.solutions.icvm.ParamMode.*
 
 data class Instruction(val ip: Long, var memory: Memory) {
 
-    val opCode: OpCode
-    val ipIncrement: Long
+    private val opCode: OpCode
+    private val ipIncrement: Long
     private val params: Array<Long>
 
     init {
@@ -39,47 +38,11 @@ data class Instruction(val ip: Long, var memory: Memory) {
             }
     }
 
-    fun execute(): InstructionReturnCode {
-        if (opCode == EXIT)
-            return InstructionReturnCode.EXIT
-        try {
-            when (val result = opCode.execute(params)) {
-                is Long -> {
-                    store(params.last(), result); return InstructionReturnCode.OK
-                }
-                is Jump -> return InstructionReturnCode.JUMP.also { res -> res.additionalData = result.newIp }
-                is Relative -> return InstructionReturnCode.RELATIVE.also { res ->
-                    res.additionalData = result.incrBase
-                }
-                is Read -> return InstructionReturnCode.READ.also { res -> res.additionalData = params.last() }
-                is Print -> return InstructionReturnCode.PRINT.also { res -> res.additionalData = params.last() }
-                else -> return InstructionReturnCode.OK
-            }
-        } catch (e: AocException) {
-            return InstructionReturnCode.EXIT
-        }
-    }
+    fun get() = Triple(opCode, params, ipIncrement)
 
     private fun fetch(address: Long): Long {
         if (address < 0L)
             throw AocException("Bad memory reference:[${address}]")
         return memory[address]
     }
-
-    private fun store(address: Long, value: Long) {
-        if (address < 0L)
-            throw AocException("Bad memory reference:[${address}]")
-        memory[address] = value
-    }
-}
-
-enum class InstructionReturnCode {
-    OK,
-    EXIT,
-    JUMP,
-    RELATIVE,
-    READ,
-    PRINT;
-
-    var additionalData: Long = 0L
 }

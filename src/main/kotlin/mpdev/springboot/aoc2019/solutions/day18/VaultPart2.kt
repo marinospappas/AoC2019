@@ -115,7 +115,7 @@ class VaultPart2(input: List<String>) : Vault(input) {
     }
 
     data class GraphKey2(var positionsList: MutableList<Point>, var keys: Int = 0) {
-        override fun toString() = "[${positionsList.map { "(x=${it.x},y=${it.y}) " }} keys= ${keys.keysList()}]"
+        override fun toString() = "[${positionsList.map { "(x=${it.x},y=${it.y})" }} keys= ${keys.keysList()}]"
     }
 
 }

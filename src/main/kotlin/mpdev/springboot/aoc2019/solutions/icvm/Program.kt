@@ -2,6 +2,7 @@ package mpdev.springboot.aoc2019.solutions.icvm
 
 import mpdev.springboot.aoc2019.utils.AocException
 import mpdev.springboot.aoc2019.solutions.icvm.ProgramState.*
+import mpdev.springboot.aoc2019.solutions.icvm.OpResultCode.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -34,40 +35,44 @@ class Program(prog: String) {
             }
             try {
                 log.debug("program $instanceName running - ip = $ip mem ${memory[ip]}, ${memory[ip + 1]}, ${memory[ip + 2]}")
-                val instruction = Instruction(ip, memory)
+                val (opCode, params, ipIncrement) = Instruction(ip, memory).get()
                 //printDebug()
                 // increase IP ready for the next instruction
-                ip += instruction.ipIncrement
-                log.debug("program {} - instruction {}", instanceName, instruction.opCode)
+                ip += ipIncrement
+                log.debug("program {} - instruction {}", instanceName, opCode)
 
-                when (val retCode = instruction.execute()) {
-                    InstructionReturnCode.EXIT -> {
+                val (opResultCode, resultParams) = opCode.execute(params)
+                when (opResultCode) {
+                    EXIT -> {
                         programState = COMPLETED
                         return
                     }
-                    InstructionReturnCode.JUMP -> {
-                        ip = retCode.additionalData
+                    SET_MEMORY -> {
+                        setMemory(resultParams[0], resultParams[1])
                     }
-                    InstructionReturnCode.RELATIVE -> {
-                        memory.relativeBase += retCode.additionalData
+                    SET_PC -> {
+                        ip = resultParams[0]
                     }
-                    InstructionReturnCode.READ -> {
+                    SET_REL_BASE -> {
+                        memory.relativeBase += resultParams[0]
+                    }
+                    READ -> {
                         programState = WAIT
-                        log.debug("IntCode instance {} waiting for input will be stored in address {}", instanceName, retCode.additionalData)
-                        val memAddress = retCode.additionalData     // the memory address must be saved here as this coroutine
+                        log.debug("IntCode instance {} waiting for input will be stored in address {}", instanceName, resultParams[0])
+                        val memAddress = resultParams[0]     // the memory address must be saved here as this coroutine
                                                                     // will be suspended below and the value in retCode may change
                         val input = inputChannel.readInput()
                         setMemory(memAddress, input)
                         programState = RUNNING
-                        log.debug("IntCode instance {} received input {} to be stored in address {}", instanceName, input, retCode.additionalData)
+                        log.debug("IntCode instance {} received input {} to be stored in address {}", instanceName, input, memAddress)
                         // network mode - set idle state
                         isIdle = outputChannel is NetworkChannel && input == -1L
                     }
-                    InstructionReturnCode.PRINT -> {
-                        log.debug("IntCode instance {} sends to output {}", instanceName, retCode.additionalData)
-                        outputChannel.printOutput(retCode.additionalData)
+                    PRINT -> {
+                        log.debug("IntCode instance {} sends to output {}", instanceName, resultParams[0])
+                        outputChannel.printOutput(resultParams[0])
                     }
-                    InstructionReturnCode.OK -> {}
+                    NONE -> {}
                 }
             }
             catch (e: AocException) {
